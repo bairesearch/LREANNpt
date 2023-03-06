@@ -37,10 +37,12 @@ trainLocal = False
 datasetShuffle = False
 if(useAlgorithmAUANN):
 	trainLocal = True	#required	#local learning rule	#disable for debug (standard backprop algorithm)
-	datasetShuffle = True	#required
-	adjustLearningRateBasedOnNumberClasses = True	#lower learning rate for discordant classes
+	datasetShuffle = True	#recommended
 	AUANNtrainDiscordantClassExperiences = False	#not yet coded (require discordant crossEntropyLoss function)
-
+	if(AUANNtrainDiscordantClassExperiences):
+		adjustLearningRateBasedOnNumberClasses = True	#not yet coded	#lower learning rate for discordant classes
+	debugOnlyTrainLastLayer = False
+	
 #datasetName = 'blog-feedback'
 datasetName = 'tabular-benchmark'
 if(datasetName == 'tabular-benchmark'):
@@ -48,6 +50,7 @@ if(datasetName == 'tabular-benchmark'):
 	classFieldName = 'class'
 	trainFileName = 'clf_cat/albert.csv'
 	testFileName = 'clf_cat/albert.csv'
+	datasetShuffle = False	#backprop does not optimise with shuffled dataset
 elif(datasetName == 'blog-feedback'):
 	datasetNameFull = 'wwydmanski/blog-feedback'
 	classFieldName = 'target'
@@ -78,7 +81,7 @@ if(usePositiveWeights):
 	usePositiveWeightsClampModel = True	#clamp entire model weights to be positive (rather than per layer); currently required
 
 
-learningRate = 0.005	#0.005	#0.0001
+learningRate = 0.005	#0.0001	#0.005	#0.0001
 
 useLinearSublayers = False	#use multiple independent sublayers per linear layer
 if(useLinearSublayers):

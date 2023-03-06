@@ -71,6 +71,7 @@ class AUANNmodel(nn.Module):
 		return loss, accuracy
 
 	def forwardBatchStandard(self, x, y):
+		#print("forwardBatchStandard")
 		for layerIndex in range(self.config.numberOfLayers):
 			x = self.executeLinearLayer(layerIndex, x, self.layersLinear[layerIndex])
 			if(layerIndex != self.config.numberOfLayers-1):
@@ -81,7 +82,7 @@ class AUANNmodel(nn.Module):
 		return loss, accuracy
 		
 	def forwardSamples(self, x, y, optim):
-		numberOfSamples = batchSize	#x.shape[0]	#batchSize
+		batchSize = x.shape[0]	#not guaranteed to be batchSize (for last batch in dataset)
 		lossAverage = 0.0
 		accuracyAverage = 0.0
 		self.previousSampleClass = None
@@ -96,18 +97,24 @@ class AUANNmodel(nn.Module):
 		
 	def forwardSample(self, sampleIndex, x, y, optim):
 		for layerIndex in range(self.config.numberOfLayers):
-			if(AUANNtrainDiscordantClassExperiences):
-				x, loss, accuracy = self.trainSampleLayer(layerIndex, sampleIndex, x, y, optim)
-			else:
-				if(y == self.previousSampleClass):
-					#print("y == previousSampleClass; y = ", y, ", previousSampleClass = ", self.previousSampleClass)
+			if(debugOnlyTrainLastLayer):
+				if(layerIndex == self.config.numberOfLayers-1):
 					x, loss, accuracy = self.trainSampleLayer(layerIndex, sampleIndex, x, y, optim)
 				else:
-					#print("y != previousSampleClass; y = ", y, ", previousSampleClass = ", self.previousSampleClass)
-					if(layerIndex == self.config.numberOfLayers-1):
+					x = self.propagateSampleLayer(layerIndex, x)
+			else:
+				if(AUANNtrainDiscordantClassExperiences):
+					x, loss, accuracy = self.trainSampleLayer(layerIndex, sampleIndex, x, y, optim)
+				else:
+					if(y == self.previousSampleClass):
+						#print("y == previousSampleClass; y = ", y, ", previousSampleClass = ", self.previousSampleClass)
 						x, loss, accuracy = self.trainSampleLayer(layerIndex, sampleIndex, x, y, optim)
 					else:
-						x = self.propagateSampleLayer(layerIndex, x)
+						#print("y != previousSampleClass; y = ", y, ", previousSampleClass = ", self.previousSampleClass)
+						if(layerIndex == self.config.numberOfLayers-1):
+							x, loss, accuracy = self.trainSampleLayer(layerIndex, sampleIndex, x, y, optim)
+						else:
+							x = self.propagateSampleLayer(layerIndex, x)
 		#will return the loss/accuracy from the last layer
 		return loss, accuracy
 		
