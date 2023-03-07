@@ -24,8 +24,8 @@ import LREANNpt_data
 def createModel(dataset):
 	datasetSize = LREANNpt_data.getDatasetSize(dataset, printSize=True)
 	numberOfFeatures = LREANNpt_data.countNumberFeatures(dataset)
-	numberOfClasses = LREANNpt_data.countNumberClasses(dataset)
-	
+	numberOfClasses, numberOfClassSamples = LREANNpt_data.countNumberClasses(dataset)
+				
 	print("creating new model")
 	config = LREANNpt_AUANNmodel.AUANNconfig(
 		batchSize = batchSize,
@@ -35,7 +35,9 @@ def createModel(dataset):
 		outputLayerSize = numberOfClasses,
 		linearSublayersNumber = linearSublayersNumber,
 		numberOfFeatures = numberOfFeatures,
-		numberOfClasses = numberOfClasses
+		numberOfClasses = numberOfClasses,
+		datasetSize = datasetSize,
+		numberOfClassSamples = numberOfClassSamples
 	)
 	model = LREANNpt_AUANNmodel.AUANNmodel(config)
 	return model

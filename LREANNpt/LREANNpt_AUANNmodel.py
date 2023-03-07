@@ -28,7 +28,7 @@ from torchmetrics.classification import Accuracy
 
 	
 class AUANNconfig():
-	def __init__(self, batchSize, numberOfLayers, hiddenLayerSize, inputLayerSize, outputLayerSize, linearSublayersNumber, numberOfFeatures, numberOfClasses):
+	def __init__(self, batchSize, numberOfLayers, hiddenLayerSize, inputLayerSize, outputLayerSize, linearSublayersNumber, numberOfFeatures, numberOfClasses, datasetSize, numberOfClassSamples):
 		self.batchSize = batchSize
 		self.numberOfLayers = numberOfLayers
 		self.hiddenLayerSize = hiddenLayerSize
@@ -36,7 +36,9 @@ class AUANNconfig():
 		self.outputLayerSize = outputLayerSize
 		self.linearSublayersNumber = linearSublayersNumber
 		self.numberOfFeatures = numberOfFeatures
-		self.numberOfClasses = numberOfClasses		
+		self.numberOfClasses = numberOfClasses
+		self.datasetSize = datasetSize		
+		self.numberOfClassSamples = numberOfClassSamples
 
 class AUANNmodel(nn.Module):
 	def __init__(self, config):
@@ -121,6 +123,9 @@ class AUANNmodel(nn.Module):
 	def trainSampleLayer(self, layerIndex, sampleIndex, x, y, optim):
 		x = x.detach()
 		
+		if(AUANNadjustLearningRateBasedOnNumberClasses):
+			optim = self.normaliseLearningRate(optim, y)
+			
 		optim.zero_grad()
 		x, loss, accuracy = self.trainSampleLayer2(layerIndex, sampleIndex, x, y)
 		loss.backward()
@@ -238,7 +243,23 @@ class AUANNmodel(nn.Module):
 			if(usePositiveWeightsClampModel):
 				for p in self.parameters():
 					p.data.clamp_(0)
-								
+
+	def normaliseLearningRate(self, optim, y):
+		classTarget = y[0].detach().cpu().numpy().item() 
+		learningRateBias = (self.config.datasetSize/self.config.numberOfClasses)/self.config.numberOfClassSamples[classTarget]
+		learningRateClass = learningRate*learningRateBias
+		#print("learningRateBias = ", learningRateBias)
+		#print("learningRateClass = ", learningRateClass)
+		optim = self.setLearningRate(optim, learningRateClass)
+		return optim
+	
+	def setLearningRate(self, optim, learningRate):
+		#optim.param_groups[0]['lr'] = learningRate
+		for g in optim.param_groups:
+			g['lr'] = learningRate
+		return optim
+
+									
 class LinearSegregated(nn.Module):
 	def __init__(self, in_features, out_features, number_sublayers):
 		super().__init__()
@@ -252,5 +273,4 @@ class LinearSegregated(nn.Module):
 		x = x.view(x.shape[0], self.number_sublayers, x.shape[1]//self.number_sublayers)
 		#x.shape = batch_size, number_sublayers, out_features
 		return x
-
 

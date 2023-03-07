@@ -35,22 +35,23 @@ stateTestDataset = True
 
 trainLocal = False
 datasetShuffle = False
+datasetOrderByClass = False
 if(useAlgorithmAUANN):
 	trainLocal = True	#required	#local learning rule	#disable for debug (standard backprop algorithm)
-	datasetShuffle = True	#recommended
+	datasetShuffle = False	#recommended
+	if(not datasetShuffle):
+		datasetOrderByClass = True	#optional (used to test AUANN algorithm only; that there is a sufficient number of adjacent/contiguous same-class samples in the dataset)
 	AUANNtrainDiscordantClassExperiences = False	#not yet coded (require discordant crossEntropyLoss function)
-	if(AUANNtrainDiscordantClassExperiences):
-		adjustLearningRateBasedOnNumberClasses = True	#not yet coded	#lower learning rate for discordant classes
+	AUANNadjustLearningRateBasedOnNumberClasses = False
 	debugOnlyTrainLastLayer = False
 	
-#datasetName = 'blog-feedback'
-datasetName = 'tabular-benchmark'
+#datasetName = 'tabular-benchmark'
+datasetName = 'blog-feedback'
 if(datasetName == 'tabular-benchmark'):
 	datasetNameFull = 'inria-soda/tabular-benchmark'
 	classFieldName = 'class'
 	trainFileName = 'clf_cat/albert.csv'
 	testFileName = 'clf_cat/albert.csv'
-	datasetShuffle = False	#backprop does not optimise with shuffled dataset
 elif(datasetName == 'blog-feedback'):
 	datasetNameFull = 'wwydmanski/blog-feedback'
 	classFieldName = 'target'

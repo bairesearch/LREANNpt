@@ -26,26 +26,37 @@ def loadDataset():
 	dataset = load_dataset(datasetNameFull, data_files={"train":trainFileName, "test":testFileName})
 	if(datasetShuffle):
 		dataset = shuffleDataset(dataset)
+	elif(datasetOrderByClass):
+		dataset = orderDatasetByClass(dataset)
 	return dataset
 
 def shuffleDataset(dataset):
 	datasetSize = getDatasetSize(dataset)
 	dataset = dataset.shuffle()
 	return dataset
+	
+def orderDatasetByClass(dataset):
+	dataset = dataset.sort(classFieldName)
+	return dataset
 			
 def countNumberClasses(dataset, printSize=True):
+	numberOfClassSamples = {}
 	datasetSize = getDatasetSize(dataset)
 	numberOfClasses = 0
 	for i in range(datasetSize):
 		row = dataset[i]
 		target = int(row[classFieldName])
+		if(target in numberOfClassSamples):
+			numberOfClassSamples[target] = numberOfClassSamples[target] + 1
+		else:
+			numberOfClassSamples[target] = 0
 		#print("target = ", target)
 		if(target > numberOfClasses):
 			numberOfClasses = target
 	numberOfClasses = numberOfClasses+1
 	if(printSize):
 		print("numberOfClasses = ", numberOfClasses)
-	return numberOfClasses
+	return numberOfClasses, numberOfClassSamples
 
 def countNumberFeatures(dataset, printSize=True):
 	numberOfFeatures = len(dataset.features)-1	#-1 to ignore class targets
