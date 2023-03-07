@@ -38,15 +38,22 @@ datasetShuffle = False
 datasetOrderByClass = False
 if(useAlgorithmAUANN):
 	trainLocal = True	#required	#local learning rule	#disable for debug (standard backprop algorithm)
-	datasetShuffle = False	#recommended
+	datasetShuffle = True	#recommended
 	if(not datasetShuffle):
 		datasetOrderByClass = True	#optional (used to test AUANN algorithm only; that there is a sufficient number of adjacent/contiguous same-class samples in the dataset)
 	AUANNtrainDiscordantClassExperiences = False	#not yet coded (require discordant crossEntropyLoss function)
 	AUANNadjustLearningRateBasedOnNumberClasses = False
 	debugOnlyTrainLastLayer = False
-	
+
+datasetReplaceNoneValues = False
+datasetNormaliseClassValues = False	#reformat class values from 0.. ; contiguous (will also convert string to int)
+
 #datasetName = 'tabular-benchmark'
-datasetName = 'blog-feedback'
+#datasetName = 'blog-feedback'
+#datasetName = 'titanic'
+#datasetName = 'red-wine'
+#datasetName = 'breast-cancer-wisconsin'
+datasetName = 'diabetes-readmission'
 if(datasetName == 'tabular-benchmark'):
 	datasetNameFull = 'inria-soda/tabular-benchmark'
 	classFieldName = 'class'
@@ -57,6 +64,31 @@ elif(datasetName == 'blog-feedback'):
 	classFieldName = 'target'
 	trainFileName = 'train.csv'
 	testFileName = 'test.csv'
+	datasetNormaliseClassValues = True	#int: not contiguous	#CHECKTHIS
+elif(datasetName == 'titanic'):
+	datasetNameFull = 'victor/titanic'
+	classFieldName = '2urvived'
+	trainFileName = 'train_and_test2.csv'	#train
+	testFileName = 'train_and_test2.csv'	#test
+	datasetReplaceNoneValues = True
+elif(datasetName == 'red-wine'):
+	datasetNameFull = 'lvwerra/red-wine'
+	classFieldName = 'quality'
+	trainFileName = 'winequality-red.csv'
+	testFileName = 'winequality-red.csv'
+	datasetNormaliseClassValues = True	#int: not start at 0
+elif(datasetName == 'breast-cancer-wisconsin'):
+	datasetNameFull = 'scikit-learn/breast-cancer-wisconsin'
+	classFieldName = 'diagnosis'
+	trainFileName = 'breast_cancer.csv'
+	testFileName = 'breast_cancer.csv'
+	datasetReplaceNoneValues = True
+	datasetNormaliseClassValues = True	#string: B/M	#requires conversion of target string B/M to int
+elif(datasetName == 'diabetes-readmission'):
+	datasetNameFull = 'imodels/diabetes-readmission'
+	classFieldName = 'readmitted'
+	trainFileName = 'train.csv'
+	testFileName = 'test.csv'	
 #elif ...
 
 debugSmallNetwork = False
