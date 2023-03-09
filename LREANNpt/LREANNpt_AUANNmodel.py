@@ -100,25 +100,25 @@ class AUANNmodel(nn.Module):
 	def forwardSample(self, sampleIndex, x, y, optim):
 		for layerIndex in range(self.config.numberOfLayers):
 			if(debugOnlyTrainLastLayer):
-				if(layerIndex == self.config.numberOfLayers-1):
-					x, loss, accuracy = self.trainSampleLayer(layerIndex, sampleIndex, x, y, optim)
-				else:
-					x = self.propagateSampleLayer(layerIndex, x)
+				x, loss, accuracy = self.forwardSampleLayer(False, layerIndex, sampleIndex, x, y, optim)
 			else:
 				if(AUANNtrainDiscordantClassExperiences):
-					x, loss, accuracy = self.trainSampleLayer(layerIndex, sampleIndex, x, y, optim)
+					x, loss, accuracy = self.forwardSampleLayer((self.previousSampleClass is not None), layerIndex, sampleIndex, x, y, optim)
 				else:
-					if(y == self.previousSampleClass):
-						#print("y == previousSampleClass; y = ", y, ", previousSampleClass = ", self.previousSampleClass)
-						x, loss, accuracy = self.trainSampleLayer(layerIndex, sampleIndex, x, y, optim)
-					else:
-						#print("y != previousSampleClass; y = ", y, ", previousSampleClass = ", self.previousSampleClass)
-						if(layerIndex == self.config.numberOfLayers-1):
-							x, loss, accuracy = self.trainSampleLayer(layerIndex, sampleIndex, x, y, optim)
-						else:
-							x = self.propagateSampleLayer(layerIndex, x)
+					x, loss, accuracy = self.forwardSampleLayer((y == self.previousSampleClass), layerIndex, sampleIndex, x, y, optim)
 		#will return the loss/accuracy from the last layer
 		return loss, accuracy
+
+	def forwardSampleLayer(self, trainLayerCriterion, layerIndex, sampleIndex, x, y, optim):
+		if(trainLayerCriterion):
+			x, loss, accuracy = self.trainSampleLayer(layerIndex, sampleIndex, x, y, optim)
+		else:
+			if(layerIndex == self.config.numberOfLayers-1):
+				x, loss, accuracy = self.trainSampleLayer(layerIndex, sampleIndex, x, y, optim)
+			else:
+				x = self.testSampleLayer(layerIndex, x)
+				loss = accuracy = None	#not used
+		return x, loss, accuracy
 		
 	def trainSampleLayer(self, layerIndex, sampleIndex, x, y, optim):
 		x = x.detach()
@@ -146,13 +146,14 @@ class AUANNmodel(nn.Module):
 			if(y == self.previousSampleClass):
 				loss = self.lossFunction(x, self.previousSampleStatesLayerList[layerIndex])
 			else:
-				printe("trainSampleLayer2 error: AUANNtrainDiscordantClassExperiences not yet coded")
+				loss = 1/(self.lossFunction(x, self.previousSampleStatesLayerList[layerIndex]))	#CHECKTHIS - determine discordant class loss function
+				#print("loss = ", loss)
 			previousSampleStatesLayer = x.detach().clone()
 			self.previousSampleStatesLayerList[layerIndex] = previousSampleStatesLayer
 		
 		return x, loss, accuracy
 
-	def propagateSampleLayer(self, layerIndex, x):
+	def testSampleLayer(self, layerIndex, x):
 		x = self.executeLinearLayer(layerIndex, x, self.layersLinear[layerIndex])
 		x = self.executeActivationLayer(layerIndex, x, self.layersActivation[layerIndex])
 		previousSampleStatesLayer = x.detach().clone()
