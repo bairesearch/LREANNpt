@@ -52,8 +52,15 @@ def main():
 def processDataset(trainOrTest, dataset, model):
 
 	if(trainOrTest):
-		optim = torch.optim.Adam(model.parameters(), lr=learningRate)
 		model.to(device)
+		if(trainLocal):
+			optim = [[None for layerIndex in range(model.config.numberOfLayers) ] for sampleIndex in range(batchSize)]
+			for sampleIndex in range(batchSize):
+				for layerIndex in range(model.config.numberOfLayers):
+					optimSampleLayer = torch.optim.Adam(model.parameters(), lr=learningRate)
+					optim[sampleIndex][layerIndex] = optimSampleLayer
+		else:
+			optim = torch.optim.Adam(model.parameters(), lr=learningRate)
 		if(not trainLocal):
 			model.train()
 		else:

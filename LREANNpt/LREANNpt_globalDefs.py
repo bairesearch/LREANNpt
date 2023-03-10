@@ -38,11 +38,12 @@ datasetShuffle = False
 datasetOrderByClass = False
 if(useAlgorithmAUANN):
 	trainLocal = True	#required	#local learning rule	#disable for debug (standard backprop algorithm)
+	if(trainLocal):
+		AUANNadjustLearningRateBasedOnNumberClasses = False
 	datasetShuffle = True	#recommended
 	if(not datasetShuffle):
 		datasetOrderByClass = True	#optional (used to test AUANN algorithm only; that there is a sufficient number of adjacent/contiguous same-class samples in the dataset)
 	AUANNtrainDiscordantClassExperiences = False	#not yet coded (require discordant crossEntropyLoss function)
-	AUANNadjustLearningRateBasedOnNumberClasses = False
 	debugOnlyTrainLastLayer = False
 
 datasetReplaceNoneValues = False

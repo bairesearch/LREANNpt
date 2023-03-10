@@ -66,7 +66,7 @@ class AUANNmodel(nn.Module):
 			self.previousSampleClass = None
 
 	def forward(self, trainOrTest, x, y, optim):
-		if(trainLocal and trainOrTest):
+		if(trainLocal and trainOrTest and not debugOnlyTrainLastLayer):
 			loss, accuracy = self.forwardSamples(x, y, optim)
 		else:
 			loss, accuracy = self.forwardBatchStandard(x, y)	#standard backpropagation
@@ -75,6 +75,8 @@ class AUANNmodel(nn.Module):
 	def forwardBatchStandard(self, x, y):
 		#print("forwardBatchStandard")
 		for layerIndex in range(self.config.numberOfLayers):
+			if(debugOnlyTrainLastLayer and (layerIndex == self.config.numberOfLayers-1)):
+				x = x.detach()
 			x = ANNpt_linearSublayers.executeLinearLayer(self, layerIndex, x, self.layersLinear[layerIndex])
 			if(layerIndex != self.config.numberOfLayers-1):
 				x = ANNpt_linearSublayers.executeActivationLayer(self, layerIndex, x, self.layersActivation[layerIndex])
@@ -84,28 +86,26 @@ class AUANNmodel(nn.Module):
 		return loss, accuracy
 		
 	def forwardSamples(self, x, y, optim):
-		batchSize = x.shape[0]	#not guaranteed to be batchSize (for last batch in dataset)
+		maxSampleIndex = x.shape[0]	#not guaranteed to be batchSize (for last batch in dataset)
 		lossAverage = 0.0
 		accuracyAverage = 0.0
 		self.previousSampleClass = None
 		for sampleIndex in range(batchSize):
-			loss, accuracy = self.forwardSample(sampleIndex, x[sampleIndex].unsqueeze(0), y[sampleIndex].unsqueeze(0), optim)
-			self.previousSampleClass = y[sampleIndex]
-			lossAverage = lossAverage + loss
-			accuracyAverage = accuracyAverage + accuracy
-		lossAverage = lossAverage/batchSize
-		accuracyAverage = accuracyAverage/batchSize	
+			if(sampleIndex < maxSampleIndex):
+				loss, accuracy = self.forwardSample(sampleIndex, x[sampleIndex].unsqueeze(0), y[sampleIndex].unsqueeze(0), optim)
+				self.previousSampleClass = y[sampleIndex]
+				lossAverage = lossAverage + loss
+				accuracyAverage = accuracyAverage + accuracy
+		lossAverage = lossAverage/maxSampleIndex
+		accuracyAverage = accuracyAverage/maxSampleIndex
 		return lossAverage, accuracyAverage
 		
 	def forwardSample(self, sampleIndex, x, y, optim):
 		for layerIndex in range(self.config.numberOfLayers):
-			if(debugOnlyTrainLastLayer):
-				x, loss, accuracy = self.forwardSampleLayer(False, layerIndex, sampleIndex, x, y, optim)
+			if(AUANNtrainDiscordantClassExperiences):
+				x, loss, accuracy = self.forwardSampleLayer((self.previousSampleClass is not None), layerIndex, sampleIndex, x, y, optim)
 			else:
-				if(AUANNtrainDiscordantClassExperiences):
-					x, loss, accuracy = self.forwardSampleLayer((self.previousSampleClass is not None), layerIndex, sampleIndex, x, y, optim)
-				else:
-					x, loss, accuracy = self.forwardSampleLayer((y == self.previousSampleClass), layerIndex, sampleIndex, x, y, optim)
+				x, loss, accuracy = self.forwardSampleLayer((y == self.previousSampleClass), layerIndex, sampleIndex, x, y, optim)
 		#will return the loss/accuracy from the last layer
 		return loss, accuracy
 
@@ -123,11 +123,13 @@ class AUANNmodel(nn.Module):
 	def trainSampleLayer(self, layerIndex, sampleIndex, x, y, optim):
 		x = x.detach()
 		
+		optim = optim[sampleIndex][layerIndex]
 		if(AUANNadjustLearningRateBasedOnNumberClasses):
 			optim = self.normaliseLearningRate(optim, y)
-			
 		optim.zero_grad()
+			
 		x, loss, accuracy = self.trainSampleLayer2(layerIndex, sampleIndex, x, y)
+		
 		loss.backward()
 		optim.step()
 		
