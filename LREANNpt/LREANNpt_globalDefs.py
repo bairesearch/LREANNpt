@@ -13,7 +13,7 @@ see LREANNpt_main.py
 see LREANNpt_main.py
 
 # Description:
-LIANNpt globalDefs
+LREANNpt globalDefs
 
 """
 
@@ -41,7 +41,7 @@ if(useAlgorithmAUANN):
 	datasetShuffle = True	#recommended
 	if(not datasetShuffle):
 		datasetOrderByClass = True	#optional (used to test AUANN algorithm only; that there is a sufficient number of adjacent/contiguous same-class samples in the dataset)
-	AUANNtrainDiscordantClassExperiences = True	#not yet coded (require discordant crossEntropyLoss function)
+	AUANNtrainDiscordantClassExperiences = False	#not yet coded (require discordant crossEntropyLoss function)
 	AUANNadjustLearningRateBasedOnNumberClasses = False
 	debugOnlyTrainLastLayer = False
 

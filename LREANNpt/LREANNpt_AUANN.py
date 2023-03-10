@@ -19,12 +19,12 @@ LREANNpt associative (wrt previous experience class) update artificial neural ne
 
 from LREANNpt_globalDefs import *
 import LREANNpt_AUANNmodel
-import LREANNpt_data
+import ANNpt_data
 
 def createModel(dataset):
-	datasetSize = LREANNpt_data.getDatasetSize(dataset, printSize=True)
-	numberOfFeatures = LREANNpt_data.countNumberFeatures(dataset)
-	numberOfClasses, numberOfClassSamples = LREANNpt_data.countNumberClasses(dataset)
+	datasetSize = ANNpt_data.getDatasetSize(dataset, printSize=True)
+	numberOfFeatures = ANNpt_data.countNumberFeatures(dataset)
+	numberOfClasses, numberOfClassSamples = ANNpt_data.countNumberClasses(dataset)
 				
 	print("creating new model")
 	config = LREANNpt_AUANNmodel.AUANNconfig(

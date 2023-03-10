@@ -1,4 +1,4 @@
-"""LREANNpt_data.py
+"""ANNpt_data.py
 
 # Author:
 Richard Bruce Baxter - Copyright (c) 2023 Baxter AI (baxterai.com)
@@ -27,7 +27,7 @@ def loadDataset():
 	
 	if(datasetShuffle):
 		dataset = shuffleDataset(dataset)
-	elif(datasetOrderByClass):
+	if(datasetOrderByClass):
 		dataset = orderDatasetByClass(dataset)
 		
 	if(datasetNormaliseClassValues):
