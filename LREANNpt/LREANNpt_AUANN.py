@@ -17,7 +17,7 @@ LREANNpt associative (wrt previous experience class) update artificial neural ne
 
 """
 
-from LREANNpt_globalDefs import *
+from ANNpt_globalDefs import *
 import LREANNpt_AUANNmodel
 import ANNpt_data
 

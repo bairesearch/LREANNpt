@@ -20,7 +20,7 @@ ANNpt data
 
 import torch as pt
 from datasets import load_dataset
-from LREANNpt_globalDefs import *
+from ANNpt_globalDefs import *
 import numpy as np
 import random
 

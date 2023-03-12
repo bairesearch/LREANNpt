@@ -19,7 +19,7 @@ ANNpt linear sublayers
 
 import torch as pt
 from torch import nn
-from LREANNpt_globalDefs import *
+from ANNpt_globalDefs import *
 
 class LinearSegregated(nn.Module):
 	def __init__(self, in_features, out_features, number_sublayers):

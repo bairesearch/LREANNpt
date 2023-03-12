@@ -23,7 +23,7 @@ uses the previous experience/sample class as the exemplar (different implementat
 
 import torch as pt
 from torch import nn
-from LREANNpt_globalDefs import *
+from ANNpt_globalDefs import *
 from torchmetrics.classification import Accuracy
 import ANNpt_linearSublayers
 	
@@ -65,7 +65,7 @@ class AUANNmodel(nn.Module):
 			self.previousSampleStatesLayerList = [None]*config.numberOfLayers
 			self.previousSampleClass = None
 
-	def forward(self, trainOrTest, x, y, optim):
+	def forward(self, trainOrTest, x, y, optim, l=None):
 		if(trainLocal and trainOrTest and not debugOnlyTrainLastLayer):
 			loss, accuracy = self.forwardSamples(x, y, optim)
 		else:
