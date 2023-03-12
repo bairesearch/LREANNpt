@@ -32,65 +32,37 @@ useAlgorithmAUANN = True
 stateTrainDataset = True
 stateTestDataset = True
 
-
-trainLocal = False
+#initialise (dependent vars);
+datasetNormalise = False
+datasetRepeat = False
 datasetShuffle = False
 datasetOrderByClass = False
+dataloaderShuffle = True
+dataloaderMaintainBatchSize = True
+dataloaderRepeat = False
+optimiserAdam = True	#initialise (dependent var)
+useCustomWeightInitialisation = False	#initialise (dependent var)
+useCustomBiasInitialisation = False	#initialise (dependent var)
+
+trainLocal = False	#initialise (dependent var)
 if(useAlgorithmAUANN):
 	trainLocal = True	#required	#local learning rule	#disable for debug (standard backprop algorithm)
 	if(trainLocal):
 		AUANNadjustLearningRateBasedOnNumberClasses = False
-	datasetShuffle = True	#recommended
-	if(not datasetShuffle):
-		datasetOrderByClass = True	#optional (used to test AUANN algorithm only; that there is a sufficient number of adjacent/contiguous same-class samples in the dataset)
+	dataloaderRepeat = True	#optional (used to test AUANN algorithm only; that there is a sufficient number of adjacent/contiguous same-class samples in the dataset)
+	if(dataloaderRepeat):
+		dataloaderRepeatSize = 10
 	AUANNtrainDiscordantClassExperiences = False	#not yet coded (require discordant crossEntropyLoss function)
 	debugOnlyTrainLastLayer = False
 
+if(useCustomWeightInitialisation):
+	Wmean = 0.0
+	WstdDev = 0.05	#stddev of weight initialisations
+	
+#initialise (dependent vars);
 datasetReplaceNoneValues = False
 datasetNormaliseClassValues = False	#reformat class values from 0.. ; contiguous (will also convert string to int)
-
-#datasetName = 'tabular-benchmark'
-#datasetName = 'blog-feedback'
-#datasetName = 'titanic'
-#datasetName = 'red-wine'
-#datasetName = 'breast-cancer-wisconsin'
-datasetName = 'diabetes-readmission'
-if(datasetName == 'tabular-benchmark'):
-	datasetNameFull = 'inria-soda/tabular-benchmark'
-	classFieldName = 'class'
-	trainFileName = 'clf_cat/albert.csv'
-	testFileName = 'clf_cat/albert.csv'
-elif(datasetName == 'blog-feedback'):
-	datasetNameFull = 'wwydmanski/blog-feedback'
-	classFieldName = 'target'
-	trainFileName = 'train.csv'
-	testFileName = 'test.csv'
-	datasetNormaliseClassValues = True	#int: not contiguous	#CHECKTHIS
-elif(datasetName == 'titanic'):
-	datasetNameFull = 'victor/titanic'
-	classFieldName = '2urvived'
-	trainFileName = 'train_and_test2.csv'	#train
-	testFileName = 'train_and_test2.csv'	#test
-	datasetReplaceNoneValues = True
-elif(datasetName == 'red-wine'):
-	datasetNameFull = 'lvwerra/red-wine'
-	classFieldName = 'quality'
-	trainFileName = 'winequality-red.csv'
-	testFileName = 'winequality-red.csv'
-	datasetNormaliseClassValues = True	#int: not start at 0
-elif(datasetName == 'breast-cancer-wisconsin'):
-	datasetNameFull = 'scikit-learn/breast-cancer-wisconsin'
-	classFieldName = 'diagnosis'
-	trainFileName = 'breast_cancer.csv'
-	testFileName = 'breast_cancer.csv'
-	datasetReplaceNoneValues = True
-	datasetNormaliseClassValues = True	#string: B/M	#requires conversion of target string B/M to int
-elif(datasetName == 'diabetes-readmission'):
-	datasetNameFull = 'imodels/diabetes-readmission'
-	classFieldName = 'readmitted'
-	trainFileName = 'train.csv'
-	testFileName = 'test.csv'	
-#elif ...
+datasetLocalFile = False
 
 debugSmallNetwork = False
 if(debugSmallNetwork):
@@ -103,6 +75,84 @@ else:
 	numberOfLayers = 4
 	hiddenLayerSize = 100
 	trainNumberOfEpochs = 10	#default: 10	#number of epochs to train
+	
+#datasetName = 'tabular-benchmark'
+#datasetName = 'blog-feedback'
+#datasetName = 'titanic'
+#datasetName = 'red-wine'
+#datasetName = 'breast-cancer-wisconsin'
+#datasetName = 'diabetes-readmission'
+datasetName = 'new-thyroid'
+if(datasetName == 'tabular-benchmark'):
+	datasetNameFull = 'inria-soda/tabular-benchmark'
+	classFieldName = 'class'
+	trainFileName = 'clf_cat/albert.csv'
+	testFileName = 'clf_cat/albert.csv'
+	datasetNormalise = True
+elif(datasetName == 'blog-feedback'):
+	datasetNameFull = 'wwydmanski/blog-feedback'
+	classFieldName = 'target'
+	trainFileName = 'train.csv'
+	testFileName = 'test.csv'
+	datasetNormalise = True
+	datasetNormaliseClassValues = True	#int: not contiguous	#CHECKTHIS
+elif(datasetName == 'titanic'):
+	datasetNameFull = 'victor/titanic'
+	classFieldName = '2urvived'
+	trainFileName = 'train_and_test2.csv'	#train
+	testFileName = 'train_and_test2.csv'	#test
+	datasetReplaceNoneValues = True
+	datasetNormalise = True
+elif(datasetName == 'red-wine'):
+	datasetNameFull = 'lvwerra/red-wine'
+	classFieldName = 'quality'
+	trainFileName = 'winequality-red.csv'
+	testFileName = 'winequality-red.csv'
+	datasetNormaliseClassValues = True	#int: not start at 0
+	datasetNormalise = True
+elif(datasetName == 'breast-cancer-wisconsin'):
+	datasetNameFull = 'scikit-learn/breast-cancer-wisconsin'
+	classFieldName = 'diagnosis'
+	trainFileName = 'breast_cancer.csv'
+	testFileName = 'breast_cancer.csv'
+	datasetReplaceNoneValues = True
+	datasetNormaliseClassValues = True	#string: B/M	#requires conversion of target string B/M to int
+	datasetNormalise = True
+elif(datasetName == 'diabetes-readmission'):
+	datasetNameFull = 'imodels/diabetes-readmission'
+	classFieldName = 'readmitted'
+	trainFileName = 'train.csv'
+	testFileName = 'test.csv'	
+	datasetNormalise = True
+elif(datasetName == 'new-thyroid'):
+	classFieldName = 'class'
+	trainFileName = 'new-thyroid.csv'
+	testFileName = 'new-thyroid.csv'
+	datasetLocalFile = True	
+	datasetNormalise = True
+	datasetNormaliseClassValues = True
+	trainNumberOfEpochs = 100
+	batchSize = 100	#emulate VICRegANNtf
+	numberOfLayers = 4
+	hiddenLayerSize = 15	#5
+	datasetRepeat = True	#enable better sampling by dataloader with high batchSize (required if batchSize ~= datasetSize)
+	if(datasetRepeat):
+		datasetRepeatSize = 10
+	dataloaderRepeat = True
+#elif ...
+
+dataloaderRepeatSampler = False	#initialise (dependent var)
+if(dataloaderRepeat):
+	dataloaderRepeatSize = 10	#number of repetitions
+	dataloaderRepeatSampler = True
+	dataloaderRepeatLoop = False	#not supported
+	if(dataloaderRepeatSampler):
+		dataloaderRepeatSamplerCustom = False	#no tqdm visualisation
+
+if(datasetNormalise):
+	datasetNormaliseMinMax = True	#normalise between 0.0 and 1.0
+	datasetNormaliseStdAvg = False	#normalise based on std and mean (~-1.0 to 1.0)
+
 
 printAccuracyRunningAverage = True
 if(printAccuracyRunningAverage):
@@ -130,7 +180,7 @@ tokenString = "INSERT_HUGGINGFACE_TOKEN_HERE"	#default: INSERT_HUGGINGFACE_TOKEN
 
 modelSaveNumberOfBatches = 100	#resave model after x training batches
 
-dataDrive = '/datasets/'
+dataDrive = '/large/source/ANNpython/LREANNpt/'	#'/datasets/'
 workingDrive = '/large/source/ANNpython/LREANNpt/'
 
 dataFolderName = 'data'

@@ -7,13 +7,13 @@ Richard Bruce Baxter - Copyright (c) 2023 Baxter AI (baxterai.com)
 MIT License
 
 # Installation:
-see LREANNpt_main.py
+see ANNpt_main.py
 
 # Usage:
-see LREANNpt_main.py
+see ANNpt_main.py
 
 # Description:
-LREANNpt linear sublayers
+ANNpt linear sublayers
 
 """
 
@@ -21,7 +21,6 @@ import torch as pt
 from torch import nn
 from LREANNpt_globalDefs import *
 
-	
 class LinearSegregated(nn.Module):
 	def __init__(self, in_features, out_features, number_sublayers):
 		super().__init__()
@@ -54,7 +53,7 @@ def generateLinearLayer(self, layerIndex, config):
 	else:
 		linear = nn.Linear(in_features=in_features, out_features=out_features)
 
-	weightsSetPositiveLayer(self, layerIndex, linear)
+	weightsSetLayer(self, layerIndex, linear)
 
 	return linear
 
@@ -72,14 +71,12 @@ def generateActivationLayer(self, layerIndex, config):
 	return activation
 
 def executeLinearLayer(self, layerIndex, x, linear):
-	#print("layerIndex = ", layerIndex)
-	weightsSetPositiveLayer(self, layerIndex, linear)	#otherwise need to constrain backprop weight update function to never set weights below 0
+	weightsFixLayer(self, layerIndex, linear)	#otherwise need to constrain backprop weight update function to never set weights below 0
 	if(getUseLinearSublayers(self, layerIndex)):
 		#perform computation for each sublayer independently
 		x = x.unsqueeze(dim=1).repeat(1, self.config.linearSublayersNumber, 1)
 		x = linear(x)
 	else:
-		#print("executeLinearLayer: x.shape = ", x.shape)
 		x = linear(x)
 	return x
 
@@ -102,10 +99,26 @@ def getUseLinearSublayers(self, layerIndex):
 			result = True
 	return result
 
+def weightsSetLayer(self, layerIndex, linear):
+	weightsSetPositiveLayer(self, layerIndex, linear)
+	if(useCustomWeightInitialisation):
+		if(getUseLinearSublayers(self, layerIndex)):
+			nn.init.normal_(linear.segregatedLinear.weight, mean=Wmean, std=WstdDev)
+		else:
+			nn.init.normal_(linear.weight, mean=Wmean, std=WstdDev)
+	if(useCustomBiasInitialisation):
+		if(getUseLinearSublayers(self, layerIndex)):
+			nn.init.constant_(linear.segregatedLinear.bias, 0)
+		else:
+			nn.init.constant_(linear.bias, 0)
+
+def weightsFixLayer(self, layerIndex, linear):
+	weightsSetPositiveLayer(self, layerIndex, linear)
+			
 def weightsSetPositiveLayer(self, layerIndex, linear):
 	if(usePositiveWeights):
 		if(not usePositiveWeightsClampModel):
-			if(getUseLinearSublayers(layerIndex)):
+			if(getUseLinearSublayers(self, layerIndex)):
 				weights = linear.segregatedLinear.weight #only positive weights allowed
 				weights = torch.abs(weights)
 				linear.segregatedLinear.weight = torch.nn.Parameter(weights)
@@ -113,10 +126,9 @@ def weightsSetPositiveLayer(self, layerIndex, linear):
 				weights = linear.weight #only positive weights allowed
 				weights = torch.abs(weights)
 				linear.weight = torch.nn.Parameter(weights)
-
+		
 def weightsSetPositiveModel(self):
 	if(usePositiveWeights):
 		if(usePositiveWeightsClampModel):
 			for p in self.parameters():
 				p.data.clamp_(0)
-									

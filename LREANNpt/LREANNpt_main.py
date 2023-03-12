@@ -49,10 +49,16 @@ def main():
 		model = loadModel()
 		processDataset(False, dataset['test'], model)
 
+def createOptimizer():
+	if(optimiserAdam):
+		optim = torch.optim.Adam(model.parameters(), lr=learningRate)
+	else:
+		optim = torch.optim.SGD(model.parameters(), lr=learningRate)
+	return optim
+	
 def processDataset(trainOrTest, dataset, model):
 
 	if(trainOrTest):
-		model.to(device)
 		if(trainLocal):
 			optim = [[None for layerIndex in range(model.config.numberOfLayers) ] for sampleIndex in range(batchSize)]
 			for sampleIndex in range(batchSize):
@@ -61,10 +67,8 @@ def processDataset(trainOrTest, dataset, model):
 					optim[sampleIndex][layerIndex] = optimSampleLayer
 		else:
 			optim = torch.optim.Adam(model.parameters(), lr=learningRate)
-		if(not trainLocal):
-			model.train()
-		else:
-			model.eval()		
+		model.to(device)
+		model.train()	
 		numberOfEpochs = trainNumberOfEpochs
 	else:
 		model.to(device)
