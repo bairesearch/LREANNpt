@@ -196,7 +196,6 @@ class DataloaderDatasetTabular(pt.utils.data.Dataset):
 				document = next(self.datasetIterator)
 		else:
 			document = next(self.datasetIterator)
-		document = next(self.datasetIterator)
 		documentList = list(document.values())
 		if(datasetReplaceNoneValues):
 			documentList = [x if x is not None else 0 for x in documentList]
