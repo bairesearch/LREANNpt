@@ -60,46 +60,45 @@ def trainOrTestModel(model, trainOrTest, x, y, optim, l):
 		with pt.no_grad():
 			for name, p in model.named_parameters():	#for every parameter tensor in model	#FUTURE; ensure to iterate in order of layer order
 				#print("parameter tensor name = ", name)
-				for i in range(numberTensorParametersPertubatedPerIteration):
+				numberTensorElements = p.numel()
+				#print("numberTensorParameters = ", numberTensorParameters)
+				for idx in range(numberTensorElements):
 					#print("random weight selection index = ", i)
 					loss1, accuracy1 = model(trainOrTest, x, y, optim, l)
-					idx, backup = perturb_once(model, name, p)
+					idx, backup = perturb_once(model, name, p, idx)
 					loss2, accuracy2 = model(trainOrTest, x, y, optim, l)
-					update_weight(model, idx, backup, name, p, loss1, loss2)
+					update_weight(model, idx, backup, name, p, idx, loss1, loss2)
 			loss, accuracy = model(trainOrTest, x, y, optim, l)	#final pass for loss/acc calc
 	else:
 		loss, accuracy = model(trainOrTest, x, y, optim, l)
 	return loss, accuracy
-
-def rand_index(t: pt.Tensor) -> int:
-	"""Return a random flat index for tensor `t`."""
-	numel = t.numel()
-	return pt.randint(numel, (), device=t.device).item()
 
 def pertubation_function(x): 
 	noise = learningRateBase	#CHECKTHIS
 	#noise = learningRateBase * x.sign() * x.abs()	 # e.g. add 0.01% of magnitude, sign-preserving
 	return noise
 
-def perturb_once(model: pt.nn.Module, name: str, p):
+def perturb_once(model: pt.nn.Module, name: str, p, idx):
 	"""
 	Add `pertubation_function(old_val)` to *one* randomly chosen element (idx) of the parameter tensor
 	Returns:  idx (of randomly chosen element), backup (of original value before pertubation)
 	"""
 	info: PerturbInfo = {}
-	idx = rand_index(p)
 	backup = (p.detach().clone(), idx)	#Tuple[pt.Tensor, int]
 	flat = p.view(-1)
 	flat[idx] += pertubation_function(flat[idx])
 	return idx, backup
 	
-def update_weight(model: pt.nn.Module, idx: int, backup: Tuple[pt.Tensor, int], name: str, p, loss1, loss2):
+def update_weight(model: pt.nn.Module, idx: int, backup: Tuple[pt.Tensor, int], name: str, p, e, loss1, loss2):
 	lossDiff = loss1 - loss2	#positive = a good change, negative = a bad change
-	p = dict(model.named_parameters())[name]
 	p.copy_(backup[0])  # restore exact original bytes
 	flat = p.view(-1)
-	update = lossDiff*100	#CHECKTHIS	#lossDiff * pertubation_function(flat[idx])
+	update = lossDiff*100.0	#*100.0 to ensure average update is approximately learningRateBase	#CHECKTHIS
 	#print("lossDiff = ", lossDiff)
 	#print("update = ", update)
-	flat[idx] += update		 # <-- permanent change
+	flat[e] += update		 # <-- permanent change
 
+def rand_index(t: pt.Tensor) -> int:
+	"""Return a random flat index for tensor `t`."""
+	numel = t.numel()
+	return pt.randint(numel, (), device=t.device).item()

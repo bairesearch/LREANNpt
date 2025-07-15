@@ -192,7 +192,7 @@ if(useCustomWeightInitialisation):
 if(useTabularDataset):
 	#datasetName = 'tabular-benchmark'	#expected test accuracy: ~63%	#samples: 58.3k
 	#datasetName = 'blog-feedback'	#expected test accuracy: ~70%	#samples: 52.4k
-	datasetName = 'titanic'	#expected test accuracy: ~90%	#samples: 1.3k
+	#datasetName = 'titanic'	#expected test accuracy: ~90%	#samples: 1.3k
 	#datasetName = 'red-wine'	#expected test accuracy: ~58%	#samples: 1.6k
 	#datasetName = 'breast-cancer-wisconsin'	#expected test accuracy: ~91%	#samples: 569
 	#datasetName = 'diabetes-readmission'	#expected test accuracy: ~61%	#samples: 81.4k
@@ -200,7 +200,7 @@ if(useTabularDataset):
 	#datasetName = 'adult_income_dataset'	#expected test accuracy: ~86% 	#third party benchmark accuracy: ~85.8%	#samples: 48.8k
 	#datasetName = 'covertype'	#expected test accuracy: ~%92 (10 epochs) 	#third party benchmark accuracy: ~97.1%	#samples: 581k
 	#datasetName = 'higgs'	#expected test accuracy: ~70%	#third party benchmark accuracy: 73.8%	#https://archive.ics.uci.edu/dataset/280/higgs	#samples: 11m
-	#datasetName = 'new-thyroid'	#expected test accuracy: ~95%	https://archive.ics.uci.edu/dataset/102/thyroid+disease	#samples: 215
+	datasetName = 'new-thyroid'	#expected test accuracy: ~95%	https://archive.ics.uci.edu/dataset/102/thyroid+disease	#samples: 215
 	if(datasetName == 'tabular-benchmark'):
 		datasetNameFull = 'inria-soda/tabular-benchmark'
 		classFieldName = 'class'
@@ -474,7 +474,7 @@ if(useAlgorithmEISANI):
 		numberOfLayers = numberOfLayers*2
 else:
 	if(trainNumberOfEpochsHigh):
-		trainNumberOfEpochs = trainNumberOfEpochs*4
+		trainNumberOfEpochs = trainNumberOfEpochs*10
 		
 if(debugSmallBatchSize):
 	batchSize = 10

@@ -26,7 +26,7 @@ else:
 supportSkipLayers = False #optional	#fully connected skip layer network
 supportSkipLayersResidual = False	#optional	#direct residual connections
 
-numberTensorParametersPertubatedPerIteration = 100	#depends on average number of elements per parameter tensor
+#fractionTensorParametersPertubatedPerIteration = 1.0
 
 #dataset parameters:
 useImageDataset = False	#use CIFAR-10 dataset with CNN 
@@ -63,7 +63,9 @@ else:
 	CNNbatchNorm = False
 
 #learning rate parameters;
-learningRateBase = 0.0001
+learningRateBase = 0.01
+
+trainNumberOfEpochsHigh = True
 
 #activation function parameters:
 activationFunctionTypeForward = "relu"
