@@ -1,7 +1,7 @@
-"""LREANNpt_globalDefs.py
+"""LREANNpt_AUANN_globalDefs.py
 
 # Author:
-Richard Bruce Baxter - Copyright (c) 2023 Baxter AI (baxterai.com)
+Richard Bruce Baxter - Copyright (c) 2023-2025 Baxter AI (baxterai.com)
 
 # License:
 MIT License

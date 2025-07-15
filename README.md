@@ -2,13 +2,14 @@
 
 ### Author
 
-Richard Bruce Baxter - Copyright (c) 2023 Baxter AI (baxterai.com)
+Richard Bruce Baxter - Copyright (c) 2023-2025 Baxter AI (baxterai.com)
 
 ### Description
 
 Learning Rule Experiment artificial neural network (LREANN) for PyTorch - experimental 
 
-AUANN - associative (wrt previous experience class) update artificial neural network
+* AUANN - associative (wrt previous experience class) update artificial neural network
+* SUANN - stochastic update artificial neural network
 
 ### License
 
@@ -23,6 +24,14 @@ pip install datasets
 pip install torch
 pip install lovely-tensors
 pip install torchmetrics
+pip install torchvision
+pip install torchsummary
+pip install networkx
+pip install matplotlib
+pip install transformers
+pip install h5py
+pip install spacy
+python -m spacy download en_core_web_sm
 ```
 
 ### Execution

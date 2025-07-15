@@ -1,16 +1,16 @@
 """LREANNpt_AUANN.py
 
 # Author:
-Richard Bruce Baxter - Copyright (c) 2023 Baxter AI (baxterai.com)
+Richard Bruce Baxter - Copyright (c) 2023-2025 Baxter AI (baxterai.com)
 
 # License:
 MIT License
 
 # Installation:
-see LREANNpt_main.py
+see ANNpt_main.py
 
 # Usage:
-see LREANNpt_main.py
+see ANNpt_main.py
 
 # Description:
 LREANNpt associative (wrt previous experience class) update artificial neural network (AUANN)
