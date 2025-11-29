@@ -17,24 +17,46 @@ LREANNpt SUANN globalDefs
 
 """
 
+#debug parameters:
+printSUANNmodelProperties = True
+
+#dataset parameters:
+useTabularDataset = True
+useImageDataset = False	#use CIFAR-10 dataset with CNN 
+
 #SUANN architecture parameters:
 useStochasticUpdates = True
 if(useStochasticUpdates):
+	#SUANN optimisation parameters:
+	useEvolutionarySearch = True	#default: True (ES:EGGROLL) #orig: False (individual weight pertubations)
+	if(useEvolutionarySearch):	#ES:EGGROLL
+		evolutionaryPopulationSize = 64	#default: 8, 64	#number of perturbations per matrix update (N)
+		evolutionaryRank = 1	#rank-r factors used for each perturbation (EGGROLL paper default)
+		evolutionarySigma = 0.05	#orig: 0.05	#scale applied to rank-r perturbations before evaluation (σ)
+		evolutionaryLearningRate = 0.01	#orig: 0.01 #α in Algorithm 1 (should typically match learningRateBase)
+		evolutionaryNormalizeFitness = True	#subtract mean/standard deviation of fitness values before weighting
+		evolutionaryPerturbAllTrainableTensors = False	#orig: False	#optional optimisation: perturb all tensors jointly per worker
+		evolutionaryAntitheticSampling = True	#orig: False
+		if(evolutionaryAntitheticSampling):
+			evolutionaryFitnessShaping = True	#orig: False	#optional: convert antithetic pair fitness to +/-1 signals
+		else:
+			evolutionaryFitnessShaping = False
+		evolutionaryPopulationSigmaScheduling = False	#orig: False	#optional: decay sigma across population members
+	else:	#individual weight pertubations
+		learningRateBase = 0.01
+		#fractionTensorParametersPertubatedPerIteration = 1.0
 	trainLocal = True	#mandatory: True	#execute training at each layer (LREANNpt_SUANN training code), do not execute training at final layer only (ANNpt_main training code)
 else:
 	trainLocal = False	#default: False #disable for debug/benchmark against standard full layer backprop
-supportSkipLayers = False #optional	#fully connected skip layer network
-supportSkipLayersResidual = False	#optional	#direct residual connections
+	useEvolutionarySearch = False
 
-#fractionTensorParametersPertubatedPerIteration = 1.0
+#skip layer parameters:
+supportSkipLayers = False #default: False 	#fully connected skip layer network
+supportSkipLayersResidual = False	#default: False	#direct residual connections
 
-#dataset parameters:
-useImageDataset = False	#use CIFAR-10 dataset with CNN 
 if(useImageDataset):
-	useTabularDataset = False
 	useCNNlayers = True		#mandatory:True
-else:
-	useTabularDataset = True
+elif(useTabularDataset):
 	useCNNlayers = False	 #default:False	#optional	#enforce different connection sparsity across layers to learn unique features with greedy training	#use 2D CNN instead of linear layers
 
 #CNN parameters:
@@ -62,10 +84,8 @@ else:
 	CNNmaxPool = False
 	CNNbatchNorm = False
 
-#learning rate parameters;
-learningRateBase = 0.01
-
-trainNumberOfEpochsHigh = True
+trainNumberOfEpochsLow = False	#default: False
+trainNumberOfEpochsHigh = False	#default: False	#orig: True	#use ~4x more epochs to train
 
 #activation function parameters:
 activationFunctionTypeForward = "relu"
@@ -76,6 +96,11 @@ useInbuiltCrossEntropyLossFunction = True	#required
 #sublayer parameters:	
 simulatedDendriticBranches = False	#optional	#performTopK selection of neurons based on local inhibition - equivalent to multiple independent fully connected weights per neuron (SDBANN)
 useLinearSublayers = False
+
+if(useTabularDataset):
+	datasetType = "useTabularDataset"
+elif(useImageDataset):
+	datasetType = "useImageDataset"
 
 #data storage parameters:
 workingDrive = '/large/source/ANNpython/LREANNpt/'

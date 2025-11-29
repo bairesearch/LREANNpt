@@ -19,9 +19,6 @@ pip install torchsummary
 pip install networkx
 pip install matplotlib
 pip install transformers
-pip install h5py
-pip install spacy
-python -m spacy download en_core_web_sm
 
 # Usage:
 source activate pytorchsenv
@@ -59,11 +56,15 @@ elif(useAlgorithmEISANI):
 	import EISANIpt_EISANI as ANNpt_algorithm
 elif(useAlgorithmAEANN):
 	import AEANNpt_AEANN as ANNpt_algorithm
+elif(useAlgorithmRPIANN):
+	import RPIANNpt_RPIANN as ANNpt_algorithm
+elif(useAlgorithmANN):
+	import ANNpt_ANN as ANNpt_algorithm
 elif(useAlgorithmSUANN):
 	import LREANNpt_SUANN as ANNpt_algorithm
 elif(useAlgorithmATNLP):
 	import ATNLPpt_ATNLP as ANNpt_algorithm
-	
+		
 if(useSignedWeights):
 	import ANNpt_linearSublayers
 import ANNpt_data
@@ -72,13 +73,12 @@ import ANNpt_data
 
 def main():
 	dataset = ANNpt_data.loadDataset()
-	model = None
 	if(stateTrainDataset):
 		model = ANNpt_algorithm.createModel(dataset[datasetSplitNameTrain])	#dataset[datasetSplitNameTest] not possible as test does not contain all classes
 		processDataset(True, dataset[datasetSplitNameTrain], model)
 	if(stateTestDataset):
-		if(saveAndLoadModel):
-			model = loadModel(model)
+		if not stateTrainDataset:
+			model = loadModel()
 		processDataset(False, dataset[datasetSplitNameTest], model)
 
 def createOptimizer():
@@ -134,6 +134,10 @@ def print_gpu_utilization():
 def processDataset(trainOrTest, dataset, model):
 	if(trainOrTest):
 		if(useCustomLearningAlgorithm):
+			optim = []
+		elif(useAlgorithmATNLP and trainLocal):
+			optim = [createOptimiser(model)] * ATNLPmultiLevels
+		elif(useAlgorithmEISANI and trainLocal):
 			optim = []
 		elif(useAlgorithmEIANN and trainLocal):
 			optim = []
@@ -197,14 +201,6 @@ def processDataset(trainOrTest, dataset, model):
 				loop = tqdm(loader, leave=True)
 				startTime = time.time()
 				for batchIndex, batch in enumerate(loop):
-					if(debugSkipFirstBatch):
-						if(batchIndex == 0):
-							continue	#DEBUG! skip batch with few keypoints at start of sequence
-					
-					if(enforceConfigBatchSize):
-						batchSizeTemp = model.deriveCurrentBatchSize(batch)
-						if(batchSizeTemp != model.config.batchSize): 
-							continue
 					if(debugPrintGPUusage):
 						if batchIndex % 100 == 0:
 							print_gpu_utilization()
@@ -249,7 +245,7 @@ def processDataset(trainOrTest, dataset, model):
 		if(trainOrTest and useAlgorithmATNLP):
 			model.finaliseTrainedSnapshotDatabase()
 
-		if(saveAndLoadModel):
+		if(saveModelTrain and trainOrTest):
 			saveModel(model)
 		
 	#if(useAlgorithmEISANI):
@@ -268,7 +264,7 @@ def trainBatch(batchIndex, batch, model, optim, l=None, fieldTypeList=None):
 		if(usePositiveWeightsClampModel):
 			ANNpt_linearSublayers.weightsSetPositiveModel(model)
 
-	if(saveAndLoadModel):
+	if(saveModelTrainContinuous):
 		if(batchIndex % modelSaveNumberOfBatches == 0):
 			saveModel(model)
 	loss = loss.item()
@@ -287,7 +283,7 @@ def testBatch(batchIndex, batch, model, l=None, fieldTypeList=None):
 def saveModel(model):
 	torch.save(model, modelPathNameFull)
 
-def loadModel(model):
+def loadModel():
 	print("loading existing model")
 	model = torch.load(modelPathNameFull, weights_only=False)
 	return model
@@ -306,6 +302,8 @@ def propagate(trainOrTest, batchIndex, batch, model, optim=None, l=None, fieldTy
 		loss, accuracy = ANNpt_algorithm.trainOrTestModel(model, trainOrTest, x, y, optim, l)
 	elif(useCustomLearningAlgorithm):
 		loss, accuracy = model(trainOrTest, x, y, optim, l, batchIndex, fieldTypeList)
+	elif(useAlgorithmEISANI):
+		loss, accuracy = ANNpt_algorithm.trainOrTestModel(model, trainOrTest, x, y, optim, l, batchIndex, fieldTypeList)
 	else:
 		loss, accuracy = model(trainOrTest, x, y, optim, l)
 	return loss, accuracy
@@ -324,6 +322,4 @@ def print_tqdm_output(epoch: int, start_time: float, batch_index: int, loss: flo
 					
 if(__name__ == '__main__'):
 	main()
-
-
 
