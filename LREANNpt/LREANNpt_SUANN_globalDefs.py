@@ -1,7 +1,7 @@
 """LREANNpt_SUANN_globalDefs.py
 
 # Author:
-Richard Bruce Baxter - Copyright (c) 2023-2025 Baxter AI (baxterai.com)
+Richard Bruce Baxter - Copyright (c) 2023-2026 BAI Research (bairesearch.com.au)
 
 # License:
 MIT License
@@ -28,8 +28,18 @@ useImageDataset = False	#use CIFAR-10 dataset with CNN
 useStochasticUpdates = True
 if(useStochasticUpdates):
 	#SUANN optimisation parameters:
-	useEvolutionarySearch = True	#default: True (ES:EGGROLL) #orig: False (individual weight pertubations)
-	if(useEvolutionarySearch):	#ES:EGGROLL
+	useIndividualPertubation = True	#orig: True	#individual weight pertubations
+	usePopulationPertubation = False	#default: True	#randomly perturb weights of model a number of times and average their rewards
+	useEvolutionarySearch = False	 #(ES:EGGROLL)
+	if(useIndividualPertubation):	#individual weight pertubations
+		learningRateBase = 0.01
+		#fractionTensorParametersPertubatedPerIteration = 1.0	
+	elif(usePopulationPertubation):
+		populationPertubationPopulationSize = 64	#64, 256, 1024, 4096	#number of perturbed copies evaluated per training iteration
+		populationPertubationSigma = 0.01	#standard deviation of independent Gaussian noise added to EVERY trainable parameter jointly
+		populationPertubationLearningRate = 0.01	#alpha: theta += alpha/(N*sigma) * sum((reward_i - meanReward)*noise_i), reward = -loss
+		#Takes precedence over useEvolutionarySearch; includes all layers, biases and trainable normalisation parameters.
+	elif(useEvolutionarySearch):	#ES:EGGROLL
 		evolutionaryPopulationSize = 64	#default: 8, 64	#number of perturbations per matrix update (N)
 		evolutionaryRank = 1	#rank-r factors used for each perturbation (EGGROLL paper default)
 		evolutionarySigma = 0.05	#orig: 0.05	#scale applied to rank-r perturbations before evaluation (σ)
@@ -42,9 +52,6 @@ if(useStochasticUpdates):
 		else:
 			evolutionaryFitnessShaping = False
 		evolutionaryPopulationSigmaScheduling = False	#orig: False	#optional: decay sigma across population members
-	else:	#individual weight pertubations
-		learningRateBase = 0.01
-		#fractionTensorParametersPertubatedPerIteration = 1.0
 	trainLocal = True	#mandatory: True	#execute training at each layer (LREANNpt_SUANN training code), do not execute training at final layer only (ANNpt_main training code)
 else:
 	trainLocal = False	#default: False #disable for debug/benchmark against standard full layer backprop

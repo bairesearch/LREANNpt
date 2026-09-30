@@ -1,6 +1,18 @@
 //SUANN Specification (prompts):
 
 ---
+usePopulationPertubation (Codex IDE GPT-6.0 prompt):
+
+Please upgrade SUANN useStochasticUpdates to support new option usePopulationPertubation==True - randomly perturb weights of model a number of times and average their rewards.
+
+Ensure all code is contained within context "if(usePopulationPertubation)".
+
+See dev/populationPertubationUpgradeInfo.txt for description of algorithm and dev/populationPertubationExpectedPerformanceGraph.png for expected algorithm performance  (i.e. improvement or comparable to backprop) with different pertubation population sizes;&#x20;
+populationPertubationPopulationSize = 64	#64, 256, 1024, 4096	#number of perturbed copies evaluated per training iteration
+
+Pay particular attention to the last questions asked in the algorithm description, as they describe the algorithm consisely. Note It is not clear how many parameters are perturbed at any given time (is it every parameter in the entire model that is perturbed?)  - it is your responsibility to work this out and define this.
+
+---
 useEvolutionarySearch (Codex IDE GPT-5.1-Codex prompt):
 
 Please upgrade SUUANN with option useEvolutionarySearch=True, that changes the current matrix (m x n) individual weight permutation algorithm to that of the paper "Evolution Strategies at the Hyperscale";

@@ -1,7 +1,7 @@
 """LREANNpt_SUANNmodel.py
 
 # Author:
-Richard Bruce Baxter - Copyright (c) 2023-2025 Baxter AI (baxterai.com)
+Richard Bruce Baxter - Copyright (c) 2023-2026 BAI Research (bairesearch.com.au)
 
 # License:
 MIT License
@@ -190,6 +190,10 @@ class SUANNmodel(nn.Module):
 		return mse_per_neuron
 
 	def calculateLossAccuracy(self, pred, target, lossFunction, calculateAccuracy=False):
+		if(useStochasticUpdates):
+			if(usePopulationPertubation):
+				if(getattr(self, "_populationPertubationEvaluating", False)):
+					calculateAccuracy = False	#candidate rewards need loss only; do not accumulate population accuracy metrics
 		accuracy = 0
 		if(calculateAccuracy):
 			accuracy = self.accuracyFunction(pred, target)

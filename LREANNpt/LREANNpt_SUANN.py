@@ -1,7 +1,7 @@
 """LREANNpt_SUANN.py
 
 # Author:
-Richard Bruce Baxter - Copyright (c) 2023-2025 Baxter AI (baxterai.com)
+Richard Bruce Baxter - Copyright (c) 2023-2026 BAI Research (bairesearch.com.au)
 
 # License:
 MIT License
@@ -53,6 +53,12 @@ def createModel(dataset):
 		print("\t ---")
 		print("\t trainLocal = ", trainLocal)
 		print("\t useStochasticUpdates = ", useStochasticUpdates)
+		if(useStochasticUpdates):
+			if(usePopulationPertubation):
+				print("\t usePopulationPertubation = ", usePopulationPertubation, "(takes precedence over useEvolutionarySearch)")
+				print("\t\t populationPertubationPopulationSize = ", populationPertubationPopulationSize)
+				print("\t\t populationPertubationSigma = ", populationPertubationSigma)
+				print("\t\t populationPertubationLearningRate = ", populationPertubationLearningRate)
 		print("\t useEvolutionarySearch = ", useEvolutionarySearch)
 		if(useEvolutionarySearch):
 			print("\t\t evolutionaryPopulationSize = ", evolutionaryPopulationSize)
@@ -95,6 +101,8 @@ def trainOrTestModel(model, trainOrTest, x, y, optim, l):
 	if(trainOrTest and useStochasticUpdates):
 		#print("trainOrTestModel:trainOrTest")
 		with pt.no_grad():
+			if(usePopulationPertubation):
+				return execute_population_pertubation(model, trainOrTest, x, y, optim, l)
 			if(useEvolutionarySearch):
 				if(evolutionaryPerturbAllTrainableTensors):
 					loss, accuracy = execute_evolutionary_search_all_tensors(model, trainOrTest, x, y, optim, l)
@@ -105,6 +113,103 @@ def trainOrTestModel(model, trainOrTest, x, y, optim, l):
 	else:
 		loss, accuracy = model(trainOrTest, x, y, optim, l)
 	return loss, accuracy
+
+if(useStochasticUpdates):
+	if(usePopulationPertubation):
+		def generate_population_pertubation_noise(parameters, seed):
+			#Replay a full-model direction without storing N copies of the parameters.
+			#Private generators keep weight noise independent of dropout/model randomness.
+			seedGenerator = pt.Generator(device="cpu").manual_seed(seed)
+			generators = {}
+			for parameter in parameters:
+				if(parameter.device not in generators):
+					deviceSeed = pt.randint(0, 2**63-1, (), generator=seedGenerator, device="cpu").item()
+					generators[parameter.device] = pt.Generator(device=parameter.device).manual_seed(deviceSeed)
+				yield pt.randn(parameter.shape, device=parameter.device, dtype=parameter.dtype, generator=generators[parameter.device])
+
+		@pt.no_grad()
+		def execute_population_pertubation(model, trainOrTest, x, y, optim, l):
+			"""One joint, full-model zeroth-order update, using only forward losses.
+
+			For N independent standard Gaussian directions epsilon_i, evaluate
+			reward_i = -loss(theta + sigma*epsilon_i) on the SAME minibatch.
+			theta += alpha/(N*sigma) * sum((reward_i - meanReward)*epsilon_i).
+			Every trainable scalar (weights, biases, normalisation affine terms)
+			is perturbed in every member; frozen parameters and buffers are not.
+			N counts candidate forward passes, with one extra updated-model pass
+			for the returned loss/accuracy. Memory is O(parameters + N), not O(N*parameters).
+			"""
+			populationSize = populationPertubationPopulationSize
+			sigma = populationPertubationSigma
+			learningRate = populationPertubationLearningRate
+			if(isinstance(populationSize, bool) or not isinstance(populationSize, int) or populationSize < 2):
+				raise ValueError("populationPertubationPopulationSize must be an integer >= 2 (mean-centred rewards require multiple members)")
+			if(not math.isfinite(sigma) or sigma <= 0):
+				raise ValueError("populationPertubationSigma must be finite and > 0")
+			if(not math.isfinite(learningRate) or learningRate < 0):
+				raise ValueError("populationPertubationLearningRate must be finite and >= 0")
+
+			parameters = [p for p in model.parameters() if p.requires_grad and p.numel() > 0]
+			if(not parameters):
+				return model(trainOrTest, x, y, optim, l)
+			if(any(not p.is_floating_point() for p in parameters)):
+				raise ValueError("Population pertubation requires real floating-point trainable parameters")
+			originalParameters = [p.detach().clone() for p in parameters]
+			buffers = list(model.buffers())
+			originalBuffers = [buffer.detach().clone() for buffer in buffers]
+			seeds = pt.randint(0, 2**63-1, (populationSize,), device="cpu").tolist()
+			rewards = []
+			cudaDevices = sorted({tensor.device.index for tensor in parameters + buffers + [x, y] if tensor.is_cuda})
+			wasEvaluating = getattr(model, "_populationPertubationEvaluating", False)
+			hadEvaluatingFlag = hasattr(model, "_populationPertubationEvaluating")
+
+			#Keep training/evaluation modes intact. Each candidate sees identical
+			#buffers and torch RNG states (including dropout); only the final pass
+			#advances running statistics, accuracy metrics and model randomness.
+			with pt.random.fork_rng(devices=cudaDevices):
+				cpuRngState = pt.get_rng_state()
+				cudaRngStates = [pt.cuda.get_rng_state(device) for device in cudaDevices]
+				try:
+					model._populationPertubationEvaluating = True
+					for seed in seeds:
+						for buffer, original in zip(buffers, originalBuffers):
+							buffer.copy_(original)
+						pt.set_rng_state(cpuRngState)
+						for device, state in zip(cudaDevices, cudaRngStates):
+							pt.cuda.set_rng_state(state, device)
+						for parameter, original, noise in zip(parameters, originalParameters, generate_population_pertubation_noise(parameters, seed)):
+							parameter.copy_(original).add_(noise, alpha=sigma)
+						loss, _ = model(trainOrTest, x, y, optim, l)
+						reward = -loss.item()
+						if(not math.isfinite(reward)):
+							raise FloatingPointError("Non-finite population pertubation loss; original parameters restored")
+						rewards.append(reward)
+				finally:
+					#Exact copies avoid round-off drift from repeatedly adding/subtracting noise.
+					for parameter, original in zip(parameters, originalParameters):
+						parameter.copy_(original)
+					for buffer, original in zip(buffers, originalBuffers):
+						buffer.copy_(original)
+					if(hadEvaluatingFlag):
+						model._populationPertubationEvaluating = wasEvaluating
+					else:
+						del model._populationPertubationEvaluating
+
+			meanReward = math.fsum(rewards) / populationSize
+			updates = [pt.zeros_like(p, dtype=pt.float64 if p.dtype == pt.float64 else pt.float32) for p in parameters]
+			updateScale = learningRate / (populationSize * sigma)
+			for seed, reward in zip(seeds, rewards):
+				weight = updateScale * (reward - meanReward)
+				for update, noise in zip(updates, generate_population_pertubation_noise(parameters, seed)):
+					update.add_(noise, alpha=weight)
+			#Validate every updated tensor before committing any of them.
+			for index, (original, update) in enumerate(zip(originalParameters, updates)):
+				updates[index] = (original + update).to(original.dtype)
+				if(not pt.isfinite(updates[index]).all().item()):
+					raise FloatingPointError("Non-finite population pertubation update; original parameters restored")
+			for parameter, updated in zip(parameters, updates):
+				parameter.copy_(updated)
+			return model(trainOrTest, x, y, optim, l)
 
 #computationally expensive;
 def execute_stochastic_search(model, trainOrTest, x, y, optim, l):
