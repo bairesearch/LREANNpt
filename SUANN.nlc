@@ -1,7 +1,10 @@
 //SUANN Specification (prompts):
 
 ---
-Replace the inaccessible Hugging Face Titanic source with OpenML and prepare numeric predictors and survival labels for training.
+patch ANNpt_data - fix tabular preprocessing to reuse training-derived normalization and categorical mappings across splits while excluding targets from feature conversion.
+
+---
+replace the inaccessible Hugging Face Titanic source with OpenML and prepare numeric predictors and survival labels for training.
 
 ---
 usePopulationPertubation (Codex IDE GPT-6.0 prompt):

@@ -296,26 +296,25 @@ if(useTabularDataset):
 		if(debugSaveRawDatasetToCSV):
 			saveDatasetToCSV(dataset)
 			
-		if(datasetConvertFeatureValues):
-			dataset[datasetSplitNameTrain] = convertFeatureValues(dataset[datasetSplitNameTrain])
-			if(datasetHasTestSplit):
-				dataset[datasetSplitNameTest] = convertFeatureValues(dataset[datasetSplitNameTest])
-		if(datasetConvertClassValues):
-			dataset[datasetSplitNameTrain] = convertClassValues(dataset[datasetSplitNameTrain])
-			if(datasetHasTestSplit):
-				dataset[datasetSplitNameTest] = convertClassValues(dataset[datasetSplitNameTest])
-		else:
-			if(datasetConvertClassTargetColumnFloatToInt):
-				dataset[datasetSplitNameTrain] = convertClassTargetColumnFloatToInt(dataset[datasetSplitNameTrain])
-				if(datasetHasTestSplit):
-					dataset[datasetSplitNameTest] = convertClassTargetColumnFloatToInt(dataset[datasetSplitNameTest])
-
 		if(datasetName == 'topquark'):
 			dataset = removeTopQuarkLeakageColumns(dataset)
-								
+
+		# Establish the training split before fitting any preprocessing mappings.
 		if(not datasetHasTestSplit):
 			dataset[datasetSplitNameTrain] = shuffleDataset(dataset[datasetSplitNameTrain])
 			dataset = dataset[datasetSplitNameTrain].train_test_split(test_size=datasetTestSplitSize)
+
+		if(datasetConvertFeatureValues):
+			featureValueMappings = createFeatureValueMappings(dataset[datasetSplitNameTrain])
+			for splitName in dataset.keys():
+				dataset[splitName] = convertFeatureValues(dataset[splitName], featureValueMappings)
+		if(datasetConvertClassValues):
+			classValueMapping = createCategoricalFieldIndex(dataset[datasetSplitNameTrain], classFieldName)
+			for splitName in dataset.keys():
+				dataset[splitName] = convertClassValues(dataset[splitName], classValueMapping)
+		elif(datasetConvertClassTargetColumnFloatToInt):
+			for splitName in dataset.keys():
+				dataset[splitName] = convertClassTargetColumnFloatToInt(dataset[splitName])
 
 		if(debugSaveSplitDatasetToCSV):
 			saveDatasetToCSV(dataset)
@@ -328,8 +327,9 @@ if(useTabularDataset):
 		_cache_tabular_field_types(dataset)
 		
 		if(datasetNormalise):
-			dataset[datasetSplitNameTrain] = normaliseDataset(dataset[datasetSplitNameTrain])
-			dataset[datasetSplitNameTest] = normaliseDataset(dataset[datasetSplitNameTest])
+			normStats = calculateNormalisationStatistics(dataset[datasetSplitNameTrain])
+			for splitName in dataset.keys():
+				dataset[splitName] = normaliseDataset(dataset[splitName], normStats)
 		if(datasetRepeat):
 			dataset[datasetSplitNameTrain] = repeatDataset(dataset[datasetSplitNameTrain])
 			dataset[datasetSplitNameTest] = repeatDataset(dataset[datasetSplitNameTest])
@@ -430,23 +430,9 @@ if(useTabularDataset):
 
 		return dataset
 
-	def normaliseDataset(dataset):
-		print("normaliseDataset:  dataset.num_rows = ",  dataset.num_rows, ", len(dataset.features) = ", len(dataset.features))
-
+	def calculateNormalisationStatistics(dataset):
+		# Fit once on training rows; apply the same statistics to all held-out splits.
 		featureNames = [featureName for featureName in dataset.column_names if featureName != classFieldName]
-		if not featureNames:
-			return dataset
-
-		# Ensure feature columns are stored as floating point to avoid schema conflicts when returning float values
-		if any(not isinstance(dataset.features[featureName], Value) or dataset.features[featureName].dtype not in ('float32', 'float64') for featureName in featureNames):
-			featuresDict = {}
-			for columnName, featureInfo in dataset.features.items():
-				if columnName in featureNames:
-					featuresDict[columnName] = Value('float64')
-				else:
-					featuresDict[columnName] = featureInfo
-			dataset = dataset.cast(Features(featuresDict))
-
 		normStats = {}
 		for featureName in featureNames:
 			'''
@@ -476,6 +462,28 @@ if(useTabularDataset):
 				else:
 					invStd = 1.0 / (featureStd + 1e-8)
 					normStats[featureName] = ("std", featureMean, invStd)
+
+		return normStats
+
+	def normaliseDataset(dataset, normStats=None):
+		print("normaliseDataset:  dataset.num_rows = ",  dataset.num_rows, ", len(dataset.features) = ", len(dataset.features))
+
+		featureNames = [featureName for featureName in dataset.column_names if featureName != classFieldName]
+		if not featureNames:
+			return dataset
+
+		# Ensure feature columns are stored as floating point to avoid schema conflicts when returning float values
+		if any(not isinstance(dataset.features[featureName], Value) or dataset.features[featureName].dtype not in ('float32', 'float64') for featureName in featureNames):
+			featuresDict = {}
+			for columnName, featureInfo in dataset.features.items():
+				if columnName in featureNames:
+					featuresDict[columnName] = Value('float64')
+				else:
+					featuresDict[columnName] = featureInfo
+			dataset = dataset.cast(Features(featuresDict))
+
+		if normStats is None:
+			normStats = calculateNormalisationStatistics(dataset)
 
 		if not normStats:
 			return dataset
@@ -551,62 +559,63 @@ if(useTabularDataset):
 		dataset = dataset.sort(classFieldName)
 		return dataset
 
-	def convertFeatureValues(dataset):
-		print("convertFeatureValues:  dataset.num_rows = ",  dataset.num_rows, ", len(dataset.features) = ", len(dataset.features))
-		for fieldName, fieldType in dataset.features.items():
-			#print("convertFeatureValues: fieldName = ", fieldName)
-			if fieldType.dtype == 'string':
-				dataset = convertCategoricalFieldValues(dataset, fieldName, dataType=float)
-			#elif fieldType.dtype == 'bool':
-			#	dataset = dataset.cast_column(fieldName, Value('float32'))
+	def createFeatureValueMappings(dataset):
+		return {
+			fieldName: createCategoricalFieldIndex(dataset, fieldName)
+			for fieldName, fieldType in dataset.features.items()
+			if fieldName != classFieldName and fieldType.dtype == 'string'
+		}
+
+	def convertFeatureValues(dataset, fieldIndexDicts=None):
+		print("convertFeatureValues:  dataset.num_rows = ", dataset.num_rows, ", len(dataset.features) = ", len(dataset.features))
+		if fieldIndexDicts is None:
+			fieldIndexDicts = createFeatureValueMappings(dataset)
+		for fieldName, fieldIndexDict in fieldIndexDicts.items():
+			# -1 keeps unseen features distinct from every category learned during training.
+			dataset = convertCategoricalFieldValues(dataset, fieldName, dataType=float, fieldIndexDict=fieldIndexDict, unknownValue=-1)
 		return dataset
-	
+
 	def bool_to_float(example):
 		example[fieldName] = float(example[fieldName])
 		return example
 
 		
-	def convertClassValues(dataset):
-		return convertCategoricalFieldValues(dataset, classFieldName, dataType=int)
+	def convertClassValues(dataset, fieldIndexDict=None):
+		return convertCategoricalFieldValues(dataset, classFieldName, dataType=int, fieldIndexDict=fieldIndexDict)
 
-	def convertCategoricalFieldValues(dataset, fieldName, dataType=float):
+	def createCategoricalFieldIndex(dataset, fieldName):
+		fieldIndexDict = {}
+		for value in dataset[fieldName]:
+			if value not in fieldIndexDict:
+				fieldIndexDict[value] = len(fieldIndexDict)
+		return fieldIndexDict
+
+	def convertCategoricalFieldValues(dataset, fieldName, dataType=float, fieldIndexDict=None, unknownValue=None):
 		if(not (dataType==float or dataType==int)):
 			printe("convertCategoricalFieldValues error: not (dataType==float or dataType==int)")
+		if fieldIndexDict is None:
+			fieldIndexDict = createCategoricalFieldIndex(dataset, fieldName)
 
-		#print("convertCategoricalFieldValues: fieldName = ", fieldName)
-		fieldIndex = 0
-		fieldIndexDict = {}
+		# Boolean storage cannot represent an unknown category (-1).
+		booleanCategoryDetected = len(fieldIndexDict) == 2 and unknownValue is None
 		fieldNew = []
-		datasetSize = getDatasetSize(dataset)
-		#print("datasetSize = ", datasetSize)
-		numberOfClasses = 0
-
-		for i in range(datasetSize):
-			row = dataset[i]
-			targetString = row[fieldName]
-			if(targetString not in fieldIndexDict):
-				fieldIndexDict[targetString] = fieldIndex
-				fieldIndex = fieldIndex + 1		
-
-		booleanCategoryDetected = False
-		if(fieldIndex == 2):
-			booleanCategoryDetected = True
-
-		for i in range(datasetSize):
-			row = dataset[i]
-			targetString = row[fieldName]
-			target = fieldIndexDict[targetString]
-			if(dataType==int):	#always store class target as int (never bool)
-				target = int(target)	#keep as int (redundant)
+		for value in dataset[fieldName]:
+			if value in fieldIndexDict:
+				target = fieldIndexDict[value]
+			elif unknownValue is not None:
+				target = unknownValue
+			else:
+				raise ValueError(f"Unseen categorical value {value!r} in field {fieldName!r}; not present in the training mapping")
+			if(dataType==int):
+				target = int(target)
 			elif(booleanCategoryDetected):
 				target = bool(target)
-			elif(dataType==float):
+			else:
 				target = float(target)
 			fieldNew.append(target)
 
 		dataset = dataset.remove_columns(fieldName)
 		dataset = dataset.add_column(fieldName, fieldNew)
-
 		return dataset
 
 	def normaliseBooleanFieldValues(dataset, fieldName, dataType=float):
