@@ -254,7 +254,23 @@ def createDataLoader(dataset):
 if(useTabularDataset):
 
 	def loadDatasetTabular():
-		if(datasetLocalFile):
+		if(datasetName == 'titanic' and not datasetLocalFile):
+			from sklearn.datasets import fetch_openml
+			from datasets import Dataset, DatasetDict
+
+			titanic = fetch_openml(data_id=datasetOpenMLID, as_frame=True)
+			# Exclude outcome information (boat/body) and identifying/free-text fields.
+			featureNames = ['pclass', 'sex', 'age', 'sibsp', 'parch', 'fare', 'embarked']
+			frame = titanic.data[featureNames].copy()
+			frame['sex'] = frame['sex'].map({'male': 0.0, 'female': 1.0})
+			frame['embarked'] = frame['embarked'].map({'S': 0.0, 'C': 1.0, 'Q': 2.0})
+			# Match the existing Titanic missing-value policy before normalisation.
+			frame = frame.astype('float32').fillna(0.0)
+			frame[classFieldName] = titanic.target.astype('int64')
+			dataset = DatasetDict({
+				datasetSplitNameTrain: Dataset.from_pandas(frame, preserve_index=False)
+			})
+		elif(datasetLocalFile):
 			trainFileNameFull = dataPathName + '/' + trainFileName
 			if(datasetHasTestSplit):
 				testFileNameFull = dataPathName + '/' +  testFileName

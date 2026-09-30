@@ -1,6 +1,9 @@
 //SUANN Specification (prompts):
 
 ---
+Replace the inaccessible Hugging Face Titanic source with OpenML and prepare numeric predictors and survival labels for training.
+
+---
 usePopulationPertubation (Codex IDE GPT-6.0 prompt):
 
 Please upgrade SUANN useStochasticUpdates to support new option usePopulationPertubation==True - randomly perturb weights of model a number of times and average their rewards.

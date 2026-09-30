@@ -238,8 +238,10 @@ if(useTabularDataset):
 		#datasetEqualiseClassSamples = False	#extremely imbalanced classes
 		numberOfSamplesK = 52.4
 	elif(datasetName == 'titanic'):
-		datasetNameFull = 'victor/titanic'
-		classFieldName = '2urvived'
+		datasetNameFull = 'openml:40945'	#handled by the Titanic loader
+		datasetOpenMLID = 40945
+		classFieldName = 'survived'
+		datasetHasTestSplit = False	#create train/test splits using datasetTestSplitSize
 		datasetSpecifyDataFiles = False
 		datasetReplaceNoneValues = True
 		datasetNormalise = True
