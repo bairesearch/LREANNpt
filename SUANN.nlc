@@ -1,6 +1,10 @@
 //SUANN Specification (prompts):
 
 ---
+add experimental benchmark population_pertubation_train_convergence_full - conduct thorough benchmark of useStochasticUpdates:usePopulationPertubation=True vs useStochasticUpdates=False, for all populationPertubationPopulationSize (e.g. 64, 256, 1024, 4096). Table your final results after training (test set accuracy), and graph your results in a similar format to populationPertubationExpectedPerformanceGraph.png. Once you have completed this and are satisfied that usePopulationPertubation performance is competitive with backprop, perform benchmarks on all different datasetName. For each dataset, continue their training until they reach optimal train-set performance.
+implement option populationPertubationOptimiseTrainingIterations within context if(populationPertubationOptimiseTrainingIterations), which mirrors the current experimental benchmark requirement (population_pertubation_train_convergence_full) of optimising the number of training iterations before evaluating the test set, instead of training a fixed number of repeats/epochs.
+
+---
 patch ANNpt_data - fix tabular preprocessing to reuse training-derived normalization and categorical mappings across splits while excluding targets from feature conversion.
 
 ---

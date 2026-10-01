@@ -1,0 +1,396 @@
+{
+  "dataset": "covertype",
+  "source_rows_loaded": 581012,
+  "all_source_rows_used": true,
+  "source_prefix_used": false,
+  "row_caps": null,
+  "sizes": {
+    "train": 348607,
+    "validation": 116202,
+    "test": 116203
+  },
+  "features": 54,
+  "feature_names": [
+    "Elevation",
+    "Aspect",
+    "Slope",
+    "Horizontal_Distance_To_Hydrology",
+    "Vertical_Distance_To_Hydrology",
+    "Horizontal_Distance_To_Roadways",
+    "Hillshade_9am",
+    "Hillshade_Noon",
+    "Hillshade_3pm",
+    "Horizontal_Distance_To_Fire_Points",
+    "Wilderness_Area_0",
+    "Wilderness_Area_1",
+    "Wilderness_Area_2",
+    "Wilderness_Area_3",
+    "Soil_Type_0",
+    "Soil_Type_1",
+    "Soil_Type_2",
+    "Soil_Type_3",
+    "Soil_Type_4",
+    "Soil_Type_5",
+    "Soil_Type_6",
+    "Soil_Type_7",
+    "Soil_Type_8",
+    "Soil_Type_9",
+    "Soil_Type_10",
+    "Soil_Type_11",
+    "Soil_Type_12",
+    "Soil_Type_13",
+    "Soil_Type_14",
+    "Soil_Type_15",
+    "Soil_Type_16",
+    "Soil_Type_17",
+    "Soil_Type_18",
+    "Soil_Type_19",
+    "Soil_Type_20",
+    "Soil_Type_21",
+    "Soil_Type_22",
+    "Soil_Type_23",
+    "Soil_Type_24",
+    "Soil_Type_25",
+    "Soil_Type_26",
+    "Soil_Type_27",
+    "Soil_Type_28",
+    "Soil_Type_29",
+    "Soil_Type_30",
+    "Soil_Type_31",
+    "Soil_Type_32",
+    "Soil_Type_33",
+    "Soil_Type_34",
+    "Soil_Type_35",
+    "Soil_Type_36",
+    "Soil_Type_37",
+    "Soil_Type_38",
+    "Soil_Type_39"
+  ],
+  "class_count": 7,
+  "split_seed": 20260930,
+  "sources": [
+    {
+      "url": "https://archive.ics.uci.edu/dataset/31/covertype",
+      "loader": "sklearn.fetch_covtype",
+      "rows": 581012
+    }
+  ],
+  "dropped_columns": [],
+  "category_mappings": {},
+  "normalisation_statistics": {
+    "Elevation": [
+      "minmax",
+      1860.0,
+      0.0005005005004979956
+    ],
+    "Aspect": [
+      "minmax",
+      0.0,
+      0.0027777777777006174
+    ],
+    "Slope": [
+      "minmax",
+      0.0,
+      0.01515151514921947
+    ],
+    "Horizontal_Distance_To_Hydrology": [
+      "minmax",
+      0.0,
+      0.0007158196134522848
+    ],
+    "Vertical_Distance_To_Hydrology": [
+      "minmax",
+      -166.0,
+      0.0013037809647809156
+    ],
+    "Horizontal_Distance_To_Roadways": [
+      "minmax",
+      0.0,
+      0.0001405086412812414
+    ],
+    "Hillshade_9am": [
+      "minmax",
+      0.0,
+      0.003937007873860748
+    ],
+    "Hillshade_Noon": [
+      "minmax",
+      0.0,
+      0.003937007873860748
+    ],
+    "Hillshade_3pm": [
+      "minmax",
+      0.0,
+      0.003937007873860748
+    ],
+    "Horizontal_Distance_To_Fire_Points": [
+      "minmax",
+      0.0,
+      0.0001400168020160459
+    ],
+    "Wilderness_Area_0": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Wilderness_Area_1": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Wilderness_Area_2": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Wilderness_Area_3": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_0": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_1": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_2": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_3": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_4": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_5": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_6": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_7": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_8": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_9": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_10": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_11": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_12": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_13": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_14": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_15": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_16": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_17": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_18": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_19": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_20": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_21": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_22": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_23": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_24": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_25": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_26": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_27": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_28": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_29": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_30": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_31": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_32": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_33": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_34": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_35": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_36": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_37": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_38": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "Soil_Type_39": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ]
+  },
+  "normalisation_fit_rows": 348607,
+  "normalisation_fit_split": "train",
+  "preprocessing": "Train-fitted category maps and float32 min/max equations of patched ANNpt_data; streamed without row limits. Verified separately against production normalization.",
+  "files": {
+    "train_x.npy": {
+      "sha256": "e34f29c44fbf47a07777cdb30777b098098df4901a99f801f19b60fd8ced01eb",
+      "bytes": 75299240
+    },
+    "train_y.npy": {
+      "sha256": "02977237549ed59080126b89bbd58b1624dedb86d9f68e071d21e59c6dbed7a6",
+      "bytes": 2788984
+    },
+    "train_source_indices.npy": {
+      "sha256": "9a5504968d39f27b6f6f9209ea4b2c826c8f714f1bf3d081d5abdcb1e3184e0f",
+      "bytes": 2788984
+    },
+    "validation_x.npy": {
+      "sha256": "51d183baf1b8fd1e4bd599e0cb20096e7e4628f0591159351c41fc4fda529f80",
+      "bytes": 25099760
+    },
+    "validation_y.npy": {
+      "sha256": "4de4c80e68dc6e40c56180efefcc5d60b0f11e7d51012254518f7c3836e7ebbd",
+      "bytes": 929744
+    },
+    "validation_source_indices.npy": {
+      "sha256": "7da4f12636435559da9b25ef735f796a56ab7ecc2ccb45cb8c6d0bb3c24dbaf0",
+      "bytes": 929744
+    },
+    "test_x.npy": {
+      "sha256": "431dab84ac1aede86c25a0e8c4f015975f0c023114ae8a5dbef6b21814c06c08",
+      "bytes": 25099976
+    },
+    "test_y.npy": {
+      "sha256": "54d1d55df4f7c3401b7a2b7e99970e2845dfb06993d7bc75048467edcb1248b6",
+      "bytes": 929752
+    },
+    "test_source_indices.npy": {
+      "sha256": "b836c05d968da7b1a2ecba151011786d9b02c41e9fa5877a55ea749a1043b9ce",
+      "bytes": 929752
+    }
+  },
+  "notes": [],
+  "partition_coverage_verified": true,
+  "data_sha256": "74ac23bdf04605b79ca09f59a289e07679138d7ee2af52cb1d18ee689520b630"
+}

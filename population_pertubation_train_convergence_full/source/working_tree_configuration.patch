@@ -1,0 +1,34 @@
+diff --git a/LREANNpt/LREANNpt_SUANN_globalDefs.py b/LREANNpt/LREANNpt_SUANN_globalDefs.py
+index 83efb61..2adea70 100644
+--- a/LREANNpt/LREANNpt_SUANN_globalDefs.py
++++ b/LREANNpt/LREANNpt_SUANN_globalDefs.py
+@@ -29,7 +29,7 @@ useStochasticUpdates = True
+ if(useStochasticUpdates):
+ 	#SUANN optimisation parameters:
+ 	useIndividualPertubation = True	#orig: True	#individual weight pertubations
+-	usePopulationPertubation = False	#default: True	#randomly perturb weights of model a number of times and average their rewards
++	usePopulationPertubation = False	#default: True	#randomly perturb weights of model a number of times and average their rewards	#this is an implementation of LREANNtf_algorithmLREANN_expSUANN:stochasticUpdateNetwork and updateParameterSubsetSimultaneously (https://github.com/bairesearch/LREANNtf)
+ 	useEvolutionarySearch = False	 #(ES:EGGROLL)
+ 	if(useIndividualPertubation):	#individual weight pertubations
+ 		learningRateBase = 0.01
+@@ -38,7 +38,19 @@ if(useStochasticUpdates):
+ 		populationPertubationPopulationSize = 64	#64, 256, 1024, 4096	#number of perturbed copies evaluated per training iteration
+ 		populationPertubationSigma = 0.01	#standard deviation of independent Gaussian noise added to EVERY trainable parameter jointly
+ 		populationPertubationLearningRate = 0.01	#alpha: theta += alpha/(N*sigma) * sum((reward_i - meanReward)*noise_i), reward = -loss
+-		#Takes precedence over useEvolutionarySearch; includes all layers, biases and trainable normalisation parameters.
++		#includes all layers, biases and trainable normalisation parameters.
++		populationPertubationOptimiseTrainingIterations = False	#default: True #orig: False
++		if(populationPertubationOptimiseTrainingIterations):
++			#Full training-set loss controls checkpoint selection and stopping; test data is never consulted.
++			populationPertubationEvaluateEveryIterations = 100
++			populationPertubationMinimumTrainingIterations = 2000
++			populationPertubationTrainingPatience = 2000
++			populationPertubationTrainingMinDelta = 0.0001
++			populationPertubationTrainingRelativeMinDelta = 0.001
++			populationPertubationTrainingLearningRateFactor = 0.2
++			populationPertubationTrainingLearningRateReductions = 3
++			populationPertubationTrainingLossGoal = 0.01
++			populationPertubationTrainingMaxNumericalRecoveries = 5
+ 	elif(useEvolutionarySearch):	#ES:EGGROLL
+ 		evolutionaryPopulationSize = 64	#default: 8, 64	#number of perturbations per matrix update (N)
+ 		evolutionaryRank = 1	#rank-r factors used for each perturbation (EGGROLL paper default)

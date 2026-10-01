@@ -1,0 +1,56 @@
+{
+  "status": "passed",
+  "checked_utc": "2026-10-01T07:27:19.714850+00:00",
+  "full_datasets_rebuilt_and_independently_audited": 13,
+  "full_rebuild_python": "3.13.2 (original experiment environment)",
+  "full_source_download_validation": "Iris and Covertype fetched afresh; other large pinned raw sources reused read-only, with their recorded hashes verified; bundled exact Titanic/New Thyroid inputs verified.",
+  "clean_environment_python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+  "clean_environment_installation": "requirements.txt resolved and installed; pip check passed; all pinned versions verified",
+  "clean_environment_datasets_rebuilt": [
+    "iris",
+    "new-thyroid",
+    "titanic"
+  ],
+  "unit_tests_passed": 11,
+  "unit_test_command": "python -m unittest discover -s tests -v",
+  "unit_test_python_versions": [
+    "3.13.2",
+    "3.12"
+  ],
+  "missing_array_rebuild_with_retained_manifest": "passed on complete Iris dataset",
+  "manager_process_group_isolation_and_error_exit": "passed",
+  "shell_wrapper_syntax_and_help": "passed",
+  "population_sizes_numerically_verified": [
+    64,
+    256,
+    1024,
+    4096
+  ],
+  "six_update_graph_rng_and_resume_checks": "bitwise equal for tested Iris fixtures and chunks",
+  "frozen_production_source_hashes_unchanged": true,
+  "reproduction_checkpoint_directory_isolated": true,
+  "new_benchmark_training_runs_started": 0,
+  "banking_marketing": "Original overlapping sources and partitions retained by request; no hold in new reproductions.",
+  "limits": "Validation covers data reconstruction, launch isolation, dependencies and bounded numerical fixtures. It does not constitute a rerun of all 195 training jobs or promise bitwise-identical final models on different hardware/interpreters.",
+  "tested_script_sha256": {
+    "audit_data.py": "eff57f42b25d43691cf8e1d72deb703e0b2efaa0d50e9a8be8bff7cf2d39de27",
+    "batched.py": "99892fdf5854d1e5f8b17d90b786536bb6919ef5572cdcf315386b83ae7be1ef",
+    "cached_graphed_population.py": "4445188cfe2d0d8bbd686e76e7005b8c103367cbbbd0b82557728cae96d059f8",
+    "clean_population_pertubation_train_convergence.py": "4fc3278b4c237340b335a4f42c1659dc566f9394540b26c4e8d933a13d45cce2",
+    "fast_population.py": "d450a5af701a9b448df63ac03986ddb481be283f877e1393a8a2e16b93a1282e",
+    "manage.py": "9eff45de4e45a127461178d004e1484305a67b9d1d9df2c150f30dfb5e52a6a9",
+    "model_setup.py": "572eff1f275134ded5295efc42e24ef0248c10ea6ad08807227b3208c957a8cd",
+    "population_pertubation_train_convergence_full.sh": "fe0c3ad0b5f4ec581bd1958c0c57c26819a0b42ccea93dfce70ae31f8f3e4ce7",
+    "prepare_full.py": "a1b9c07f84fbff5db830d3379eece8fde88dc3d4f9c749ce78ef720fa626a3c3",
+    "report.py": "0871f63dde23e2e585b9e204867fea4c991d1b796dd961c927369a631631f554",
+    "reproduce.py": "fc7fc9400b5d12054e2b0853e01322d676ed2cefeaca0bdf464c770f11e44404",
+    "reproduction_support.py": "b6a037d8cfce07f41567068e6ff5f59a236029ff9d2410f9d4a0839dbbfa154c",
+    "requirements.txt": "8c5f5970d7b925720375db2b2a12c81f23ed5e0abc74c62601ab0a4849628aa1",
+    "tests/test_reproduction.py": "a12359fb0c01f3947101bce80451b05c58afe666b5db985a55ff0c368221a450",
+    "train_full.py": "44f7baeeedda1142f7c6e6d6c14ef9754e5c3842947e53ac3dc9b53c5c8af57c",
+    "verify_backend.py": "84fc0a5a44fa4b711705c6662362da33adadecd7de061327ec18318522e2287e",
+    "verify_cached_graph.py": "65d0435781616632cf1ba0976b6107dd14e715ea802ad3db38c31696e564bac8",
+    "verify_preprocessing.py": "e7e89be51f171027de1a5d51783ca237b9bf945416946fb78d1d62062bb0ad80",
+    "verify_results.py": "8635b59ce96cceb3ee381fa079b00f2c9c0dc809c25d367890efc06f3ecd5222"
+  }
+}

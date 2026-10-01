@@ -252,7 +252,7 @@ if(useTabularDataset):
 		hiddenLayerSize = 128	#default: 128	#orig: 100
 		datasetRepeat = True
 		if(datasetRepeat):
-			datasetRepeatSize = 100
+			datasetRepeatSize = 10
 		numberOfSamplesK = 1.3
 	elif(datasetName == 'red-wine'):
 		datasetNameFull = 'lvwerra/red-wine'

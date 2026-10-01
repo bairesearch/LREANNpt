@@ -1,0 +1,115 @@
+{
+  "dataset": "titanic",
+  "source_rows_loaded": 1309,
+  "all_source_rows_used": true,
+  "source_prefix_used": false,
+  "row_caps": null,
+  "sizes": {
+    "train": 785,
+    "validation": 262,
+    "test": 262
+  },
+  "features": 7,
+  "feature_names": [
+    "pclass",
+    "sex",
+    "age",
+    "sibsp",
+    "parch",
+    "fare",
+    "embarked"
+  ],
+  "class_count": 2,
+  "split_seed": 20260930,
+  "sources": [
+    {
+      "url": "https://www.openml.org/d/40945",
+      "path": "/media/user/large/source/ANNpython/LREANNpt/dev/benchmarks/population_pertubation/data/titanic_openml_40945.csv",
+      "bytes": 107022,
+      "sha256": "b83ab0b5169ceb660a97f1157bde0951fa7bedfe492ae6686ce8e80a3ff94877"
+    }
+  ],
+  "dropped_columns": [],
+  "category_mappings": {},
+  "normalisation_statistics": {
+    "pclass": [
+      "minmax",
+      1.0,
+      0.4999999975
+    ],
+    "sex": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "age": [
+      "minmax",
+      0.0,
+      0.0124999999984375
+    ],
+    "sibsp": [
+      "minmax",
+      0.0,
+      0.12499999984374999
+    ],
+    "parch": [
+      "minmax",
+      0.0,
+      0.16666666638888888
+    ],
+    "fare": [
+      "minmax",
+      0.0,
+      0.0019518699185061196
+    ],
+    "embarked": [
+      "minmax",
+      0.0,
+      0.4999999975
+    ]
+  },
+  "normalisation_fit_rows": 785,
+  "normalisation_fit_split": "train",
+  "preprocessing": "Train-fitted category maps and float32 min/max equations of patched ANNpt_data; streamed without row limits. Verified separately against production normalization.",
+  "files": {
+    "train_x.npy": {
+      "sha256": "41d4993b77ae73bfc5f0c80b666aa95eb59869c1356a0eddd4eec3f5c513373b",
+      "bytes": 22108
+    },
+    "train_y.npy": {
+      "sha256": "b8d47927b7235d28f635df49162cf8e982bfab737f0459fa4da4af0bfa49e64a",
+      "bytes": 6408
+    },
+    "train_source_indices.npy": {
+      "sha256": "badf443284804ddb92787b298ad705c199c1de293281354924560d589fb56284",
+      "bytes": 6408
+    },
+    "validation_x.npy": {
+      "sha256": "863914ee2223442ef9e6408341c4168cb90ed242d21e26a499f61409c9aaeae0",
+      "bytes": 7464
+    },
+    "validation_y.npy": {
+      "sha256": "35e24d7e9e95d75897d00fb356a4db5dc3941ee284abc45dcb68e94b50f9f8cf",
+      "bytes": 2224
+    },
+    "validation_source_indices.npy": {
+      "sha256": "a0ce461a08a7646e45e4aac4febb5fd027a8404b7408f31e25ecff3050a91e29",
+      "bytes": 2224
+    },
+    "test_x.npy": {
+      "sha256": "05471ad41eab7c2994802248bd2e19226848c0cf0c51a06d7a4689ba48f96c01",
+      "bytes": 7464
+    },
+    "test_y.npy": {
+      "sha256": "092c99c119a642aee91ea8b3d9a45cdd13a439d1567d95b6d2019c5c9a9c35dc",
+      "bytes": 2224
+    },
+    "test_source_indices.npy": {
+      "sha256": "e12111f4118b8ad3a00341ab01db77375ba4ab307bf5f199670d487894a141d3",
+      "bytes": 2224
+    }
+  },
+  "notes": [],
+  "partition_coverage_verified": true,
+  "data_sha256": "d0e92d2a4f11807bc3203dd1429e6f72f054922ccc7f9d9a8673f5498da63f09"
+}

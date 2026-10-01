@@ -1,0 +1,243 @@
+{
+  "dataset": "higgs",
+  "source_rows_loaded": 11000000,
+  "all_source_rows_used": true,
+  "source_prefix_used": false,
+  "row_caps": null,
+  "sizes": {
+    "train": 6600000,
+    "validation": 2200000,
+    "test": 2200000
+  },
+  "features": 28,
+  "feature_names": [
+    "feature_0",
+    "feature_1",
+    "feature_2",
+    "feature_3",
+    "feature_4",
+    "feature_5",
+    "feature_6",
+    "feature_7",
+    "feature_8",
+    "feature_9",
+    "feature_10",
+    "feature_11",
+    "feature_12",
+    "feature_13",
+    "feature_14",
+    "feature_15",
+    "feature_16",
+    "feature_17",
+    "feature_18",
+    "feature_19",
+    "feature_20",
+    "feature_21",
+    "feature_22",
+    "feature_23",
+    "feature_24",
+    "feature_25",
+    "feature_26",
+    "feature_27"
+  ],
+  "class_count": 2,
+  "split_seed": 20260930,
+  "sources": [
+    {
+      "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/00280/HIGGS.csv.gz",
+      "path": "/media/user/large/source/ANNpython/LREANNpt/dev/benchmarks/population_pertubation_train_convergence_full/sources/HIGGS.csv.gz",
+      "bytes": 2816407858,
+      "sha256": "ea302c18164d4e3d916a1e2e83a9a8d07069fa6ebc7771e4c0540d54e593b698"
+    }
+  ],
+  "dropped_columns": [],
+  "category_mappings": {},
+  "normalisation_statistics": {
+    "feature_0": [
+      "minmax",
+      0.2746966481208801,
+      0.08969336903888565
+    ],
+    "feature_1": [
+      "minmax",
+      -2.434976100921631,
+      0.20534538810682973
+    ],
+    "feature_2": [
+      "minmax",
+      -1.7425082921981812,
+      0.2868827799407592
+    ],
+    "feature_3": [
+      "minmax",
+      0.00039437791565433145,
+      0.06495013566881981
+    ],
+    "feature_4": [
+      "minmax",
+      -1.7439435720443726,
+      0.2867629674159822
+    ],
+    "feature_5": [
+      "minmax",
+      0.13750243186950684,
+      0.1147958905169924
+    ],
+    "feature_6": [
+      "minmax",
+      -2.9697251319885254,
+      0.16836719632810165
+    ],
+    "feature_7": [
+      "minmax",
+      -1.7412374019622803,
+      0.287134273085
+    ],
+    "feature_8": [
+      "minmax",
+      0.0,
+      0.46017715214859634
+    ],
+    "feature_9": [
+      "minmax",
+      0.18898114562034607,
+      0.09371125600200514
+    ],
+    "feature_10": [
+      "minmax",
+      -2.9130895137786865,
+      0.17163553134885987
+    ],
+    "feature_11": [
+      "minmax",
+      -1.742371678352356,
+      0.28689905753011025
+    ],
+    "feature_12": [
+      "minmax",
+      0.0,
+      0.4514933325665102
+    ],
+    "feature_13": [
+      "minmax",
+      0.26360762119293213,
+      0.06922627815488236
+    ],
+    "feature_14": [
+      "minmax",
+      -2.7296628952026367,
+      0.18316119476888942
+    ],
+    "feature_15": [
+      "minmax",
+      -1.7420687675476074,
+      0.2869479406453871
+    ],
+    "feature_16": [
+      "minmax",
+      0.0,
+      0.39243010811164497
+    ],
+    "feature_17": [
+      "minmax",
+      0.36535415053367615,
+      0.07988998659811983
+    ],
+    "feature_18": [
+      "minmax",
+      -2.497264862060547,
+      0.20018922532162695
+    ],
+    "feature_19": [
+      "minmax",
+      -1.7426908016204834,
+      0.28685653756687335
+    ],
+    "feature_20": [
+      "minmax",
+      0.0,
+      0.3223766759531072
+    ],
+    "feature_21": [
+      "minmax",
+      0.07900884002447128,
+      0.029871249372929332
+    ],
+    "feature_22": [
+      "minmax",
+      0.1986757218837738,
+      0.060489485415814066
+    ],
+    "feature_23": [
+      "minmax",
+      0.09220191836357117,
+      0.12657366999377007
+    ],
+    "feature_24": [
+      "minmax",
+      0.13200616836547852,
+      0.07076924162150923
+    ],
+    "feature_25": [
+      "minmax",
+      0.04786214604973793,
+      0.05644936992699578
+    ],
+    "feature_26": [
+      "minmax",
+      0.2951121926307678,
+      0.09362327971833656
+    ],
+    "feature_27": [
+      "minmax",
+      0.3475562036037445,
+      0.1406264527022971
+    ]
+  },
+  "normalisation_fit_rows": 6600000,
+  "normalisation_fit_split": "train",
+  "preprocessing": "Train-fitted category maps and float32 min/max equations of patched ANNpt_data; streamed without row limits. Verified separately against production normalization.",
+  "files": {
+    "train_x.npy": {
+      "sha256": "fd845da18f4b4cc8db214ffcec74dd66ab68669a87c9887a19f31aeadcf8594a",
+      "bytes": 739200128
+    },
+    "train_y.npy": {
+      "sha256": "090b224339c97384e27ed4bef91853ca5b9a336039b24870a2fa616ec0279494",
+      "bytes": 52800128
+    },
+    "train_source_indices.npy": {
+      "sha256": "0de51b1a93372eee51cf8334f7861c007b84d63dcbeea2b002e39e980a1e3c45",
+      "bytes": 52800128
+    },
+    "validation_x.npy": {
+      "sha256": "b8ae09cc1b3ae4abbe2523c7b1fd5c9e7fdd17e72098f6233b7874db8ae690f1",
+      "bytes": 246400128
+    },
+    "validation_y.npy": {
+      "sha256": "d7ee7e119ea141fc6bc43682235ed783f7a56169eadadb72c3989ca62eefe50f",
+      "bytes": 17600128
+    },
+    "validation_source_indices.npy": {
+      "sha256": "030e9bf86acb62a58df71d790ca94a7b69e8fd49908d7484eb8a9d0edffe905b",
+      "bytes": 17600128
+    },
+    "test_x.npy": {
+      "sha256": "56b145679ab7a7fd0c5523bff40a40c84df763db00aa64cbf67979620514d9d6",
+      "bytes": 246400128
+    },
+    "test_y.npy": {
+      "sha256": "131d4f7f12a43821277266cd81404a42b430c1f8cae0d4761af691d544ab5d3d",
+      "bytes": 17600128
+    },
+    "test_source_indices.npy": {
+      "sha256": "cf86a47d7e1333521413fa720877da62646f1705b318cab9c0e8807b6d466a55",
+      "bytes": 17600128
+    }
+  },
+  "notes": [
+    "All 11,000,000 rows. Retains prior random 60/20/20 partition rule; this is not the original HIGGS paper final-500,000 test partition."
+  ],
+  "partition_coverage_verified": true,
+  "data_sha256": "100e9f9b547d790b1af13bc2d4847ba5be51aefd043e4c89fcb48974a7be0b51"
+}

@@ -1,0 +1,15 @@
+PREPARED iris {"train": 90, "validation": 30, "test": 30} 4 features
+PREPARED new-thyroid {"train": 129, "validation": 43, "test": 43} 5 features
+PREPARED breast-cancer-wisconsin {"train": 341, "validation": 114, "test": 114} 30 features
+PREPARED red-wine {"train": 959, "validation": 320, "test": 320} 11 features
+PREPARED titanic {"train": 785, "validation": 262, "test": 262} 7 features
+PREPARED tabular-benchmark {"train": 34951, "validation": 11650, "test": 11651} 31 features
+PREPARED banking-marketing {"train": 36168, "validation": 9043, "test": 4521} 16 features
+PREPARED adult_income_dataset {"train": 29305, "validation": 9768, "test": 9769} 14 features
+PREPARED diabetes-readmission {"train": 65128, "validation": 16282, "test": 20353} 150 features
+PREPARED blog-feedback {"train": 41917, "validation": 10480, "test": 7624} 280 features
+PREPARED covertype {"train": 348607, "validation": 116202, "test": 116203} 54 features
+READ FULL TOPQUARK train 1211000
+READ FULL TOPQUARK validation 403000
+READ FULL TOPQUARK test 404000
+PREPARED topquark {"train": 1211000, "validation": 403000, "test": 404000} 800 features

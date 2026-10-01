@@ -1,0 +1,103 @@
+{
+  "dataset": "new-thyroid",
+  "source_rows_loaded": 215,
+  "all_source_rows_used": true,
+  "source_prefix_used": false,
+  "row_caps": null,
+  "sizes": {
+    "train": 129,
+    "validation": 43,
+    "test": 43
+  },
+  "features": 5,
+  "feature_names": [
+    "a",
+    "b",
+    "c",
+    "d",
+    "e"
+  ],
+  "class_count": 3,
+  "split_seed": 20260930,
+  "sources": [
+    {
+      "url": "Repository data/new-thyroid.csv",
+      "path": "/media/user/large/source/ANNpython/LREANNpt/git/LREANNpt/data/new-thyroid.csv",
+      "bytes": 4860,
+      "sha256": "ba74d491c28369e0d4a6cbe96f45e1a2d1e5fd292a394037758a0810f934738d"
+    }
+  ],
+  "dropped_columns": [],
+  "category_mappings": {},
+  "normalisation_statistics": {
+    "a": [
+      "minmax",
+      68.0,
+      0.013157894735110804
+    ],
+    "b": [
+      "minmax",
+      0.5,
+      0.042372880653063556
+    ],
+    "c": [
+      "minmax",
+      0.20000000298023224,
+      0.10204081625343847
+    ],
+    "d": [
+      "minmax",
+      0.10000000149011612,
+      0.030769232205793223
+    ],
+    "e": [
+      "minmax",
+      -0.699999988079071,
+      0.0175438598845369
+    ]
+  },
+  "normalisation_fit_rows": 129,
+  "normalisation_fit_split": "train",
+  "preprocessing": "Train-fitted category maps and float32 min/max equations of patched ANNpt_data; streamed without row limits. Verified separately against production normalization.",
+  "files": {
+    "train_x.npy": {
+      "sha256": "797b6ee4f86676575a6afbea5a771dd95d95d298df7da7f2a2f82b1f120e75cb",
+      "bytes": 2708
+    },
+    "train_y.npy": {
+      "sha256": "9cc4056acc48be2d14c25b6be778068adb0e798a18aa92184a70c12d3c938e0a",
+      "bytes": 1160
+    },
+    "train_source_indices.npy": {
+      "sha256": "89e6a7f8522464bad2706c728f5c4bb2c24f5055c05e7a60709207baf02e9ebf",
+      "bytes": 1160
+    },
+    "validation_x.npy": {
+      "sha256": "9c599b761e902d0ce3a8963120382193cf002b9b0c4bb4aa7bf4e289987af05e",
+      "bytes": 988
+    },
+    "validation_y.npy": {
+      "sha256": "7f0f29bce1fd6d3736ea6c7874743354298ae5732ab1040ad75cbe67b03aeaea",
+      "bytes": 472
+    },
+    "validation_source_indices.npy": {
+      "sha256": "04f926f8d7bc17ef2334f7dddec5c66fcc4ed6b3f833bdd2458d73d448a45109",
+      "bytes": 472
+    },
+    "test_x.npy": {
+      "sha256": "0f1b227905ec0d0ab98aa93947247119d4b2fcb734ab395dfe8ff2a664ea702c",
+      "bytes": 988
+    },
+    "test_y.npy": {
+      "sha256": "dc9f921b974246c7e88e886b36ffcdebbe763e1c8775395e9f4fd1675749599e",
+      "bytes": 472
+    },
+    "test_source_indices.npy": {
+      "sha256": "d166d86392069152f32652f9f417afec3d91a09c884e8c80c1da620f16e2b115",
+      "bytes": 472
+    }
+  },
+  "notes": [],
+  "partition_coverage_verified": true,
+  "data_sha256": "bef8041cb966c83f5d531231fd913a37ef8b8f71d7a7202b19a705799a36ae0c"
+}

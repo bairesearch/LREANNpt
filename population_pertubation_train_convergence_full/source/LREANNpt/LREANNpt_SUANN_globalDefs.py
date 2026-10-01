@@ -28,8 +28,8 @@ useImageDataset = False	#use CIFAR-10 dataset with CNN
 useStochasticUpdates = True
 if(useStochasticUpdates):
 	#SUANN optimisation parameters:
-	useIndividualPertubation = False	#orig: True	#individual weight pertubations
-	usePopulationPertubation = True	#default: True	#randomly perturb weights of model a number of times and average their rewards	#this is an implementation of LREANNtf_algorithmLREANN_expSUANN:stochasticUpdateNetwork and updateParameterSubsetSimultaneously (https://github.com/bairesearch/LREANNtf)
+	useIndividualPertubation = True	#orig: True	#individual weight pertubations
+	usePopulationPertubation = False	#default: True	#randomly perturb weights of model a number of times and average their rewards	#this is an implementation of LREANNtf_algorithmLREANN_expSUANN:stochasticUpdateNetwork and updateParameterSubsetSimultaneously (https://github.com/bairesearch/LREANNtf)
 	useEvolutionarySearch = False	 #(ES:EGGROLL)
 	if(useIndividualPertubation):	#individual weight pertubations
 		learningRateBase = 0.01

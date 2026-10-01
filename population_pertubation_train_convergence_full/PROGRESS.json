@@ -1,0 +1,116 @@
+{
+  "time": "2026-10-01T17:04:13.594687+10:00",
+  "completed": 33,
+  "expected": 195,
+  "active": [
+    {
+      "dataset": "covertype",
+      "method": "backprop_adam",
+      "seed": 33,
+      "status": "training",
+      "step": 107700,
+      "lr": 8.000000000000001e-06,
+      "stage": 3,
+      "train": {
+        "loss": 0.0402829196102295,
+        "accuracy": 0.9854793506728207,
+        "balanced_accuracy": 0.9733947576886887,
+        "rows": 348607
+      },
+      "validation": {
+        "loss": 0.13351723668213192,
+        "accuracy": 0.9626942737646512,
+        "balanced_accuracy": 0.935460557122406,
+        "rows": 116202
+      },
+      "best_step": 107600,
+      "best_train": {
+        "loss": 0.04021640100803734,
+        "accuracy": 0.985456402195022,
+        "balanced_accuracy": 0.9733553574654558,
+        "rows": 348607
+      },
+      "training_rows": 348607,
+      "examples_processed": 13785600,
+      "effective_training_passes": 39.54481694286116,
+      "minimum_updates": 2724,
+      "numerical_recoveries": 0,
+      "stop_reason": null,
+      "time": 1790838243.2237763
+    },
+    {
+      "dataset": "covertype",
+      "method": "backprop_adam",
+      "seed": 22,
+      "status": "training",
+      "step": 110500,
+      "lr": 4e-05,
+      "stage": 2,
+      "train": {
+        "loss": 0.028880162066581627,
+        "accuracy": 0.9892429010318209,
+        "balanced_accuracy": 0.981900506733696,
+        "rows": 348607
+      },
+      "validation": {
+        "loss": 0.1584175531840489,
+        "accuracy": 0.9645358943908022,
+        "balanced_accuracy": 0.9397717559001868,
+        "rows": 116202
+      },
+      "best_step": 110000,
+      "best_train": {
+        "loss": 0.028592260796123054,
+        "accuracy": 0.9896014709974269,
+        "balanced_accuracy": 0.9833664012866851,
+        "rows": 348607
+      },
+      "training_rows": 348607,
+      "examples_processed": 14144000,
+      "effective_training_passes": 40.57290874824659,
+      "minimum_updates": 2724,
+      "numerical_recoveries": 0,
+      "stop_reason": null,
+      "time": 1790838242.6537344
+    },
+    {
+      "dataset": "covertype",
+      "method": "backprop_adam",
+      "seed": 11,
+      "status": "training",
+      "step": 118400,
+      "lr": 8.000000000000001e-06,
+      "stage": 3,
+      "train": {
+        "loss": 0.03030170759753197,
+        "accuracy": 0.9891166844039276,
+        "balanced_accuracy": 0.9814736948010445,
+        "rows": 348607
+      },
+      "validation": {
+        "loss": 0.16471067658815797,
+        "accuracy": 0.9645358943908022,
+        "balanced_accuracy": 0.9384630234354499,
+        "rows": 116202
+      },
+      "best_step": 117300,
+      "best_train": {
+        "loss": 0.030260264961564417,
+        "accuracy": 0.9891711870386998,
+        "balanced_accuracy": 0.9823527219549121,
+        "rows": 348607
+      },
+      "training_rows": 348607,
+      "examples_processed": 15155200,
+      "effective_training_passes": 43.47359634201264,
+      "minimum_updates": 2724,
+      "numerical_recoveries": 0,
+      "stop_reason": null,
+      "time": 1790838243.3265896
+    }
+  ],
+  "failures": [],
+  "held_datasets": {
+    "banking-marketing": "Awaiting user decision on 4,521 supplied test records duplicated in supplied training source; other full-data datasets can proceed."
+  }
+}

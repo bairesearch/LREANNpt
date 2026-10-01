@@ -1,0 +1,93 @@
+[
+  {
+    "population": 64,
+    "chunk": 64,
+    "max_error_over_six_updates": 0.0,
+    "rng_exact": true,
+    "resume_exact": true,
+    "fresh_capture_resume_exact": true,
+    "evaluation_between_updates_verified": true,
+    "timings": {
+      "eager": 0.0013674215006176382,
+      "graph": 0.0001734921340054522
+    }
+  },
+  {
+    "population": 256,
+    "chunk": 128,
+    "max_error_over_six_updates": 0.0,
+    "rng_exact": true,
+    "resume_exact": true,
+    "fresh_capture_resume_exact": true,
+    "evaluation_between_updates_verified": true,
+    "timings": {
+      "eager": 0.0019876704667694868,
+      "graph": 0.00031153679980585973
+    }
+  },
+  {
+    "population": 256,
+    "chunk": 256,
+    "max_error_over_six_updates": 0.0,
+    "rng_exact": true,
+    "resume_exact": true,
+    "fresh_capture_resume_exact": true,
+    "evaluation_between_updates_verified": true,
+    "timings": {
+      "eager": 0.0013776569006343682,
+      "graph": 0.00022424556664191186
+    }
+  },
+  {
+    "population": 1024,
+    "chunk": 128,
+    "max_error_over_six_updates": 0.0,
+    "rng_exact": true,
+    "resume_exact": true,
+    "fresh_capture_resume_exact": true,
+    "evaluation_between_updates_verified": true,
+    "timings": {
+      "eager": 0.005470518866786733,
+      "graph": 0.0009617292322218418
+    }
+  },
+  {
+    "population": 1024,
+    "chunk": 1024,
+    "max_error_over_six_updates": 0.0,
+    "rng_exact": true,
+    "resume_exact": true,
+    "fresh_capture_resume_exact": true,
+    "evaluation_between_updates_verified": true,
+    "timings": {
+      "eager": 0.0014000426337588579,
+      "graph": 0.0003965202330922087
+    }
+  },
+  {
+    "population": 4096,
+    "chunk": 128,
+    "max_error_over_six_updates": 0.0,
+    "rng_exact": true,
+    "resume_exact": true,
+    "fresh_capture_resume_exact": true,
+    "evaluation_between_updates_verified": true,
+    "timings": {
+      "eager": 0.019252196732365216,
+      "graph": 0.003549298966148247
+    }
+  },
+  {
+    "population": 4096,
+    "chunk": 4096,
+    "max_error_over_six_updates": 0.0,
+    "rng_exact": true,
+    "resume_exact": true,
+    "fresh_capture_resume_exact": true,
+    "evaluation_between_updates_verified": true,
+    "timings": {
+      "eager": 0.0027027122656969973,
+      "graph": 0.0019065694670037678
+    }
+  }
+]

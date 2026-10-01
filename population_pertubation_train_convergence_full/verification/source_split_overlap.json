@@ -1,0 +1,9 @@
+{
+  "dataset": "banking-marketing",
+  "source_train_rows": 45211,
+  "source_test_rows": 4521,
+  "test_records_also_in_source_train": 4521,
+  "test_overlap_fraction": 1.0,
+  "method": "Exact full-record comparison, all columns including label; pandas row hashes",
+  "status": "Known overlap retained by user instruction; Banking Marketing is not held in reproductions. Test accuracy is contaminated by training/test overlap."
+}

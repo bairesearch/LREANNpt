@@ -1,0 +1,99 @@
+{
+  "dataset": "iris",
+  "source_rows_loaded": 150,
+  "all_source_rows_used": true,
+  "source_prefix_used": false,
+  "row_caps": null,
+  "sizes": {
+    "train": 90,
+    "validation": 30,
+    "test": 30
+  },
+  "features": 4,
+  "feature_names": [
+    "SepalLengthCm",
+    "SepalWidthCm",
+    "PetalLengthCm",
+    "PetalWidthCm"
+  ],
+  "class_count": 3,
+  "split_seed": 20260930,
+  "sources": [
+    {
+      "url": "https://huggingface.co/datasets/scikit-learn/iris/resolve/0bda0ce801be0fa2f464ff845a9d5ceae99aad7d/Iris.csv",
+      "path": "/tmp/suann-benchmark-cache/hub/datasets--scikit-learn--iris/snapshots/0bda0ce801be0fa2f464ff845a9d5ceae99aad7d/Iris.csv",
+      "bytes": 5107,
+      "sha256": "600ac44f23c2e6e0ae37daac8ceb2baba4df963efa580eb31b3b576b28e34c55"
+    }
+  ],
+  "dropped_columns": [
+    "Id"
+  ],
+  "category_mappings": {},
+  "normalisation_statistics": {
+    "SepalLengthCm": [
+      "minmax",
+      4.300000190734863,
+      0.29411767919288645
+    ],
+    "SepalWidthCm": [
+      "minmax",
+      2.200000047683716,
+      0.5263158263299603
+    ],
+    "PetalLengthCm": [
+      "minmax",
+      1.0,
+      0.1754386020540126
+    ],
+    "PetalWidthCm": [
+      "minmax",
+      0.10000000149011612,
+      0.41666666518925627
+    ]
+  },
+  "normalisation_fit_rows": 90,
+  "normalisation_fit_split": "train",
+  "preprocessing": "Train-fitted category maps and float32 min/max equations of patched ANNpt_data; streamed without row limits. Verified separately against production normalization.",
+  "files": {
+    "train_x.npy": {
+      "sha256": "e3d41d53593a15613e497fadd81a6e5e694b8141aa8820e56b5213a0daa92b55",
+      "bytes": 1568
+    },
+    "train_y.npy": {
+      "sha256": "6ef55a4d4e632632b221fa6145a964e326261fbb320a27540de744c26a787cb9",
+      "bytes": 848
+    },
+    "train_source_indices.npy": {
+      "sha256": "7debf96169347b2cf34da9dbd03289b8cb8b10ac0f27c9deb3ca5d84b973a68f",
+      "bytes": 848
+    },
+    "validation_x.npy": {
+      "sha256": "5a0b2b20cd9b129cdafd45db317e403dcdeb8411ee5b621a443625f88d753b5e",
+      "bytes": 608
+    },
+    "validation_y.npy": {
+      "sha256": "05a7ae2c3b7e834013f0c51fa3a7e76a87f140751eae9dde7109beb4ea331011",
+      "bytes": 368
+    },
+    "validation_source_indices.npy": {
+      "sha256": "edd2ecbfd9ed194c01ad98c977733ebb87f0b686f104a7fc72f01965b40d73cc",
+      "bytes": 368
+    },
+    "test_x.npy": {
+      "sha256": "c91eac1f9c2ce08b9017a66180c79280e03ef8809564e450005b3873f1967665",
+      "bytes": 608
+    },
+    "test_y.npy": {
+      "sha256": "85a8bb609e5ae98300142a7c0499c1fcf455f5efaf7e030ae6502e30189bd9a9",
+      "bytes": 368
+    },
+    "test_source_indices.npy": {
+      "sha256": "c33900078085155c0972fa76b443f9e7564c6749072d837d1dc7bafa60d91e77",
+      "bytes": 368
+    }
+  },
+  "notes": [],
+  "partition_coverage_verified": true,
+  "data_sha256": "aeb094cc8f8e283d0232a6ac1b864c7f5e75ab862ffaad51430c7ced98bb39a1"
+}

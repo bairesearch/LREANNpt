@@ -1,0 +1,54 @@
+{
+  "time": "2026-10-01T15:12:23.982061+10:00",
+  "manager_alive": true,
+  "manager_pid": 1504639,
+  "complete": 15,
+  "active": [
+    {
+      "dataset": "tabular-benchmark",
+      "method": "backprop_adam",
+      "seed": 22,
+      "step": 56900,
+      "status": "training",
+      "training_rows": 34951,
+      "train": {
+        "loss": 0.4580688852231556,
+        "accuracy": 0.7733112071185374,
+        "balanced_accuracy": 0.7733109719898714,
+        "rows": 34951
+      }
+    },
+    {
+      "dataset": "tabular-benchmark",
+      "method": "backprop_adam",
+      "seed": 33,
+      "step": 36200,
+      "status": "training",
+      "training_rows": 34951,
+      "train": {
+        "loss": 0.5123950015925218,
+        "accuracy": 0.737689908729364,
+        "balanced_accuracy": 0.7376896056263222,
+        "rows": 34951
+      }
+    },
+    {
+      "dataset": "tabular-benchmark",
+      "method": "backprop_adam",
+      "seed": 11,
+      "step": 58000,
+      "status": "training",
+      "training_rows": 34951,
+      "train": {
+        "loss": 0.4905209824558403,
+        "accuracy": 0.7535406712254299,
+        "balanced_accuracy": 0.7535406628375035,
+        "rows": 34951
+      }
+    }
+  ],
+  "run_failures": [],
+  "dataset_holds": {
+    "banking-marketing": "Awaiting user decision on 4,521 supplied test records duplicated in supplied training source; other full-data datasets can proceed."
+  }
+}

@@ -1,0 +1,238 @@
+{
+  "dataset": "banking-marketing",
+  "source_rows_loaded": 49732,
+  "all_source_rows_used": true,
+  "source_prefix_used": false,
+  "row_caps": null,
+  "sizes": {
+    "train": 36168,
+    "validation": 9043,
+    "test": 4521
+  },
+  "features": 16,
+  "feature_names": [
+    "age",
+    "job",
+    "marital",
+    "education",
+    "default",
+    "balance",
+    "housing",
+    "loan",
+    "contact",
+    "day",
+    "month",
+    "duration",
+    "campaign",
+    "pdays",
+    "previous",
+    "poutcome"
+  ],
+  "class_count": 2,
+  "split_seed": 20260930,
+  "sources": [
+    {
+      "url": "https://huggingface.co/datasets/Andyrasika/banking-marketing/resolve/a66b0ab163aadbbf520e4c88dd064632e0440971/data/train-00000-of-00001.parquet",
+      "path": "/tmp/suann-benchmark-cache/hub/datasets--Andyrasika--banking-marketing/snapshots/a66b0ab163aadbbf520e4c88dd064632e0440971/data/train-00000-of-00001.parquet",
+      "bytes": 742819,
+      "sha256": "ac858175b77e3bb94cbfebdcf8b83d2882b0d30b6e6ccd9fca642e4fdb3cd632"
+    },
+    {
+      "url": "https://huggingface.co/datasets/Andyrasika/banking-marketing/resolve/a66b0ab163aadbbf520e4c88dd064632e0440971/data/test-00000-of-00001.parquet",
+      "path": "/tmp/suann-benchmark-cache/hub/datasets--Andyrasika--banking-marketing/snapshots/a66b0ab163aadbbf520e4c88dd064632e0440971/data/test-00000-of-00001.parquet",
+      "bytes": 91662,
+      "sha256": "1c2ed8b5513352b3605e2b3074ed025a5f8921ac5cbd8c7f93bb0552b05ec916"
+    }
+  ],
+  "dropped_columns": [],
+  "category_mappings": {
+    "job": {
+      "admin.": 0,
+      "blue-collar": 1,
+      "entrepreneur": 2,
+      "housemaid": 3,
+      "management": 4,
+      "retired": 5,
+      "self-employed": 6,
+      "services": 7,
+      "student": 8,
+      "technician": 9,
+      "unemployed": 10,
+      "unknown": 11
+    },
+    "marital": {
+      "divorced": 0,
+      "married": 1,
+      "single": 2
+    },
+    "education": {
+      "primary": 0,
+      "secondary": 1,
+      "tertiary": 2,
+      "unknown": 3
+    },
+    "default": {
+      "no": 0,
+      "yes": 1
+    },
+    "housing": {
+      "no": 0,
+      "yes": 1
+    },
+    "loan": {
+      "no": 0,
+      "yes": 1
+    },
+    "contact": {
+      "cellular": 0,
+      "telephone": 1,
+      "unknown": 2
+    },
+    "month": {
+      "apr": 0,
+      "aug": 1,
+      "dec": 2,
+      "feb": 3,
+      "jan": 4,
+      "jul": 5,
+      "jun": 6,
+      "mar": 7,
+      "may": 8,
+      "nov": 9,
+      "oct": 10,
+      "sep": 11
+    },
+    "poutcome": {
+      "failure": 0,
+      "other": 1,
+      "success": 2,
+      "unknown": 3
+    }
+  },
+  "normalisation_statistics": {
+    "age": [
+      "minmax",
+      18.0,
+      0.012987012985326363
+    ],
+    "job": [
+      "minmax",
+      0.0,
+      0.09090909082644627
+    ],
+    "marital": [
+      "minmax",
+      0.0,
+      0.4999999975
+    ],
+    "education": [
+      "minmax",
+      0.0,
+      0.3333333322222222
+    ],
+    "default": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "balance": [
+      "minmax",
+      -8019.0,
+      9.07885896900395e-06
+    ],
+    "housing": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "loan": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "contact": [
+      "minmax",
+      0.0,
+      0.4999999975
+    ],
+    "day": [
+      "minmax",
+      1.0,
+      0.03333333332222222
+    ],
+    "month": [
+      "minmax",
+      0.0,
+      0.09090909082644627
+    ],
+    "duration": [
+      "minmax",
+      0.0,
+      0.00020333468889751255
+    ],
+    "campaign": [
+      "minmax",
+      1.0,
+      0.01612903225546306
+    ],
+    "pdays": [
+      "minmax",
+      -1.0,
+      0.0011467889908125368
+    ],
+    "previous": [
+      "minmax",
+      0.0,
+      0.003636363636231405
+    ],
+    "poutcome": [
+      "minmax",
+      0.0,
+      0.3333333322222222
+    ]
+  },
+  "normalisation_fit_rows": 36168,
+  "normalisation_fit_split": "train",
+  "preprocessing": "Train-fitted category maps and float32 min/max equations of patched ANNpt_data; streamed without row limits. Verified separately against production normalization.",
+  "files": {
+    "train_x.npy": {
+      "sha256": "e73365dc29f12e8c772932dc47aeae35c4618ba02ce05a4e676c0343a500018d",
+      "bytes": 2314880
+    },
+    "train_y.npy": {
+      "sha256": "0e5e4cf72415e106f4296e63e0b4f6b17a3367f4cf59050982a27719ae288895",
+      "bytes": 289472
+    },
+    "train_source_indices.npy": {
+      "sha256": "0b5ab93a9c0b8cb77796060c2370f1619dd943058d22a36337e4472ce8ca32a3",
+      "bytes": 289472
+    },
+    "validation_x.npy": {
+      "sha256": "a91fc66285c06fecd43902445ff20c5316cacedc2248206b2371177adec1dfde",
+      "bytes": 578880
+    },
+    "validation_y.npy": {
+      "sha256": "c2fab36f9988024d203292bd641a3f25309a801241860b2a63e2978eae66bfc8",
+      "bytes": 72472
+    },
+    "validation_source_indices.npy": {
+      "sha256": "13711249674e2cfac7e74c5be65dcdf3963c71166068c7280990048d9851d602",
+      "bytes": 72472
+    },
+    "test_x.npy": {
+      "sha256": "3395945b6d54cf2c04a574ea457bb573b883619e5691f90abdf6528c63be37d5",
+      "bytes": 289472
+    },
+    "test_y.npy": {
+      "sha256": "a844e0bcc03c6c5eb2fac2b8ed2896da7a01312ec361f934a880f203148e1f47",
+      "bytes": 36296
+    },
+    "test_source_indices.npy": {
+      "sha256": "c6fb8206be3cbf198d3308791db30f9f7ac23e2b35d575befc5896abd6ea5281",
+      "bytes": 36296
+    }
+  },
+  "notes": [],
+  "partition_coverage_verified": true,
+  "data_sha256": "d22ef155fc503021fd4e5555d68a909d22f8c76441d73f5053624fa37a943881"
+}

@@ -1,0 +1,256 @@
+{
+  "dataset": "breast-cancer-wisconsin",
+  "source_rows_loaded": 569,
+  "all_source_rows_used": true,
+  "source_prefix_used": false,
+  "row_caps": null,
+  "sizes": {
+    "train": 341,
+    "validation": 114,
+    "test": 114
+  },
+  "features": 30,
+  "feature_names": [
+    "radius_mean",
+    "texture_mean",
+    "perimeter_mean",
+    "area_mean",
+    "smoothness_mean",
+    "compactness_mean",
+    "concavity_mean",
+    "concave points_mean",
+    "symmetry_mean",
+    "fractal_dimension_mean",
+    "radius_se",
+    "texture_se",
+    "perimeter_se",
+    "area_se",
+    "smoothness_se",
+    "compactness_se",
+    "concavity_se",
+    "concave points_se",
+    "symmetry_se",
+    "fractal_dimension_se",
+    "radius_worst",
+    "texture_worst",
+    "perimeter_worst",
+    "area_worst",
+    "smoothness_worst",
+    "compactness_worst",
+    "concavity_worst",
+    "concave points_worst",
+    "symmetry_worst",
+    "fractal_dimension_worst"
+  ],
+  "class_count": 2,
+  "split_seed": 20260930,
+  "sources": [
+    {
+      "url": "https://huggingface.co/datasets/scikit-learn/breast-cancer-wisconsin/resolve/e41c086f1614397ce7a5660980aac421047cef5e/breast_cancer.csv",
+      "path": "/tmp/suann-benchmark-cache/hub/datasets--scikit-learn--breast-cancer-wisconsin/snapshots/e41c086f1614397ce7a5660980aac421047cef5e/breast_cancer.csv",
+      "bytes": 124635,
+      "sha256": "27f219231dbb30eecbfc1361407ed641ea01be43316e2c707a1baf82c9795e23"
+    }
+  ],
+  "dropped_columns": [
+    "id",
+    "Unnamed: 32"
+  ],
+  "category_mappings": {},
+  "normalisation_statistics": {
+    "radius_mean": [
+      "minmax",
+      7.729000091552734,
+      0.05555247097163263
+    ],
+    "texture_mean": [
+      "minmax",
+      10.380000114440918,
+      0.03460207771116738
+    ],
+    "perimeter_mean": [
+      "minmax",
+      47.91999816894531,
+      0.007918910433856903
+    ],
+    "area_mean": [
+      "minmax",
+      178.8000030517578,
+      0.0005460899965383757
+    ],
+    "smoothness_mean": [
+      "minmax",
+      0.052629999816417694,
+      12.504688519824834
+    ],
+    "compactness_mean": [
+      "minmax",
+      0.023439999669790268,
+      3.105975744149574
+    ],
+    "concavity_mean": [
+      "minmax",
+      0.0,
+      2.3452156728535516
+    ],
+    "concave points_mean": [
+      "minmax",
+      0.0,
+      5.227391129373794
+    ],
+    "symmetry_mean": [
+      "minmax",
+      0.10599999874830246,
+      5.417117709818606
+    ],
+    "fractal_dimension_mean": [
+      "minmax",
+      0.050540000200271606,
+      22.118997088881866
+    ],
+    "radius_se": [
+      "minmax",
+      0.11150000244379044,
+      0.7945967343718141
+    ],
+    "texture_se": [
+      "minmax",
+      0.3628000020980835,
+      0.22113129619205296
+    ],
+    "perimeter_se": [
+      "minmax",
+      0.7570000290870667,
+      0.0969649986853628
+    ],
+    "area_se": [
+      "minmax",
+      6.802000045776367,
+      0.004601975039238352
+    ],
+    "smoothness_se": [
+      "minmax",
+      0.0017130000051110983,
+      33.993938582994694
+    ],
+    "compactness_se": [
+      "minmax",
+      0.003011999884620309,
+      10.247160815823433
+    ],
+    "concavity_se": [
+      "minmax",
+      0.0,
+      2.525252475166867
+    ],
+    "concave points_se": [
+      "minmax",
+      0.0,
+      18.942977665641795
+    ],
+    "symmetry_se": [
+      "minmax",
+      0.00788199994713068,
+      14.07102801956856
+    ],
+    "fractal_dimension_se": [
+      "minmax",
+      0.0008948000031523407,
+      34.54803060730826
+    ],
+    "radius_worst": [
+      "minmax",
+      8.95199966430664,
+      0.041359911552858036
+    ],
+    "texture_worst": [
+      "minmax",
+      12.489999771118164,
+      0.0269905524653673
+    ],
+    "perimeter_worst": [
+      "minmax",
+      56.650001525878906,
+      0.005792064819600868
+    ],
+    "area_worst": [
+      "minmax",
+      240.10000610351562,
+      0.00031329302356247247
+    ],
+    "smoothness_worst": [
+      "minmax",
+      0.07117000222206116,
+      6.6037110286922935
+    ],
+    "compactness_worst": [
+      "minmax",
+      0.027289999648928642,
+      0.9702050241977916
+    ],
+    "concavity_worst": [
+      "minmax",
+      0.0,
+      0.9049773517548899
+    ],
+    "concave points_worst": [
+      "minmax",
+      0.0,
+      3.4364258973905875
+    ],
+    "symmetry_worst": [
+      "minmax",
+      0.15649999678134918,
+      2.3758610130525404
+    ],
+    "fractal_dimension_worst": [
+      "minmax",
+      0.05503999814391136,
+      6.559097137619368
+    ]
+  },
+  "normalisation_fit_rows": 341,
+  "normalisation_fit_split": "train",
+  "preprocessing": "Train-fitted category maps and float32 min/max equations of patched ANNpt_data; streamed without row limits. Verified separately against production normalization.",
+  "files": {
+    "train_x.npy": {
+      "sha256": "4b11d9c02bdd59e33da2c5af06f6c4df63510a3f643856b4d513f1543c485505",
+      "bytes": 41048
+    },
+    "train_y.npy": {
+      "sha256": "6418827e6bd6caa75e5b43c324251b563e482aa66a4d002e514e7dcf3d6bc3cd",
+      "bytes": 2856
+    },
+    "train_source_indices.npy": {
+      "sha256": "b488701b88c882039bd643e4141301dea84fc6f08d0e6169782980f92e609027",
+      "bytes": 2856
+    },
+    "validation_x.npy": {
+      "sha256": "3ad26f38809ed9652ade23ab8cca3ae22d2949f6879edfe493cb4c32a64659af",
+      "bytes": 13808
+    },
+    "validation_y.npy": {
+      "sha256": "e9274addb3f75180b790b5327ac0fbf88d938d634ff3a1a759fa7cd60ecf4331",
+      "bytes": 1040
+    },
+    "validation_source_indices.npy": {
+      "sha256": "5dfaf0fcf683084c01acf4d9ac8ee2ad632b9907dccf6df338bd931b3e8ff8c6",
+      "bytes": 1040
+    },
+    "test_x.npy": {
+      "sha256": "73669bae388e524b0029bed97a3c0e31cc4490ca16fd1a53eab6e433158f143c",
+      "bytes": 13808
+    },
+    "test_y.npy": {
+      "sha256": "2c504436f13df7da6c956facbfaaf121903152e5bbd6ed9d5a025116afc740b6",
+      "bytes": 1040
+    },
+    "test_source_indices.npy": {
+      "sha256": "2e5f9004194420d9edae1ea0dc564a5e77226defcb890943e9d7cd9f4ebd6153",
+      "bytes": 1040
+    }
+  },
+  "notes": [],
+  "partition_coverage_verified": true,
+  "data_sha256": "82172a6e4180d3cb9af284c3a11aa8b7913fe2bc0dcf762521a0bd32efbb915d"
+}

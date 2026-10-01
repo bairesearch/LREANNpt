@@ -1,0 +1,979 @@
+{
+  "dataset": "diabetes-readmission",
+  "source_rows_loaded": 101763,
+  "all_source_rows_used": true,
+  "source_prefix_used": false,
+  "row_caps": null,
+  "sizes": {
+    "train": 65128,
+    "validation": 16282,
+    "test": 20353
+  },
+  "features": 150,
+  "feature_names": [
+    "time_in_hospital",
+    "num_lab_procedures",
+    "num_procedures",
+    "num_medications",
+    "number_outpatient",
+    "number_emergency",
+    "number_inpatient",
+    "number_diagnoses",
+    "change",
+    "diabetesMed",
+    "race:AfricanAmerican",
+    "race:Asian",
+    "race:Caucasian",
+    "race:Hispanic",
+    "race:Other",
+    "gender:Female",
+    "gender:Male",
+    "age:70+",
+    "age:[0-10)",
+    "age:[10-20)",
+    "age:[20-50)",
+    "age:[50-70)",
+    "admission_type_id:Elective",
+    "admission_type_id:Emergency",
+    "admission_type_id:New Born",
+    "admission_type_id:Trauma Center",
+    "discharge_disposition_id:Discharged to Home",
+    "discharge_disposition_id:Other",
+    "admission_source_id:Emergency",
+    "admission_source_id:Other",
+    "admission_source_id:Referral",
+    "admission_source_id:Transfer",
+    "medical_specialty:Cardiology",
+    "medical_specialty:Emergency/Trauma",
+    "medical_specialty:Family/GeneralPractice",
+    "medical_specialty:Gastroenterology",
+    "medical_specialty:Hematology/Oncology",
+    "medical_specialty:InternalMedicine",
+    "medical_specialty:Nephrology",
+    "medical_specialty:ObstetricsandGynecology",
+    "medical_specialty:Orthopedics",
+    "medical_specialty:Other",
+    "medical_specialty:Psychiatry",
+    "medical_specialty:Pulmonology",
+    "medical_specialty:Radiology",
+    "medical_specialty:Surgery-Cardiovascular/Thoracic",
+    "medical_specialty:Surgery-General",
+    "medical_specialty:Urology",
+    "diag_1:Circulatory",
+    "diag_1:Diabetes",
+    "diag_1:Digestive",
+    "diag_1:Genitourinary",
+    "diag_1:Infectious",
+    "diag_1:Injury",
+    "diag_1:Mental",
+    "diag_1:Musculoskeletal",
+    "diag_1:Neoplasms",
+    "diag_1:Non-diabetes endocrine/metabolic",
+    "diag_1:Other",
+    "diag_1:Respiratory",
+    "diag_1:Skin",
+    "diag_2:Circulatory",
+    "diag_2:Diabetes",
+    "diag_2:Digestive",
+    "diag_2:Genitourinary",
+    "diag_2:Infectious",
+    "diag_2:Injury",
+    "diag_2:Mental",
+    "diag_2:Musculoskeletal",
+    "diag_2:Neoplasms",
+    "diag_2:Non-diabetes endocrine/metabolic",
+    "diag_2:Other",
+    "diag_2:Respiratory",
+    "diag_2:Skin",
+    "diag_3:Circulatory",
+    "diag_3:Diabetes",
+    "diag_3:Digestive",
+    "diag_3:Genitourinary",
+    "diag_3:Infectious",
+    "diag_3:Injury",
+    "diag_3:Mental",
+    "diag_3:Musculoskeletal",
+    "diag_3:Neoplasms",
+    "diag_3:Non-diabetes endocrine/metabolic",
+    "diag_3:Other",
+    "diag_3:Respiratory",
+    "diag_3:Skin",
+    "metformin:Down",
+    "metformin:No",
+    "metformin:Steady",
+    "metformin:Up",
+    "repaglinide:Down",
+    "repaglinide:No",
+    "repaglinide:Steady",
+    "repaglinide:Up",
+    "nateglinide:Down",
+    "nateglinide:No",
+    "nateglinide:Steady",
+    "nateglinide:Up",
+    "chlorpropamide:Down",
+    "chlorpropamide:No",
+    "chlorpropamide:Steady",
+    "chlorpropamide:Up",
+    "glimepiride:Down",
+    "glimepiride:No",
+    "glimepiride:Steady",
+    "glimepiride:Up",
+    "glipizide:Down",
+    "glipizide:No",
+    "glipizide:Steady",
+    "glipizide:Up",
+    "glyburide:Down",
+    "glyburide:No",
+    "glyburide:Steady",
+    "glyburide:Up",
+    "pioglitazone:Down",
+    "pioglitazone:No",
+    "pioglitazone:Steady",
+    "pioglitazone:Up",
+    "rosiglitazone:Down",
+    "rosiglitazone:No",
+    "rosiglitazone:Steady",
+    "rosiglitazone:Up",
+    "acarbose:Down",
+    "acarbose:No",
+    "acarbose:Steady",
+    "acarbose:Up",
+    "miglitol:Down",
+    "miglitol:No",
+    "miglitol:Steady",
+    "miglitol:Up",
+    "tolazamide:No",
+    "tolazamide:Steady",
+    "tolazamide:Up",
+    "insulin:Down",
+    "insulin:No",
+    "insulin:Steady",
+    "insulin:Up",
+    "glyburide-metformin:Down",
+    "glyburide-metformin:No",
+    "glyburide-metformin:Steady",
+    "glyburide-metformin:Up",
+    "A1Cresult:>7",
+    "A1Cresult:>8",
+    "A1Cresult:None",
+    "A1Cresult:Norm",
+    "max_glu_serum:>200",
+    "max_glu_serum:>300",
+    "max_glu_serum:None",
+    "max_glu_serum:Norm"
+  ],
+  "class_count": 2,
+  "split_seed": 20260930,
+  "sources": [
+    {
+      "url": "https://huggingface.co/datasets/imodels/diabetes-readmission/resolve/191ab1f0aa68d52f6cd55d68df57849fad1751ca/train.csv",
+      "path": "/tmp/suann-benchmark-cache/hub/datasets--imodels--diabetes-readmission/snapshots/191ab1f0aa68d52f6cd55d68df57849fad1751ca/train.csv",
+      "bytes": 49159045,
+      "sha256": "35251c3248445e51d370b5665ea38b439bef00423fceef2edea6ed6c08c0cc99"
+    },
+    {
+      "url": "https://huggingface.co/datasets/imodels/diabetes-readmission/resolve/191ab1f0aa68d52f6cd55d68df57849fad1751ca/test.csv",
+      "path": "/tmp/suann-benchmark-cache/hub/datasets--imodels--diabetes-readmission/snapshots/191ab1f0aa68d52f6cd55d68df57849fad1751ca/test.csv",
+      "bytes": 12292268,
+      "sha256": "791bc5550175685d56ad5ae921b9b7b23cc4ad81a476d371337794e63ef7744d"
+    }
+  ],
+  "dropped_columns": [],
+  "category_mappings": {},
+  "normalisation_statistics": {
+    "time_in_hospital": [
+      "minmax",
+      1.0,
+      0.07692307686390532
+    ],
+    "num_lab_procedures": [
+      "minmax",
+      1.0,
+      0.007633587785676825
+    ],
+    "num_procedures": [
+      "minmax",
+      0.0,
+      0.16666666638888888
+    ],
+    "num_medications": [
+      "minmax",
+      1.0,
+      0.0124999999984375
+    ],
+    "number_outpatient": [
+      "minmax",
+      0.0,
+      0.023809523803854874
+    ],
+    "number_emergency": [
+      "minmax",
+      0.0,
+      0.013157894735110804
+    ],
+    "number_inpatient": [
+      "minmax",
+      0.0,
+      0.05263157891966759
+    ],
+    "number_diagnoses": [
+      "minmax",
+      1.0,
+      0.06666666662222222
+    ],
+    "change": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diabetesMed": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "race:AfricanAmerican": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "race:Asian": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "race:Caucasian": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "race:Hispanic": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "race:Other": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "gender:Female": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "gender:Male": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "age:70+": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "age:[0-10)": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "age:[10-20)": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "age:[20-50)": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "age:[50-70)": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "admission_type_id:Elective": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "admission_type_id:Emergency": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "admission_type_id:New Born": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "admission_type_id:Trauma Center": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "discharge_disposition_id:Discharged to Home": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "discharge_disposition_id:Other": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "admission_source_id:Emergency": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "admission_source_id:Other": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "admission_source_id:Referral": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "admission_source_id:Transfer": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "medical_specialty:Cardiology": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "medical_specialty:Emergency/Trauma": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "medical_specialty:Family/GeneralPractice": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "medical_specialty:Gastroenterology": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "medical_specialty:Hematology/Oncology": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "medical_specialty:InternalMedicine": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "medical_specialty:Nephrology": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "medical_specialty:ObstetricsandGynecology": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "medical_specialty:Orthopedics": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "medical_specialty:Other": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "medical_specialty:Psychiatry": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "medical_specialty:Pulmonology": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "medical_specialty:Radiology": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "medical_specialty:Surgery-Cardiovascular/Thoracic": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "medical_specialty:Surgery-General": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "medical_specialty:Urology": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_1:Circulatory": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_1:Diabetes": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_1:Digestive": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_1:Genitourinary": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_1:Infectious": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_1:Injury": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_1:Mental": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_1:Musculoskeletal": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_1:Neoplasms": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_1:Non-diabetes endocrine/metabolic": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_1:Other": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_1:Respiratory": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_1:Skin": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_2:Circulatory": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_2:Diabetes": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_2:Digestive": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_2:Genitourinary": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_2:Infectious": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_2:Injury": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_2:Mental": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_2:Musculoskeletal": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_2:Neoplasms": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_2:Non-diabetes endocrine/metabolic": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_2:Other": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_2:Respiratory": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_2:Skin": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_3:Circulatory": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_3:Diabetes": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_3:Digestive": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_3:Genitourinary": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_3:Infectious": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_3:Injury": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_3:Mental": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_3:Musculoskeletal": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_3:Neoplasms": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_3:Non-diabetes endocrine/metabolic": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_3:Other": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_3:Respiratory": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "diag_3:Skin": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "metformin:Down": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "metformin:No": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "metformin:Steady": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "metformin:Up": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "repaglinide:Down": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "repaglinide:No": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "repaglinide:Steady": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "repaglinide:Up": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "nateglinide:Down": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "nateglinide:No": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "nateglinide:Steady": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "nateglinide:Up": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "chlorpropamide:Down": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "chlorpropamide:No": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "chlorpropamide:Steady": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "chlorpropamide:Up": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "glimepiride:Down": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "glimepiride:No": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "glimepiride:Steady": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "glimepiride:Up": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "glipizide:Down": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "glipizide:No": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "glipizide:Steady": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "glipizide:Up": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "glyburide:Down": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "glyburide:No": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "glyburide:Steady": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "glyburide:Up": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "pioglitazone:Down": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "pioglitazone:No": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "pioglitazone:Steady": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "pioglitazone:Up": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "rosiglitazone:Down": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "rosiglitazone:No": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "rosiglitazone:Steady": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "rosiglitazone:Up": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "acarbose:Down": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "acarbose:No": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "acarbose:Steady": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "acarbose:Up": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "miglitol:Down": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "miglitol:No": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "miglitol:Steady": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "miglitol:Up": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "tolazamide:No": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "tolazamide:Steady": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "tolazamide:Up": [
+      "minmax",
+      0.0,
+      0.0
+    ],
+    "insulin:Down": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "insulin:No": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "insulin:Steady": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "insulin:Up": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "glyburide-metformin:Down": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "glyburide-metformin:No": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "glyburide-metformin:Steady": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "glyburide-metformin:Up": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "A1Cresult:>7": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "A1Cresult:>8": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "A1Cresult:None": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "A1Cresult:Norm": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "max_glu_serum:>200": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "max_glu_serum:>300": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "max_glu_serum:None": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "max_glu_serum:Norm": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ]
+  },
+  "normalisation_fit_rows": 65128,
+  "normalisation_fit_split": "train",
+  "preprocessing": "Train-fitted category maps and float32 min/max equations of patched ANNpt_data; streamed without row limits. Verified separately against production normalization.",
+  "files": {
+    "train_x.npy": {
+      "sha256": "b5f67d42197258c83440fed7777418436d6e3df91d03b109cb888c636a9b3103",
+      "bytes": 39076928
+    },
+    "train_y.npy": {
+      "sha256": "918d9fddca2c6ce973323dc7ae9a0256e166e31d65588d7a4c230650a9672fa8",
+      "bytes": 521152
+    },
+    "train_source_indices.npy": {
+      "sha256": "432fbd9b7d5a28d07d1dd5dc5993b275a68a9f98f90e0a8e20c714f2918242f4",
+      "bytes": 521152
+    },
+    "validation_x.npy": {
+      "sha256": "5bcb8120855a1aab230be88c212ae2f2ba8d844d61101c633d771978d82aeae8",
+      "bytes": 9769328
+    },
+    "validation_y.npy": {
+      "sha256": "b0abc088583c6ec45903fdc928c1a7ce59e28a4629eed7dc8152b1ee9fc68f8a",
+      "bytes": 130384
+    },
+    "validation_source_indices.npy": {
+      "sha256": "fc046fbc5225d0afc1f3bc1c65650640542130a03f31f72ec71ebee90e9873af",
+      "bytes": 130384
+    },
+    "test_x.npy": {
+      "sha256": "7f2ee4ac15d17f2c8b9b72d743337e4387e3b4440e795cd20457bf01c7bd573c",
+      "bytes": 12211928
+    },
+    "test_y.npy": {
+      "sha256": "cedc813cba2d1f016b31e03f5a28c05fa1591a18402ed8b7b89cbf040f000914",
+      "bytes": 162952
+    },
+    "test_source_indices.npy": {
+      "sha256": "30be81ac76f72e8f58c05d452d966ab4b153ed818fbbccd8cc214a4842743937",
+      "bytes": 162952
+    }
+  },
+  "notes": [],
+  "partition_coverage_verified": true,
+  "data_sha256": "c5c52e3096a40907e3bf3cf857a0ce1ef49ac187c866ccef4b568bb9a34386e0"
+}

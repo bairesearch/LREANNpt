@@ -1,0 +1,259 @@
+{
+  "dataset": "tabular-benchmark",
+  "source_rows_loaded": 58252,
+  "all_source_rows_used": true,
+  "source_prefix_used": false,
+  "row_caps": null,
+  "sizes": {
+    "train": 34951,
+    "validation": 11650,
+    "test": 11651
+  },
+  "features": 31,
+  "feature_names": [
+    "V1",
+    "V2",
+    "V3",
+    "V4",
+    "V5",
+    "V6",
+    "V7",
+    "V8",
+    "V9",
+    "V10",
+    "V11",
+    "V13",
+    "V19",
+    "V22",
+    "V30",
+    "V33",
+    "V35",
+    "V36",
+    "V40",
+    "V41",
+    "V42",
+    "V43",
+    "V45",
+    "V47",
+    "V50",
+    "V51",
+    "V52",
+    "V59",
+    "V63",
+    "V72",
+    "V75"
+  ],
+  "class_count": 2,
+  "split_seed": 20260930,
+  "sources": [
+    {
+      "url": "https://huggingface.co/datasets/inria-soda/tabular-benchmark/resolve/8d0ff9103525b7e3579b180230fddb3186258301/clf_cat/albert.csv",
+      "path": "/tmp/suann-benchmark-cache/hub/datasets--inria-soda--tabular-benchmark/snapshots/8d0ff9103525b7e3579b180230fddb3186258301/clf_cat/albert.csv",
+      "bytes": 5924184,
+      "sha256": "db300fb277d6478af5c0ae5bd3bb7835ba1835b95c476c9009151dbc8a7b0e2b"
+    }
+  ],
+  "dropped_columns": [],
+  "category_mappings": {},
+  "normalisation_statistics": {
+    "V1": [
+      "minmax",
+      0.0,
+      0.004807692307461168
+    ],
+    "V2": [
+      "minmax",
+      -2.0,
+      8.145975887904735e-05
+    ],
+    "V3": [
+      "minmax",
+      0.0,
+      3.1368612566256354e-05
+    ],
+    "V4": [
+      "minmax",
+      0.0,
+      0.008928571427774236
+    ],
+    "V5": [
+      "minmax",
+      0.0,
+      4.162192309933315e-06
+    ],
+    "V6": [
+      "minmax",
+      0.0,
+      0.00013931457230406894
+    ],
+    "V7": [
+      "minmax",
+      0.0,
+      0.00023557126030568772
+    ],
+    "V8": [
+      "minmax",
+      0.0,
+      0.019230769227071006
+    ],
+    "V9": [
+      "minmax",
+      0.0,
+      7.832080200495119e-05
+    ],
+    "V10": [
+      "minmax",
+      0.0,
+      0.14285714265306124
+    ],
+    "V11": [
+      "minmax",
+      0.0,
+      0.008474576270468256
+    ],
+    "V13": [
+      "minmax",
+      0.0,
+      0.0033670033668899996
+    ],
+    "V19": [
+      "minmax",
+      0.0,
+      0.1111111109876543
+    ],
+    "V22": [
+      "minmax",
+      0.0,
+      0.4999999975
+    ],
+    "V30": [
+      "minmax",
+      0.0,
+      0.14285714265306124
+    ],
+    "V33": [
+      "minmax",
+      0.0,
+      0.3333333322222222
+    ],
+    "V35": [
+      "minmax",
+      0.0,
+      0.1111111109876543
+    ],
+    "V36": [
+      "minmax",
+      0.0,
+      0.08333333326388888
+    ],
+    "V40": [
+      "minmax",
+      0.0,
+      0.000276014352745581
+    ],
+    "V41": [
+      "minmax",
+      0.0,
+      0.3333333322222222
+    ],
+    "V42": [
+      "minmax",
+      0.0,
+      0.0019417475727778301
+    ],
+    "V43": [
+      "minmax",
+      0.0,
+      8.281573498957944e-05
+    ],
+    "V45": [
+      "minmax",
+      0.0,
+      0.12499999984374999
+    ],
+    "V47": [
+      "minmax",
+      0.0,
+      0.0999999999
+    ],
+    "V50": [
+      "minmax",
+      0.0,
+      0.00035410764872395855
+    ],
+    "V51": [
+      "minmax",
+      0.0,
+      0.00735294117592993
+    ],
+    "V52": [
+      "minmax",
+      0.0,
+      0.16666666638888888
+    ],
+    "V59": [
+      "minmax",
+      0.0,
+      0.0003058103975525816
+    ],
+    "V63": [
+      "minmax",
+      0.0,
+      0.07692307686390532
+    ],
+    "V72": [
+      "minmax",
+      0.0,
+      0.010526315788365652
+    ],
+    "V75": [
+      "minmax",
+      0.0,
+      0.010204081631611829
+    ]
+  },
+  "normalisation_fit_rows": 34951,
+  "normalisation_fit_split": "train",
+  "preprocessing": "Train-fitted category maps and float32 min/max equations of patched ANNpt_data; streamed without row limits. Verified separately against production normalization.",
+  "files": {
+    "train_x.npy": {
+      "sha256": "bac9e1db22944d006301af5e4ee0803a4c705ebea0a898c0ba06ec52426dbd11",
+      "bytes": 4334052
+    },
+    "train_y.npy": {
+      "sha256": "a07dcbf4a5ba16639f377cdaffe72dfab476b3f27e1c389fdaac567599f31fab",
+      "bytes": 279736
+    },
+    "train_source_indices.npy": {
+      "sha256": "edd59159734fae63e16119494edf2178d97b6c7201704c6745c428c5b9a8637e",
+      "bytes": 279736
+    },
+    "validation_x.npy": {
+      "sha256": "284eb772c86f426695a99e439f9be5ddebbd0dc5396a46957f0f281a38f586f3",
+      "bytes": 1444728
+    },
+    "validation_y.npy": {
+      "sha256": "1a5769d5e2da5d9b40817696e0e7e7d4764cfea2bc9053e5057a7c5a16647ffc",
+      "bytes": 93328
+    },
+    "validation_source_indices.npy": {
+      "sha256": "045e6c01947073e4fcd7af38d3d8167a999836a54072299e567d56ef4e77f45e",
+      "bytes": 93328
+    },
+    "test_x.npy": {
+      "sha256": "ec16d7a000050f14a49d8f219c291c00b905dcfd840a77a7b0d8685cf7a4abf7",
+      "bytes": 1444852
+    },
+    "test_y.npy": {
+      "sha256": "d336e62230b8a860cf737942ddb355fa52edd32f4f56777c49d553e669ab1036",
+      "bytes": 93336
+    },
+    "test_source_indices.npy": {
+      "sha256": "eb9fb15a87bf7a7ba01cfc76a7ea1328de949dc45152bac4ff8017dd3d05d87c",
+      "bytes": 93336
+    }
+  },
+  "notes": [],
+  "partition_coverage_verified": true,
+  "data_sha256": "66dda094064193cc5302cf8bad21f42808c69feae2a50496b898fa2c0cac27ba"
+}

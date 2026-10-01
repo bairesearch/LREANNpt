@@ -1,0 +1,139 @@
+{
+  "dataset": "red-wine",
+  "source_rows_loaded": 1599,
+  "all_source_rows_used": true,
+  "source_prefix_used": false,
+  "row_caps": null,
+  "sizes": {
+    "train": 959,
+    "validation": 320,
+    "test": 320
+  },
+  "features": 11,
+  "feature_names": [
+    "fixed acidity",
+    "volatile acidity",
+    "citric acid",
+    "residual sugar",
+    "chlorides",
+    "free sulfur dioxide",
+    "total sulfur dioxide",
+    "density",
+    "pH",
+    "sulphates",
+    "alcohol"
+  ],
+  "class_count": 6,
+  "split_seed": 20260930,
+  "sources": [
+    {
+      "url": "https://huggingface.co/datasets/lvwerra/red-wine/resolve/5a76387bbac31d8574fd3f977cd0003cf5cf8519/winequality-red.csv",
+      "path": "/tmp/suann-benchmark-cache/hub/datasets--lvwerra--red-wine/snapshots/5a76387bbac31d8574fd3f977cd0003cf5cf8519/winequality-red.csv",
+      "bytes": 91999,
+      "sha256": "7d246d4b4b648f536ad563e90c936b3ce80b874fb8d6d2a24586f91f0daf7176"
+    }
+  ],
+  "dropped_columns": [],
+  "category_mappings": {},
+  "normalisation_statistics": {
+    "fixed acidity": [
+      "minmax",
+      4.599999904632568,
+      0.09090908688564349
+    ],
+    "volatile acidity": [
+      "minmax",
+      0.11999999731779099,
+      0.6849314807667709
+    ],
+    "citric acid": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "residual sugar": [
+      "minmax",
+      0.8999999761581421,
+      0.0684931505261688
+    ],
+    "chlorides": [
+      "minmax",
+      0.012000000104308128,
+      1.6722407350007111
+    ],
+    "free sulfur dioxide": [
+      "minmax",
+      1.0,
+      0.014084507040269789
+    ],
+    "total sulfur dioxide": [
+      "minmax",
+      6.0,
+      0.0035335689044687785
+    ],
+    "density": [
+      "minmax",
+      0.9900699853897095,
+      73.42128295078803
+    ],
+    "pH": [
+      "minmax",
+      2.740000009536743,
+      0.7874014326089334
+    ],
+    "sulphates": [
+      "minmax",
+      0.33000001311302185,
+      0.5988023963257993
+    ],
+    "alcohol": [
+      "minmax",
+      8.399999618530273,
+      0.17857141608833868
+    ]
+  },
+  "normalisation_fit_rows": 959,
+  "normalisation_fit_split": "train",
+  "preprocessing": "Train-fitted category maps and float32 min/max equations of patched ANNpt_data; streamed without row limits. Verified separately against production normalization.",
+  "files": {
+    "train_x.npy": {
+      "sha256": "cfdba7123011352b353b832681fed141ddcc50759e86460ccfbda85288400581",
+      "bytes": 42324
+    },
+    "train_y.npy": {
+      "sha256": "aa63e076442d85915285dacc564d65ca727b732b82b7f2be1e498884ba488611",
+      "bytes": 7800
+    },
+    "train_source_indices.npy": {
+      "sha256": "3918a61756354007bfd3b1264cb493d07b2ac4bebd88f156b959fde91c15a0e8",
+      "bytes": 7800
+    },
+    "validation_x.npy": {
+      "sha256": "8737cf377d32609ab16e2b8a4a56ddd743ff7a1251f94fb7dbff204dbd33ac8d",
+      "bytes": 14208
+    },
+    "validation_y.npy": {
+      "sha256": "3e1d69709f3153d57139d2f3a1405efe0b71af7daf574ef028055c3cd7533304",
+      "bytes": 2688
+    },
+    "validation_source_indices.npy": {
+      "sha256": "f335d53ea3be61583106c6a631dda1fe7e641a0825c07a245aae2dc70d7126d1",
+      "bytes": 2688
+    },
+    "test_x.npy": {
+      "sha256": "080fd2c71e2b3a477e954277375b78d81741e0994268fca7b14a5e89e1175ff2",
+      "bytes": 14208
+    },
+    "test_y.npy": {
+      "sha256": "b88dbf03e55c3d7a978da9e84161cc1527e2b03385cf1641f7824ff2f7e08223",
+      "bytes": 2688
+    },
+    "test_source_indices.npy": {
+      "sha256": "ade059d6829ed24b676f1a4753c9c6aa943d8812d04a747eaa914198d3e26f22",
+      "bytes": 2688
+    }
+  },
+  "notes": [],
+  "partition_coverage_verified": true,
+  "data_sha256": "1c3e3a6def5b0696af19441b350770aace165ecde4fe4172dc38e1c3334f02bf"
+}

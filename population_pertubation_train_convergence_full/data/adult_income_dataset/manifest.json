@@ -1,0 +1,275 @@
+{
+  "dataset": "adult_income_dataset",
+  "source_rows_loaded": 48842,
+  "all_source_rows_used": true,
+  "source_prefix_used": false,
+  "row_caps": null,
+  "sizes": {
+    "train": 29305,
+    "validation": 9768,
+    "test": 9769
+  },
+  "features": 14,
+  "feature_names": [
+    "age",
+    "workclass",
+    "fnlwgt",
+    "education",
+    "educational-num",
+    "marital-status",
+    "occupation",
+    "relationship",
+    "race",
+    "gender",
+    "capital-gain",
+    "capital-loss",
+    "hours-per-week",
+    "native-country"
+  ],
+  "class_count": 2,
+  "split_seed": 20260930,
+  "sources": [
+    {
+      "url": "https://huggingface.co/datasets/meghana/adult_income_dataset/resolve/07eeaedced8388422fc467af1d608e6ca92c537a/adult.csv",
+      "path": "/tmp/suann-benchmark-cache/hub/datasets--meghana--adult_income_dataset/snapshots/07eeaedced8388422fc467af1d608e6ca92c537a/adult.csv",
+      "bytes": 5277526,
+      "sha256": "853d1f1432c831de8017897f0e90df6ebe4d6b0e5cff2087944fb57bdbe644e8"
+    }
+  ],
+  "dropped_columns": [],
+  "category_mappings": {
+    "workclass": {
+      "?": 0,
+      "Federal-gov": 1,
+      "Local-gov": 2,
+      "Never-worked": 3,
+      "Private": 4,
+      "Self-emp-inc": 5,
+      "Self-emp-not-inc": 6,
+      "State-gov": 7,
+      "Without-pay": 8
+    },
+    "education": {
+      "10th": 0,
+      "11th": 1,
+      "12th": 2,
+      "1st-4th": 3,
+      "5th-6th": 4,
+      "7th-8th": 5,
+      "9th": 6,
+      "Assoc-acdm": 7,
+      "Assoc-voc": 8,
+      "Bachelors": 9,
+      "Doctorate": 10,
+      "HS-grad": 11,
+      "Masters": 12,
+      "Preschool": 13,
+      "Prof-school": 14,
+      "Some-college": 15
+    },
+    "marital-status": {
+      "Divorced": 0,
+      "Married-AF-spouse": 1,
+      "Married-civ-spouse": 2,
+      "Married-spouse-absent": 3,
+      "Never-married": 4,
+      "Separated": 5,
+      "Widowed": 6
+    },
+    "occupation": {
+      "?": 0,
+      "Adm-clerical": 1,
+      "Armed-Forces": 2,
+      "Craft-repair": 3,
+      "Exec-managerial": 4,
+      "Farming-fishing": 5,
+      "Handlers-cleaners": 6,
+      "Machine-op-inspct": 7,
+      "Other-service": 8,
+      "Priv-house-serv": 9,
+      "Prof-specialty": 10,
+      "Protective-serv": 11,
+      "Sales": 12,
+      "Tech-support": 13,
+      "Transport-moving": 14
+    },
+    "relationship": {
+      "Husband": 0,
+      "Not-in-family": 1,
+      "Other-relative": 2,
+      "Own-child": 3,
+      "Unmarried": 4,
+      "Wife": 5
+    },
+    "race": {
+      "Amer-Indian-Eskimo": 0,
+      "Asian-Pac-Islander": 1,
+      "Black": 2,
+      "Other": 3,
+      "White": 4
+    },
+    "gender": {
+      "Female": 0,
+      "Male": 1
+    },
+    "native-country": {
+      "?": 0,
+      "Cambodia": 1,
+      "Canada": 2,
+      "China": 3,
+      "Columbia": 4,
+      "Cuba": 5,
+      "Dominican-Republic": 6,
+      "Ecuador": 7,
+      "El-Salvador": 8,
+      "England": 9,
+      "France": 10,
+      "Germany": 11,
+      "Greece": 12,
+      "Guatemala": 13,
+      "Haiti": 14,
+      "Honduras": 15,
+      "Hong": 16,
+      "Hungary": 17,
+      "India": 18,
+      "Iran": 19,
+      "Ireland": 20,
+      "Italy": 21,
+      "Jamaica": 22,
+      "Japan": 23,
+      "Laos": 24,
+      "Mexico": 25,
+      "Nicaragua": 26,
+      "Outlying-US(Guam-USVI-etc)": 27,
+      "Peru": 28,
+      "Philippines": 29,
+      "Poland": 30,
+      "Portugal": 31,
+      "Puerto-Rico": 32,
+      "Scotland": 33,
+      "South": 34,
+      "Taiwan": 35,
+      "Thailand": 36,
+      "Trinadad&Tobago": 37,
+      "United-States": 38,
+      "Vietnam": 39,
+      "Yugoslavia": 40
+    }
+  },
+  "normalisation_statistics": {
+    "age": [
+      "minmax",
+      17.0,
+      0.013698630135109777
+    ],
+    "workclass": [
+      "minmax",
+      0.0,
+      0.12499999984374999
+    ],
+    "fnlwgt": [
+      "minmax",
+      12285.0,
+      6.765373465528685e-07
+    ],
+    "education": [
+      "minmax",
+      0.0,
+      0.06666666662222222
+    ],
+    "educational-num": [
+      "minmax",
+      1.0,
+      0.06666666662222222
+    ],
+    "marital-status": [
+      "minmax",
+      0.0,
+      0.16666666638888888
+    ],
+    "occupation": [
+      "minmax",
+      0.0,
+      0.07142857137755101
+    ],
+    "relationship": [
+      "minmax",
+      0.0,
+      0.1999999996
+    ],
+    "race": [
+      "minmax",
+      0.0,
+      0.249999999375
+    ],
+    "gender": [
+      "minmax",
+      0.0,
+      0.9999999900000002
+    ],
+    "capital-gain": [
+      "minmax",
+      0.0,
+      1.000010000099901e-05
+    ],
+    "capital-loss": [
+      "minmax",
+      0.0,
+      0.0002295684113860662
+    ],
+    "hours-per-week": [
+      "minmax",
+      1.0,
+      0.010204081631611829
+    ],
+    "native-country": [
+      "minmax",
+      0.0,
+      0.02499999999375
+    ]
+  },
+  "normalisation_fit_rows": 29305,
+  "normalisation_fit_split": "train",
+  "preprocessing": "Train-fitted category maps and float32 min/max equations of patched ANNpt_data; streamed without row limits. Verified separately against production normalization.",
+  "files": {
+    "train_x.npy": {
+      "sha256": "f71eb07b72796caf445893bead5d5f93f72abcc473bcf50b79fa24b9fcadd6cf",
+      "bytes": 1641208
+    },
+    "train_y.npy": {
+      "sha256": "429a2695a8c80875df70c22d6f28ae3edcba88a949887b6a6a5b1b4355fee7e6",
+      "bytes": 234568
+    },
+    "train_source_indices.npy": {
+      "sha256": "c3ee882fa18084c5533a2888de9e2f735a26e3d6ec0418b876da835c5ec10684",
+      "bytes": 234568
+    },
+    "validation_x.npy": {
+      "sha256": "fdb62ab75e0418e3812d3d3f77736729d9e6705608f91cf365c3893c09238768",
+      "bytes": 547136
+    },
+    "validation_y.npy": {
+      "sha256": "ed7be872278faca46d70fea1da6ed6a5c857695d17a1969f6b4b18319ab6d64f",
+      "bytes": 78272
+    },
+    "validation_source_indices.npy": {
+      "sha256": "64bc7578aa8106cefc15e5774ec575be8cb957f0e498acfc634dacf2151f983c",
+      "bytes": 78272
+    },
+    "test_x.npy": {
+      "sha256": "02f818fe082c88f69c137154ee0156f246bfaf081242402f13645ff4b2e96e2b",
+      "bytes": 547192
+    },
+    "test_y.npy": {
+      "sha256": "fc57efdef5b46c84a76be4dcfc9835f97feb65db45627baf8c74a10c6e25a1a9",
+      "bytes": 78280
+    },
+    "test_source_indices.npy": {
+      "sha256": "d6e320e55aeafad60a07ce4527b3578dae6462b84c28d35d8f033bf48d569b26",
+      "bytes": 78280
+    }
+  },
+  "notes": [],
+  "partition_coverage_verified": true,
+  "data_sha256": "cf944879fd9abba1d4f2af16b0b7ec0bdd2c0f228673beb37cd5311e3124ce51"
+}

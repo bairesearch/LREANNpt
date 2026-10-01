@@ -1,0 +1,80 @@
+{
+  "repository": "/media/user/large/source/ANNpython/LREANNpt/git/LREANNpt",
+  "repository_commit": "33f9ba755ccae01c5cf3073a4ee516c06db597be",
+  "datasets": [
+    "iris",
+    "new-thyroid",
+    "breast-cancer-wisconsin",
+    "red-wine",
+    "titanic",
+    "tabular-benchmark",
+    "banking-marketing",
+    "adult_income_dataset",
+    "diabetes-readmission",
+    "blog-feedback",
+    "higgs",
+    "topquark",
+    "covertype"
+  ],
+  "methods": [
+    "backprop_adam",
+    "population_64",
+    "population_256",
+    "population_1024",
+    "population_4096"
+  ],
+  "seeds": [
+    11,
+    22,
+    33
+  ],
+  "batch_size": 128,
+  "evaluate_every_updates": 100,
+  "minimum_updates": 2000,
+  "patience_updates": 2000,
+  "significant_improvement": "Training cross-entropy decrease greater than max(0.0001, 0.001 * last significant best loss)",
+  "learning_rate_reduction_factor": 0.2,
+  "learning_rate_reductions": 3,
+  "loss_goal": 0.01,
+  "sigma": 0.01,
+  "source_hashes": {
+    "LREANNpt_SUANNmodel.py": "72ef5aff15544b98cdbb208942a6427ce42443485b7abd14e7f5cb277894001e",
+    "LREANNpt_SUANN_trainingConvergence.py": "d7a5d875636566f65b40e0b33f1cf630da752784bcc8a2f730224e091614b139",
+    "ANNpt_linearSublayers.py": "4c449572f64ac6e8693c0661a784603d5e217b722f6ae975c1286d82c84b293c",
+    "ANNpt_data.py": "77176845c67e2cf7bb540d623db4386c89cdad6db2ffca053f17aca0dbef9b2c",
+    "LREANNpt_SUANN.py": "0e73916e08eec0c0237baaa8343cdd31300fe7a1a9886e10e5d0c9f20d545033",
+    "ANNpt_globalDefs.py": "105e6dfb5e790d419465a9d30eab72809669b24c446c98cf6345b8855a46382c",
+    "LREANNpt_SUANN_globalDefs.py": "279e83eefac230c77adf33e247fec66cc1f8a73fb0a90632c30728a81adb7e65",
+    "ANNpt_main.py": "41fcb28fd934da3ca573ef64667c0a56195c7512d2afbd8cd88cd4e38d8d83be"
+  },
+  "global_optimum_claim": false,
+  "created": "2026-10-01T14:51:00.590403+10:00",
+  "scope": "Fresh full-data training for all 13 tabular datasets, five methods, three paired seeds; no source prefixes, no row subsampling or split-size caps.",
+  "row_caps": {
+    "train": null,
+    "validation": null,
+    "test": null,
+    "source": null
+  },
+  "initialization": "Fresh models; no cancelled benchmark checkpoint or historical metrics are resumed.",
+  "split_seed": 20260930,
+  "split_rule": "Same partition rules as the prior experiment before its caps: official train/validation/test retained where provided; otherwise 20% of official train for validation; single-source datasets split 60/20/20. Stratification when class counts permit.",
+  "minimum_updates_rule": "max(2000, ceil(number of training rows including configured repeats / 128)); at least one entire shuffled pass precedes stopping or plateau LR reductions.",
+  "stop": "100% training accuracy and CE <= 0.01, or training-loss plateau after at least three LR reductions. Only full training metrics control stopping. No maximum updates/epochs/time.",
+  "selection": "Minimum full-training-set cross-entropy, with full model and matching optimizer restored before final held-out test evaluation.",
+  "checkpoint": "Resumable model, optimizer, controller, paired minibatch RNG/order/cursor, CPU/CUDA/noise RNG and curves; every 100 updates to SSD, durable backup every 300s and at completion.",
+  "population_backend": "Verified batched iid full-model Gaussian estimator; direct CUDA RNG from first update. Same estimator and noise distribution as production; different RNG stream from sequential implementation.",
+  "numerical_recovery": {
+    "max_recoveries": 5,
+    "factor": 0.2,
+    "policy": "Restore minimum finite training-loss model and matching optimizer, lower learning rate, log event. Exceeding limit is a failed run, never convergence."
+  },
+  "initial_learning_rates": "Adam repository per-dataset learning rate; population 0.01.",
+  "population_learning_rate": 0.01,
+  "evaluation_batch_size": 4096,
+  "training_batch_policy": "Carry the final remainder into the next shuffled pass; no training rows are dropped.",
+  "concurrent_workers": 3,
+  "timing_note": "Concurrent GPU jobs; durations are not controlled isolated performance comparisons.",
+  "target_caveat": "Blog Feedback retains the repository count-as-classification task; this is not a regression benchmark.",
+  "validation_policy": "Full validation metrics logged at training evaluations but never control training or selection; full test metrics evaluated only after stopping."
+}
