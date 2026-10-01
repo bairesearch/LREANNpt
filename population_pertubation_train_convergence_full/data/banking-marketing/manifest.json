@@ -1,13 +1,13 @@
 {
   "dataset": "banking-marketing",
-  "source_rows_loaded": 49732,
+  "source_rows_loaded": 45211,
   "all_source_rows_used": true,
   "source_prefix_used": false,
   "row_caps": null,
   "sizes": {
-    "train": 36168,
-    "validation": 9043,
-    "test": 4521
+    "train": 27126,
+    "validation": 9042,
+    "test": 9043
   },
   "features": 16,
   "feature_names": [
@@ -32,16 +32,11 @@
   "split_seed": 20260930,
   "sources": [
     {
-      "url": "https://huggingface.co/datasets/Andyrasika/banking-marketing/resolve/a66b0ab163aadbbf520e4c88dd064632e0440971/data/train-00000-of-00001.parquet",
-      "path": "/tmp/suann-benchmark-cache/hub/datasets--Andyrasika--banking-marketing/snapshots/a66b0ab163aadbbf520e4c88dd064632e0440971/data/train-00000-of-00001.parquet",
-      "bytes": 742819,
-      "sha256": "ac858175b77e3bb94cbfebdcf8b83d2882b0d30b6e6ccd9fca642e4fdb3cd632"
-    },
-    {
-      "url": "https://huggingface.co/datasets/Andyrasika/banking-marketing/resolve/a66b0ab163aadbbf520e4c88dd064632e0440971/data/test-00000-of-00001.parquet",
-      "path": "/tmp/suann-benchmark-cache/hub/datasets--Andyrasika--banking-marketing/snapshots/a66b0ab163aadbbf520e4c88dd064632e0440971/data/test-00000-of-00001.parquet",
-      "bytes": 91662,
-      "sha256": "1c2ed8b5513352b3605e2b3074ed025a5f8921ac5cbd8c7f93bb0552b05ec916"
+      "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/00222/bank.zip",
+      "archive_member": "bank-full.csv",
+      "bytes": 579043,
+      "sha256": "99d7e8eb12401ed278b793984423915411ea8df099e1795f9fefe254f513fe5e",
+      "path": "sources/bank.zip"
     }
   ],
   "dropped_columns": [],
@@ -138,7 +133,7 @@
     "balance": [
       "minmax",
       -8019.0,
-      9.07885896900395e-06
+      9.395317373820005e-06
     ],
     "housing": [
       "minmax",
@@ -168,7 +163,7 @@
     "duration": [
       "minmax",
       0.0,
-      0.00020333468889751255
+      0.0002642007926016798
     ],
     "campaign": [
       "minmax",
@@ -178,7 +173,7 @@
     "pdays": [
       "minmax",
       -1.0,
-      0.0011467889908125368
+      0.0011695906432611744
     ],
     "previous": [
       "minmax",
@@ -191,48 +186,50 @@
       0.3333333322222222
     ]
   },
-  "normalisation_fit_rows": 36168,
+  "normalisation_fit_rows": 27126,
   "normalisation_fit_split": "train",
   "preprocessing": "Train-fitted category maps and float32 min/max equations of patched ANNpt_data; streamed without row limits. Verified separately against production normalization.",
   "files": {
     "train_x.npy": {
-      "sha256": "e73365dc29f12e8c772932dc47aeae35c4618ba02ce05a4e676c0343a500018d",
-      "bytes": 2314880
+      "sha256": "1fcd8231af797ba56d516bbbd55313ef0023188b8bf8c7d8f529180a16332f84",
+      "bytes": 1736192
     },
     "train_y.npy": {
-      "sha256": "0e5e4cf72415e106f4296e63e0b4f6b17a3367f4cf59050982a27719ae288895",
-      "bytes": 289472
+      "sha256": "3a752873e98ac982c23d494dac1be6b42da38f241dacc7b7b825af148a4074d3",
+      "bytes": 217136
     },
     "train_source_indices.npy": {
-      "sha256": "0b5ab93a9c0b8cb77796060c2370f1619dd943058d22a36337e4472ce8ca32a3",
-      "bytes": 289472
+      "sha256": "dc612eec78b68468f83d2b2e7ac500195fddf0edd881d5350d465aed7f7aa703",
+      "bytes": 217136
     },
     "validation_x.npy": {
-      "sha256": "a91fc66285c06fecd43902445ff20c5316cacedc2248206b2371177adec1dfde",
-      "bytes": 578880
+      "sha256": "bc309a73d190486fa208e64619cdd5cacbe66b4864b2468b94462b55dc699e7e",
+      "bytes": 578816
     },
     "validation_y.npy": {
-      "sha256": "c2fab36f9988024d203292bd641a3f25309a801241860b2a63e2978eae66bfc8",
-      "bytes": 72472
+      "sha256": "49a389559c570b3eb804a5bbc143908fb273c53c76e7e15ed2a5f0568eb859d6",
+      "bytes": 72464
     },
     "validation_source_indices.npy": {
-      "sha256": "13711249674e2cfac7e74c5be65dcdf3963c71166068c7280990048d9851d602",
-      "bytes": 72472
+      "sha256": "999b871f45aab27bfc0fae2a3870bee1d408249208fe1a047a038206de7b3dd5",
+      "bytes": 72464
     },
     "test_x.npy": {
-      "sha256": "3395945b6d54cf2c04a574ea457bb573b883619e5691f90abdf6528c63be37d5",
-      "bytes": 289472
+      "sha256": "729b5490830210cd10dd153bf84463e8416fce58c5cee8983a1cf57856aa301e",
+      "bytes": 578880
     },
     "test_y.npy": {
-      "sha256": "a844e0bcc03c6c5eb2fac2b8ed2896da7a01312ec361f934a880f203148e1f47",
-      "bytes": 36296
+      "sha256": "60643624877617de4fe12e6b3273a2465110b3e9a6c6500829081e85a60db71b",
+      "bytes": 72472
     },
     "test_source_indices.npy": {
-      "sha256": "c6fb8206be3cbf198d3308791db30f9f7ac23e2b35d575befc5896abd6ea5281",
-      "bytes": 36296
+      "sha256": "2a75a83e15dd2e0829c99f619031f04a18979b893d56e062b281042a35fc1a43",
+      "bytes": 72472
     }
   },
-  "notes": [],
+  "notes": [
+    "UCI bank-full.csv only; bank.csv is not a held-out test set. All 45,211 source rows partitioned once into seeded 60/20/20 train/validation/test splits."
+  ],
   "partition_coverage_verified": true,
-  "data_sha256": "d22ef155fc503021fd4e5555d68a909d22f8c76441d73f5053624fa37a943881"
+  "data_sha256": "f77f883bfd01a795e12047a7ab260d68a14c3c03853129d87715234697fe5001"
 }

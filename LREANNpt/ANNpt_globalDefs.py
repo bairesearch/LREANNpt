@@ -297,7 +297,9 @@ if(useTabularDataset):
 	elif(datasetName == 'banking-marketing'):
 		datasetSpecifyDataFiles = False
 		datasetConvertFeatureValues = True	#required if they contain strings
-		datasetNameFull = 'Andyrasika/banking-marketing'
+		datasetNameFull = 'https://archive.ics.uci.edu/ml/machine-learning-databases/00222/bank.zip'
+		trainFileName = 'bank-full.csv'	#all 45,211 rows; bank.csv is a subset, not a test set
+		datasetHasTestSplit = False	#create disjoint train/test splits using datasetTestSplitSize
 		classFieldName = 'y'
 		datasetConvertClassValues = True	#string: yes/no
 		datasetNormalise = True

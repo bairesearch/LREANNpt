@@ -98,7 +98,7 @@ def initialise_workspace(output=None, resume=False):
         'snapshot_sha256': hashes,
         'fresh_models': True,
         'checkpoint_directory': 'checkpoints',
-        'banking_marketing_policy': 'Preserve the recorded overlapping source splits, as requested; no hold.',
+        'banking_marketing_policy': protocol['banking_marketing_policy'],
         'historical_results_copied': False,
     }
     (output / 'REPRODUCTION.json').write_text(json.dumps(record, indent=2) + '\n')

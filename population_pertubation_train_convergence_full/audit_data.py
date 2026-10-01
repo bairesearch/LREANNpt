@@ -17,6 +17,9 @@ def main():
         directory=HERE/'data'/name;info=json.loads((directory/'manifest.json').read_text())
         assert info['row_caps'] is None and info['all_source_rows_used'] and not info['source_prefix_used']
         assert sum(info['sizes'].values())==info['source_rows_loaded']
+        if name=='banking-marketing':
+            assert info['source_rows_loaded']==45211 and len(info['sources'])==1
+            assert info['sources'][0].get('archive_member')=='bank-full.csv', 'Expected bank-full as a single source'
         coverage=np.zeros(info['source_rows_loaded'],dtype=np.uint8)
         for split,n in info['sizes'].items():
             indices=np.load(directory/f'{split}_source_indices.npy',mmap_mode='r')

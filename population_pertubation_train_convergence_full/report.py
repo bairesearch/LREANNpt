@@ -15,7 +15,11 @@ def records():
         if path.name.endswith('.progress.json'):
             tag=path.name.removesuffix('.progress.json')
             if not (HERE/'runs'/f'{tag}.json').exists():active.append(json.loads(path.read_text()))
-        else:completed.append(json.loads(path.read_text()))
+        else:
+            record=json.loads(path.read_text())
+            if record['protocol']!=P:
+                raise RuntimeError(f'{path.name}: result belongs to an earlier protocol; start a fresh reproduction before reporting the bank-full experiment')
+            completed.append(record)
     failures=[json.loads(p.read_text()) for p in (HERE/'logs').glob('failure_*.json')]
     return completed,active,failures
 
@@ -36,7 +40,7 @@ def main():
         'Scope and protocol',P['scope'],'No training, validation, test, or source-prefix row caps. All runs start from fresh models.',
         '13 tabular datasets; Adam backprop and population sizes 64, 256, 1024, 4096; paired seeds 11, 22, 33.',
         'The cancelled capped experiment is not resumed and its results are not pooled with these results.',
-        'Original dataset partition rules are retained: '+P['split_rule'],
+        'Dataset partition rules: '+P['split_rule'],
         'HIGGS uses all 11 million rows with a random 60/20/20 partition, not the original paper final-500,000 test partition.',
         'All train/validation/test source indices and input-source/prepared-file hashes are saved under data/.',
         'Categories and min/max normalization are fitted on the full training split. The streamed float32 transformation is checked against patched production ANNpt_data.',
@@ -58,7 +62,7 @@ def main():
         'Production uses its full training DataLoader including a partial final batch; the benchmark carries remainders to keep batches of 128 for paired GPU evaluation.',
         'Timing: three concurrent GPU workers; durations include different workloads and are not isolated optimizer speed comparisons.',
         'Blog Feedback retains raw integer comment-count class labels, matching the repository; accuracy is not a regression metric.',
-        'Banking Marketing retains the supplied overlapping splits by user instruction: its test accuracy is contaminated and is not an independent held-out estimate.',
+        P['banking_marketing_policy'],
         '','Dataset sizes (no row subsampling)', '| Dataset | Source rows | Training | Validation | Test | Features |', '|---|---:|---:|---:|---:|---:|']
     for d in P['datasets']:
         if d in manifests:

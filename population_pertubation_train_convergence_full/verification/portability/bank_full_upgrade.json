@@ -1,0 +1,93 @@
+{
+  "status": "passed",
+  "checked_utc": "2026-10-01T11:31:28.849887+00:00",
+  "python": "3.13.2 | packaged by Anaconda, Inc. | (main, Feb  6 2025, 18:56:02) [GCC 11.2.0]",
+  "source": {
+    "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/00222/bank.zip",
+    "archive_member": "bank-full.csv",
+    "bytes": 579043,
+    "sha256": "99d7e8eb12401ed278b793984423915411ea8df099e1795f9fefe254f513fe5e",
+    "member_bytes": 4610348,
+    "member_sha256": "d1513ec63b385506f7cfce9f2c5caa9fe99e7ba4e8c3fa264b3aaf0f849ed32d",
+    "rows": 45211,
+    "features": 16,
+    "duplicate_full_records": 0,
+    "duplicate_predictors": 0,
+    "classes": {
+      "no": 39922,
+      "yes": 5289
+    }
+  },
+  "production": {
+    "datasetName": "banking-marketing",
+    "remote_archive_loader": "passed",
+    "local_semicolon_csv_loader": "passed",
+    "rows": {
+      "train": 40689,
+      "test": 4522
+    },
+    "train_test_full_record_overlap": 0,
+    "normalisation_fit_rows": 40689,
+    "all_source_rows_used_once": true,
+    "other_dataset_branches_unchanged": true
+  },
+  "benchmark": {
+    "dataset": "banking-marketing",
+    "source": "UCI bank-full.csv",
+    "source_url": "https://archive.ics.uci.edu/ml/machine-learning-databases/00222/bank.zip",
+    "source_sha256": "99d7e8eb12401ed278b793984423915411ea8df099e1795f9fefe254f513fe5e",
+    "source_rows": 45211,
+    "split_seed": 20260930,
+    "split_rule": "Single source, stratified 60/20/20 using the benchmark existing seeded partition function",
+    "splits": {
+      "train": 27126,
+      "validation": 9042,
+      "test": 9043
+    },
+    "duplicate_full_source_records": 0,
+    "pairwise_full_record_overlap": {
+      "train/validation": 0,
+      "train/test": 0,
+      "validation/test": 0
+    },
+    "every_source_row_used_exactly_once": true,
+    "method": "Exact raw row tuples including labels, plus full source-index coverage",
+    "status": "Verified disjoint bank-full partitions; bank.csv is not loaded as a test set.",
+    "previous_source_issue": "The superseded Hugging Face test split repeated 4,521 records from its 45,211-row training source."
+  },
+  "validation": {
+    "bank_full_tests_passed": 7,
+    "existing_reproduction_tests_passed": 17,
+    "bank_full_test_script": "/media/user/large/source/ANNpython/LREANNpt/dev/benchmarks/tests/test_bank_full_dataset.py",
+    "bank_full_test_sha256": "9fdcb94e177f550a6f263df1e4cc10a2bc487841369445c4c1e59f1715466a50",
+    "missing_array_rebuild_matches_reference": true,
+    "old_overlapping_manifest_rejected": true,
+    "old_protocol_report_rejected": true,
+    "all_frozen_source_hashes_verified": true,
+    "prepared_arrays_checked": 9,
+    "other_dataset_manifests_unchanged": 12,
+    "historical_results_and_figures_unchanged": true,
+    "population_estimator_and_training_loop_unchanged": true,
+    "production_patch_applies_in_differently_named_source_folder": true,
+    "new_training_jobs_started": 0
+  },
+  "production_patch": {
+    "path": "/media/user/large/source/ANNpython/LREANNpt/git/patchesToDistribute/bank_full_dataset.patch",
+    "sha256": "5b77c134663b4b76221e6ff2cf438ed6a8c0da1cde2907a7c5d7b58f8c114670"
+  },
+  "changed_file_sha256": {
+    "LREANNpt/ANNpt_data.py": "f9a844029c48cdbdfb6d3622581fbdfcc07655e5e681aa3b057a7e9e508d52c0",
+    "LREANNpt/ANNpt_globalDefs.py": "032636c7375eba62f5fb5c859a0260b246a50d91c7d511c016d6bd0900ee0d90",
+    "population_pertubation_train_convergence_full/README.txt": "dc0fdad741a6a2e1ff698e963a2dba2201590f49427178650e9c6933803f43f0",
+    "population_pertubation_train_convergence_full/audit_data.py": "de192c070b7736bc7f10fd1ea5957b3d28bbeac8b81088165c4da0483f544158",
+    "population_pertubation_train_convergence_full/data/banking-marketing/manifest.json": "67000b9654e64655a51ed6ee7d1bd24427e866be7182fd8dffb163572e0170dc",
+    "population_pertubation_train_convergence_full/prepare_full.py": "9d7075ce350375e869eece4e88e9280105850a7421802ef369d1e22c0a7ceed5",
+    "population_pertubation_train_convergence_full/protocol.json": "5d1ca8917548acd354a9051bf5641ceaf9e1b7d71fe029f5b6f55a56ad43b746",
+    "population_pertubation_train_convergence_full/report.py": "ba35dab05991c5522b219c763993c0d3dbc812646bd981f563e1b1c8e7f04d62",
+    "population_pertubation_train_convergence_full/reproduce.py": "5465ed829f775063d891429733bf2dfe307686866175527f8c9cc7602c61afb6",
+    "population_pertubation_train_convergence_full/source/LREANNpt/ANNpt_data.py": "f9a844029c48cdbdfb6d3622581fbdfcc07655e5e681aa3b057a7e9e508d52c0",
+    "population_pertubation_train_convergence_full/source/LREANNpt/ANNpt_globalDefs.py": "be2f8f5c481ffe71b1edabfc26b09deef4c9be8ec15fd4e4d1765749932479c0",
+    "population_pertubation_train_convergence_full/verification/source_split_overlap.json": "1a606dd53ee64a84b83ecd7ffd0bf56a62a7641bf0946a3dfd0cc76f6784b65c"
+  },
+  "limits": "Only the bank source and split policy changed. Previously saved experiment results remain historical; a fresh benchmark run is required. No final accuracies were recomputed."
+}

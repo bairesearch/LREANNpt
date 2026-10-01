@@ -270,6 +270,14 @@ if(useTabularDataset):
 			dataset = DatasetDict({
 				datasetSplitNameTrain: Dataset.from_pandas(frame, preserve_index=False)
 			})
+		elif(datasetName == 'banking-marketing'):
+			# Read only bank-full.csv; bank.csv contains overlapping sampled rows.
+			if(datasetLocalFile):
+				bankDirectory = dataPathName
+			else:
+				from datasets import DownloadManager
+				bankDirectory = DownloadManager().download_and_extract(datasetNameFull)
+			dataset = load_dataset('csv', data_files={datasetSplitNameTrain: bankDirectory + '/' + trainFileName}, delimiter=';')
 		elif(datasetLocalFile):
 			trainFileNameFull = dataPathName + '/' + trainFileName
 			if(datasetHasTestSplit):

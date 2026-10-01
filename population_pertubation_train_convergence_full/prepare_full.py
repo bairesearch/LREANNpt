@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Load every source row, partition without subsampling, fit preprocessing on train."""
-import argparse, hashlib, json, os, sys, time, traceback
+import argparse, hashlib, json, os, sys, time, traceback, zipfile
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -16,7 +16,6 @@ SOURCES={
  'red-wine':('lvwerra/red-wine','quality',['winequality-red.csv']),
  'breast-cancer-wisconsin':('scikit-learn/breast-cancer-wisconsin','diagnosis',['breast_cancer.csv']),
  'diabetes-readmission':('imodels/diabetes-readmission','readmitted',['train.csv','test.csv']),
- 'banking-marketing':('Andyrasika/banking-marketing','y',['data/train-00000-of-00001.parquet','data/test-00000-of-00001.parquet']),
  'adult_income_dataset':('meghana/adult_income_dataset','income',['adult.csv']),
  'iris':('scikit-learn/iris','Species',['Iris.csv']),
 }
@@ -132,7 +131,17 @@ def prepare_hf(name):
         ['Integer comment counts treated as class IDs, following repository task convention.'] if name=='blog-feedback' else None)
 
 def prepare_special(name):
-    if name=='new-thyroid':
+    if name=='banking-marketing':
+        source=expected_manifest(name)['sources'][0]
+        assert source['archive_member']=='bank-full.csv'
+        path=download_verified(source['url'], HERE/'sources/bank.zip', source)
+        with zipfile.ZipFile(path) as archive, archive.open(source['archive_member']) as handle:
+            frame=pd.read_csv(handle,sep=';')
+        assert len(frame)==45211 and not frame.duplicated().any(), 'Expected the complete, unique bank-full source'
+        provenance=dict(source_info(path,source['url']),archive_member=source['archive_member'])
+        store_frame(name,frame,'y',None,[provenance],
+            ['UCI bank-full.csv only; bank.csv is not a held-out test set. All 45,211 source rows partitioned once into seeded 60/20/20 train/validation/test splits.'])
+    elif name=='new-thyroid':
         path=bundled_source(name, 'new-thyroid.csv')
         store_frame(name,pd.read_csv(path),'class',None,[source_info(path,'Repository data/new-thyroid.csv')])
     elif name=='titanic':

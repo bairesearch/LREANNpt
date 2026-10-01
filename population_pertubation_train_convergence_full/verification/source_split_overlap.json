@@ -1,9 +1,24 @@
 {
   "dataset": "banking-marketing",
-  "source_train_rows": 45211,
-  "source_test_rows": 4521,
-  "test_records_also_in_source_train": 4521,
-  "test_overlap_fraction": 1.0,
-  "method": "Exact full-record comparison, all columns including label; pandas row hashes",
-  "status": "Known overlap retained by user instruction; Banking Marketing is not held in reproductions. Test accuracy is contaminated by training/test overlap."
+  "source": "UCI bank-full.csv",
+  "source_url": "https://archive.ics.uci.edu/ml/machine-learning-databases/00222/bank.zip",
+  "source_sha256": "99d7e8eb12401ed278b793984423915411ea8df099e1795f9fefe254f513fe5e",
+  "source_rows": 45211,
+  "split_seed": 20260930,
+  "split_rule": "Single source, stratified 60/20/20 using the benchmark existing seeded partition function",
+  "splits": {
+    "train": 27126,
+    "validation": 9042,
+    "test": 9043
+  },
+  "duplicate_full_source_records": 0,
+  "pairwise_full_record_overlap": {
+    "train/validation": 0,
+    "train/test": 0,
+    "validation/test": 0
+  },
+  "every_source_row_used_exactly_once": true,
+  "method": "Exact raw row tuples including labels, plus full source-index coverage",
+  "status": "Verified disjoint bank-full partitions; bank.csv is not loaded as a test set.",
+  "previous_source_issue": "The superseded Hugging Face test split repeated 4,521 records from its 45,211-row training source."
 }

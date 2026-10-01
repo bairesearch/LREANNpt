@@ -26,7 +26,9 @@ The command stays in the foreground; manager output goes to logs/manager.log.
 A compatible NVIDIA driver for the pinned PyTorch CUDA 12.8 build is required.
 
 The three-worker GPU schedule, populations 64/256/1024/4096, Adam baseline, seeds
-11/22/33, dataset partitions, preprocessing, and convergence policy are unchanged.
+11/22/33, preprocessing, and convergence policy are unchanged. Banking Marketing
+now uses bank-full.csv with disjoint splits, as described below; the other
+dataset partitions are unchanged.
 There are no source, training, validation, or test row caps, and no maximum
 training-iteration or wall-time cutoff. Plan for tens of GB of disk space, plus
 model checkpoints, and substantial GPU time. The larger dataset preparation
@@ -119,18 +121,39 @@ the actual environment on each launch. A mismatched pinned dependency fails earl
 
 Historical absolute paths in protocol.json and reference manifests are provenance
 only; they are not used to locate runtime data. source_hashes in protocol.json
-still verify the unchanged eight frozen production modules.
+verify the eight frozen production modules. The frozen ANNpt_data.py and
+ANNpt_globalDefs.py include the bank-full loader/configuration update; the other
+six modules and the batched GPU estimator are unchanged.
 
 Banking Marketing policy
 ------------------------
 
-As requested, these reproductions preserve the original Banking Marketing train
-and test sources and run without the former dataset hold. All 4,521 supplied
-test records also occur in the supplied 45,211-row training source. Reports keep
-this limitation visible: its test accuracy is contaminated by overlap and is
-not an independent held-out estimate. There is no switch to bank-full, duplicate
-removal, or split redesign in this portability change. The original experiment
-outside the repository, including its hold, is not modified by this launcher.
+Banking Marketing now reads only bank-full.csv from the official UCI archive:
+
+    https://archive.ics.uci.edu/ml/machine-learning-databases/00222/bank.zip
+
+The archive size and SHA-256 are pinned in data/banking-marketing/manifest.json.
+All 45,211 rows are used exactly once. The existing single-source stratified
+60/20/20 partition function, seed 20260930, produces 27,126 training, 9,042
+validation and 9,043 test rows. Categories and normalization remain fitted only
+on training rows. Exact full-record comparisons show zero overlap between
+these partitions; see verification/source_split_overlap.json.
+
+bank.csv is a 10% sample of bank-full.csv, not an independent test set. The old
+Hugging Face train/test combination loaded both and duplicated every supplied
+test record. It is no longer used. The datasetName remains banking-marketing;
+bank-additional-full.csv is a different dataset and is not used by this patch.
+
+The production loader also reads only bank-full.csv, then uses its existing
+datasetTestSplitSize (default 0.1) to create train/test splits: 40,689/4,522 rows.
+Its split policy is therefore still different from this benchmark's 60/20/20.
+
+This change revises the experiment protocol and prepared-data hashes. Start a
+fresh launch with python reproduce.py (or a new --output folder) to use it.
+Old overlapping data/checkpoints must not be resumed under the new protocol.
+Previously created independent output folders keep their own frozen code; they
+must be replaced by a fresh reproduction from this updated folder to use bank-full.
+--resume continues only runs initialised with the updated code and protocol.
 
 Archive and validation
 ----------------------
@@ -143,6 +166,11 @@ real training; nothing is presented as a rerun merely by copying saved results.
 The manager regenerates verification gates, independently evaluates saved best
 models, checks paired initialization/minibatch streams, and validates figure
 files. Final scientific visual review remains a separate human review step.
+
+The saved reports/results and earlier verification records predate the bank-full
+change; they remain historical records, not results of the revised experiment.
+report.py rejects results carrying a different protocol instead of relabelling
+them as new measurements. No training was performed as part of the dataset patch.
 
 Run the focused portability tests (no GPU training or network needed):
 
@@ -161,3 +189,9 @@ preparation/audit launches on disposable copies using complete Titanic and New
 Thyroid datasets. Fresh default launches replaced saved-result/checkpoint
 fixtures, --resume preserved them, and separate --output launches still worked.
 See verification/portability/in_place_launch.json for this follow-up evidence.
+
+The bank-full update is separately validated in
+verification/portability/bank_full_upgrade.json. The earlier portability records
+describe their original source versions and do not validate the revised bank
+splits; the new record covers full-source loading, production preprocessing,
+disjoint splits, new prepared-array hashes, and rejection of the old data/protocol.
