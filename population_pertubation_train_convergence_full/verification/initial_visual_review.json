@@ -1,6 +1,0 @@
-{
-  "time": "2026-10-01T15:11:23.802763+10:00",
-  "figure": "training_loss_grid.png",
-  "completed_runs_at_render": 12,
-  "review": "Labels, seed/mean curves, selected checkpoint markers and layout visually inspected; final plots still require review."
-}

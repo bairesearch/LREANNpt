@@ -2,16 +2,18 @@
 """Remove bulky/generated artifacts from a completed benchmark's archival copy.
 
 Usage:
-    python clean_population_pertubation_train_convergence.py FOLDER
-    python clean_population_pertubation_train_convergence.py FOLDER --dry-run
+    python clean_population_pertubation_train_convergence_data.py FOLDER
+    python clean_population_pertubation_train_convergence_data.py FOLDER --dry-run
 
 The default command deletes immediately, without checking running experiments
 or asking for confirmation. Use it on the archival copy, as intended.
 
 Keep: scripts, frozen source, protocol, reports, figures, dataset manifests,
-completed run JSON, verification records, execution/failure logs and unknown
-files. Delete: prepared binary datasets (including split-index arrays), raw
-downloads, model checkpoints, caches, temporary files and runtime status files.
+completed run JSON, verification evidence, execution/failure logs, reproduction
+and environment records, and unknown files. Delete: prepared binary datasets
+(including split-index arrays), raw downloads, model checkpoints, caches,
+temporary files and runtime status files, including FINALISATION.json and the
+transient verification/latest_monitoring_check.json snapshot.
 
 The cleaned folder is a compact results/code archive. Run reproduce.py to
 rebuild data and retrain in that folder, replacing saved results. Resuming or
@@ -42,7 +44,7 @@ RAW_SOURCE_SUFFIXES = DATA_SUFFIXES | {
 }
 RUNTIME_FILES = {
     "LAUNCH.json", "MANAGER.json", "PREPARATION.json", "PROGRESS.json",
-    "SUPERVISOR.json", "CANCEL",
+    "SUPERVISOR.json", "FINALISATION.json", "CANCEL",
 }
 REPORT_NAME = "CLEANUP.json"
 REPORT_FORMAT = "population-pertubation-archive-cleanup-v1"
@@ -85,6 +87,8 @@ def removal_reason(relative):
         return "temporary/incomplete file"
     if len(relative.parts) == 1 and name in RUNTIME_FILES:
         return "transient runtime status"
+    if relative.as_posix() == "verification/latest_monitoring_check.json":
+        return "transient monitoring snapshot"
     if top == "data" and suffix in DATA_SUFFIXES:
         return "prepared dataset or split-index array"
     if relative.parts[:2] == ("sources", "sklearn") and name in {"samples_py3", "targets_py3"}:

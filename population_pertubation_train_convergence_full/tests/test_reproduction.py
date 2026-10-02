@@ -269,11 +269,50 @@ class ReproductionTests(unittest.TestCase):
         self.assertNotEqual(group, os.getpgrp())
 
     def test_cleaner_preserves_bundled_sources_and_removes_new_checkpoints(self):
-        from clean_population_pertubation_train_convergence import removal_reason
+        from clean_population_pertubation_train_convergence_data import removal_reason
         self.assertIsNone(removal_reason(Path('inputs/titanic_openml_40945.csv')))
         self.assertIsNone(removal_reason(Path('reference_manifests/iris.json')))
         self.assertIsNotNone(removal_reason(Path('checkpoints/iris_population_64_seed11.pt')))
         self.assertIsNotNone(removal_reason(Path('sources/sklearn/covertype/samples_py3')))
+
+    def test_archive_cleanup_removes_transient_status_and_preserves_evidence(self):
+        import clean_population_pertubation_train_convergence_data as cleaner
+        output = self.workspace()
+        transient = {'FINALISATION.json', 'verification/latest_monitoring_check.json'}
+        evidence = [
+            'environment_runs.json', 'REPORT.txt', 'summary.json', 'summary.csv',
+            'per_seed.csv', 'training_loss_grid.png', 'figures/iris.svg',
+            'runs/iris_backprop_adam_seed11.json', 'logs/manager.log',
+            'logs/failure_iris.json', 'verification/backend.json',
+            'verification/metrics_iris_backprop_adam_seed11.json',
+            'verification/initial_visual_review.json',
+            'verification/portability/checks.json', 'batched_verification.json',
+            # Similar names at other paths are not transient-status matches.
+            'logs/FINALISATION.json', 'latest_monitoring_check.json',
+            'verification/archive/latest_monitoring_check.json',
+        ]
+        for name in [*transient, *evidence]:
+            path = output / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text('fixture: ' + name)
+        protected = {path.relative_to(output).as_posix(): path.read_bytes()
+                     for path in output.rglob('*') if path.is_file()
+                     and path.relative_to(output).as_posix() not in transient}
+        previous = {'format': cleaner.REPORT_FORMAT, 'cleanups': []}
+        (output / 'CLEANUP.json').write_text(json.dumps(previous))
+        removals, directories = cleaner.plan_cleanup(output)
+        self.assertEqual({item.path for item in removals}, transient)
+        removed, _, errors = cleaner.clean(output, removals, directories)
+        self.assertEqual(errors, [])
+        self.assertEqual({item['path'] for item in removed}, transient)
+        for name in transient:
+            self.assertFalse((output / name).exists(), name)
+        for name, content in protected.items():
+            self.assertEqual((output / name).read_bytes(), content, name)
+        record = json.loads((output / 'CLEANUP.json').read_text())
+        self.assertEqual(record['format'], cleaner.REPORT_FORMAT)
+        self.assertEqual(len(record['cleanups']), 1)
+        self.assertEqual({item['path'] for item in record['cleanups'][0]['deleted_files']}, transient)
 
     def test_huggingface_uses_pinned_url(self):
         manifest = json.loads((ROOT / 'data/iris/manifest.json').read_text())

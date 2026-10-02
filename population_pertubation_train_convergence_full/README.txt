@@ -98,6 +98,46 @@ If CANCEL exists, remove it explicitly before resuming. A completed archive
 cleaned of model checkpoints is a record, not a resumable training directory;
 start a fresh reproduction to recompute it.
 
+Deleting generated data and results
+-----------------------------------
+
+To reset a stopped benchmark to the files needed for a fresh run, first preview:
+
+    python delete_population_pertubation_train_convergence_data.py --dry-run
+
+Then perform the deletion:
+
+    python delete_population_pertubation_train_convergence_data.py
+
+The default target is the folder containing the script, even from another
+working directory. An optional positional FOLDER targets a separate benchmark
+copy. Without --dry-run, deletion is immediate. Stop the benchmark first; the
+script refuses a reset while an existing launcher, manager or report lock is held.
+
+This reset deletes all saved results, prepared arrays, downloaded sources,
+checkpoints, reports, figures, logs, generated verification records, runtime
+statuses (including FINALISATION.json), environment_runs.json, REPRODUCTION.json,
+CLEANUP.json, caches, temporary files and other files outside its keep rules.
+Unknown files inside the target are also deleted. It writes no new cleanup log.
+
+It retains Python/shell scripts, Python tests, frozen source/patches, requirements,
+README.txt, protocol.json, environment_original.json, HOLDS.json, Git metadata and
+the bundled Titanic/New Thyroid CSVs. It also retains the authoritative manifest
+for each dataset (reference_manifests/ when present, otherwise data/*/manifest.json)
+and verification/source_split_overlap.json. These are bootstrap inputs required
+by reproduce.py; deleting them would prevent a fresh launch. Required inputs and
+their pinned source hashes are checked before any deletion. Symlinked directories
+are not followed, and deleting an unneeded link leaves its target untouched.
+
+After resetting, run python reproduce.py without --resume. Sources and arrays
+will be rebuilt and all models will start fresh. The separate
+clean_population_pertubation_train_convergence_data.py command remains available
+for archival cleanup that retains results, reports, logs, verification evidence,
+REPRODUCTION.json, environment_runs.json, configuration, manifests and bundled
+inputs. It preserves and updates CLEANUP.json. It removes transient runtime state,
+including top-level FINALISATION.json and the exact path
+verification/latest_monitoring_check.json.
+
 Sources and environment
 -----------------------
 

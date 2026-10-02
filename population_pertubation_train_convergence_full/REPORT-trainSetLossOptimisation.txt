@@ -1,0 +1,543 @@
+SUANN population perturbation: full-data training convergence
+Updated: 2026-10-03T07:39:56.770090+10:00
+Completed runs: 167/195; unresolved run failures: 0
+
+Scope and protocol
+Fresh full-data training for all 13 tabular datasets, five methods, three paired seeds; no source prefixes, no row subsampling or split-size caps.
+No training, validation, test, or source-prefix row caps. All runs start from fresh models.
+13 tabular datasets; Adam backprop and population sizes 64, 256, 1024, 4096; paired seeds 11, 22, 33.
+The cancelled capped experiment is not resumed and its results are not pooled with these results.
+Dataset partition rules: Official train/validation/test retained where provided; otherwise 20% of official train for validation; single-source datasets split 60/20/20. Banking Marketing uses only UCI bank-full.csv as one source, replacing the overlapping supplied splits. Stratification when class counts permit.
+HIGGS uses all 11 million rows with a random 60/20/20 partition, not the original paper final-500,000 test partition.
+All train/validation/test source indices and input-source/prepared-file hashes are saved under data/.
+Categories and min/max normalization are fitted on the full training split. The streamed float32 transformation is checked against patched production ANNpt_data.
+Training convergence
+Full training cross-entropy is evaluated every 100 updates. Significant decrease: greater than max(0.0001, 0.001 * last significant best loss).
+Minimum training: max(2000, ceil(number of training rows including configured repeats / 128)); at least one entire shuffled pass precedes stopping or plateau LR reductions.
+After 2,000 updates without significant improvement, restore the minimum-training-CE model and its optimizer and multiply learning rate by 0.2.
+100% training accuracy and CE <= 0.01, or training-loss plateau after at least three LR reductions. Only full training metrics control stopping. No maximum updates/epochs/time.
+The selected model has the lowest observed full-training CE; it may differ from the stopping model in accuracy.
+Validation is logged only. Test evaluation occurs only after the stopping decision and restoration of the selected checkpoint.
+Numerical recovery restores the finite best model and reduces learning rate by 0.2, up to five recoveries. Recoveries count as learning-rate reductions; numerical failure itself is never convergence.
+This is a practical training-loss convergence experiment; no mathematical global optimum is claimed.
+Model/settings: repository architecture and Adam learning rate per dataset; population learning rate 0.01, sigma 0.01, batch size 128.
+Every trainable parameter is perturbed jointly. Candidate reward is negative minibatch CE. Update is alpha/(N*sigma) * sum((reward_i - mean_reward) * epsilon_i).
+The benchmark batches the actual SUANN forward with iid Gaussian directions, verified with matched noise against sequential production. The random-number stream differs from sequential production.
+All methods share initial model seed and a separate identical shuffled minibatch stream per dataset/seed. Remainders carry into the next pass: no rows are dropped.
+Production opt-in: populationPertubationOptimiseTrainingIterations=True with useStochasticUpdates=True, useIndividualPertubation=False, usePopulationPertubation=True.
+The benchmark also enables the same stopping controller for Adam, with useStochasticUpdates=False.
+Production uses its full training DataLoader including a partial final batch; the benchmark carries remainders to keep batches of 128 for paired GPU evaluation.
+Timing: three concurrent GPU workers; durations include different workloads and are not isolated optimizer speed comparisons.
+Blog Feedback retains raw integer comment-count class labels, matching the repository; accuracy is not a regression metric.
+Banking Marketing uses all 45,211 rows of UCI bank-full.csv, partitioned once into disjoint seeded train/validation/test splits (27,126/9,042/9,043). The overlapping bank.csv sample is not used.
+
+Dataset sizes (no row subsampling)
+| Dataset | Source rows | Training | Validation | Test | Features |
+|---|---:|---:|---:|---:|---:|
+| iris | 150 | 90 | 30 | 30 | 4 |
+| new-thyroid | 215 | 129 | 43 | 43 | 5 |
+| breast-cancer-wisconsin | 569 | 341 | 114 | 114 | 30 |
+| red-wine | 1,599 | 959 | 320 | 320 | 11 |
+| titanic | 1,309 | 785 | 262 | 262 | 7 |
+| tabular-benchmark | 58,252 | 34,951 | 11,650 | 11,651 | 31 |
+| banking-marketing | 45,211 | 27,126 | 9,042 | 9,043 | 16 |
+| adult_income_dataset | 48,842 | 29,305 | 9,768 | 9,769 | 14 |
+| diabetes-readmission | 101,763 | 65,128 | 16,282 | 20,353 | 150 |
+| blog-feedback | 60,021 | 41,917 | 10,480 | 7,624 | 280 |
+| higgs | 11,000,000 | 6,600,000 | 2,200,000 | 2,200,000 | 28 |
+| topquark | 2,018,000 | 1,211,000 | 403,000 | 404,000 | 800 |
+| covertype | 581,012 | 348,607 | 116,202 | 116,203 | 54 |
+
+Source split integrity
+{
+  "dataset": "banking-marketing",
+  "source": "UCI bank-full.csv",
+  "source_url": "https://archive.ics.uci.edu/ml/machine-learning-databases/00222/bank.zip",
+  "source_sha256": "99d7e8eb12401ed278b793984423915411ea8df099e1795f9fefe254f513fe5e",
+  "source_rows": 45211,
+  "split_seed": 20260930,
+  "split_rule": "Single source, stratified 60/20/20 using the benchmark existing seeded partition function",
+  "splits": {
+    "train": 27126,
+    "validation": 9042,
+    "test": 9043
+  },
+  "duplicate_full_source_records": 0,
+  "pairwise_full_record_overlap": {
+    "train/validation": 0,
+    "train/test": 0,
+    "validation/test": 0
+  },
+  "every_source_row_used_exactly_once": true,
+  "method": "Exact raw row tuples including labels, plus full source-index coverage",
+  "status": "Verified disjoint bank-full partitions; bank.csv is not loaded as a test set.",
+  "previous_source_issue": "The superseded Hugging Face test split repeated 4,521 records from its 45,211-row training source."
+}
+
+
+Test-set accuracy (%) after training, mean ± sample SD over three seeds. A cell remains pending until all three seeds finish.
+| Dataset | Backprop Adam | Population 64 | 256 | 1024 | 4096 |
+|---|---:|---:|---:|---:|---:|
+| iris | 94.44 ± 1.92 | 95.56 ± 1.92 | 93.33 ± 0.00 | 93.33 ± 0.00 | 93.33 ± 0.00 |
+| new-thyroid | 97.67 ± 0.00 | 97.67 ± 0.00 | 97.67 ± 0.00 | 97.67 ± 0.00 | 97.67 ± 0.00 |
+| breast-cancer-wisconsin | 97.66 ± 0.51 | 95.91 ± 0.51 | 96.49 ± 0.00 | 96.49 ± 0.00 | 96.49 ± 0.00 |
+| red-wine | 63.23 ± 0.65 | 62.50 ± 0.31 | 61.25 ± 1.62 | 61.35 ± 1.57 | pending (2/3) |
+| titanic | 76.34 ± 1.32 | 81.30 ± 0.38 | 81.55 ± 0.44 | 81.17 ± 1.34 | pending (0/3) |
+| tabular-benchmark | 60.77 ± 0.51 | 62.83 ± 0.44 | 63.61 ± 0.34 | 63.40 ± 0.09 | pending (0/3) |
+| banking-marketing | 88.14 ± 0.12 | 89.90 ± 0.08 | 90.10 ± 0.10 | 90.25 ± 0.04 | pending (0/3) |
+| adult_income_dataset | 82.39 ± 0.07 | 84.37 ± 0.04 | 84.57 ± 0.11 | 84.57 ± 0.05 | pending (0/3) |
+| diabetes-readmission | 57.84 ± 0.40 | 60.54 ± 0.06 | 62.07 ± 0.23 | 62.49 ± 0.09 | pending (0/3) |
+| blog-feedback | 60.88 ± 0.73 | 70.02 ± 0.05 | 69.68 ± 0.05 | 68.54 ± 1.21 | pending (0/3) |
+| higgs | 74.41 ± 0.12 | 61.64 ± 0.30 | 63.18 ± 0.01 | 63.81 ± 0.04 | pending (0/3) |
+| topquark | 71.71 ± 0.02 | 70.87 ± 0.03 | 71.19 ± 0.05 | 71.21 ± 0.12 | pending (0/3) |
+| covertype | 96.42 ± 0.15 | 73.84 ± 0.04 | 77.86 ± 0.83 | 85.78 ± 0.92 | pending (0/3) |
+
+Completed groups: training fit and stopping iterations
+| Dataset | Method | Train accuracy (%) | Train CE | Test balanced accuracy (%) | Stopping updates |
+|---|---|---:|---:|---:|---:|
+| iris | backprop_adam | 100.00 | 0.008455 | 94.44 | 4200–8300 |
+| iris | population_64 | 97.78 | 0.048772 | 95.56 | 29200–35200 |
+| iris | population_256 | 97.78 | 0.048697 | 93.33 | 30000–35900 |
+| iris | population_1024 | 97.78 | 0.048683 | 93.33 | 30200–36900 |
+| iris | population_4096 | 97.78 | 0.048623 | 93.33 | 31800–38700 |
+| new-thyroid | backprop_adam | 100.00 | 0.007590 | 98.89 | 2000–2000 |
+| new-thyroid | population_64 | 100.00 | 0.009983 | 98.89 | 63800–67500 |
+| new-thyroid | population_256 | 100.00 | 0.009983 | 98.89 | 64100–67200 |
+| new-thyroid | population_1024 | 100.00 | 0.009966 | 98.89 | 62800–68200 |
+| new-thyroid | population_4096 | 100.00 | 0.009988 | 98.89 | 63000–69100 |
+| breast-cancer-wisconsin | backprop_adam | 100.00 | 0.005271 | 97.65 | 2000–2300 |
+| breast-cancer-wisconsin | population_64 | 99.90 | 0.009636 | 96.26 | 24600–27100 |
+| breast-cancer-wisconsin | population_256 | 99.90 | 0.009728 | 96.73 | 26000–28000 |
+| breast-cancer-wisconsin | population_1024 | 99.90 | 0.009942 | 96.73 | 24600–26300 |
+| breast-cancer-wisconsin | population_4096 | 100.00 | 0.009786 | 96.73 | 25300–26200 |
+| red-wine | backprop_adam | 100.00 | 0.009633 | 31.73 | 11300–15300 |
+| red-wine | population_64 | 92.60 | 0.262013 | 31.30 | 159500–278900 |
+| red-wine | population_256 | 99.97 | 0.016047 | 29.72 | 190100–219000 |
+| red-wine | population_1024 | 100.00 | 0.009866 | 31.28 | 109500–162400 |
+| titanic | backprop_adam | 94.61 | 0.123166 | 75.38 | 60300–89400 |
+| titanic | population_64 | 85.77 | 0.326191 | 79.52 | 49800–77700 |
+| titanic | population_256 | 86.79 | 0.302397 | 79.85 | 71500–91800 |
+| titanic | population_1024 | 87.35 | 0.286188 | 79.80 | 94300–121600 |
+| tabular-benchmark | backprop_adam | 77.93 | 0.450411 | 60.77 | 72000–82800 |
+| tabular-benchmark | population_64 | 62.89 | 0.645684 | 62.83 | 26000–33700 |
+| tabular-benchmark | population_256 | 63.77 | 0.639945 | 63.61 | 38900–40600 |
+| tabular-benchmark | population_1024 | 63.69 | 0.640725 | 63.40 | 33100–43600 |
+| banking-marketing | backprop_adam | 99.98 | 0.002192 | 68.40 | 64800–91100 |
+| banking-marketing | population_64 | 89.90 | 0.232892 | 66.69 | 36500–46100 |
+| banking-marketing | population_256 | 90.31 | 0.224250 | 68.21 | 52200–69100 |
+| banking-marketing | population_1024 | 90.64 | 0.215342 | 69.22 | 56200–117700 |
+| adult_income_dataset | backprop_adam | 97.73 | 0.055195 | 74.75 | 127400–155800 |
+| adult_income_dataset | population_64 | 84.72 | 0.326170 | 75.70 | 35800–38000 |
+| adult_income_dataset | population_256 | 85.15 | 0.317881 | 76.02 | 30400–44300 |
+| adult_income_dataset | population_1024 | 85.30 | 0.314804 | 75.93 | 39200–46700 |
+| diabetes-readmission | backprop_adam | 84.76 | 0.285817 | 57.71 | 133400–160600 |
+| diabetes-readmission | population_64 | 61.61 | 0.650934 | 59.74 | 28600–34800 |
+| diabetes-readmission | population_256 | 63.15 | 0.638688 | 61.25 | 36100–43700 |
+| diabetes-readmission | population_1024 | 64.09 | 0.631431 | 61.64 | 36400–50100 |
+| blog-feedback | backprop_adam | 93.88 | 0.185795 | 0.79 | 108500–128700 |
+| blog-feedback | population_64 | 64.08 | 1.577071 | 0.59 | 37900–41600 |
+| blog-feedback | population_256 | 64.32 | 1.453704 | 0.72 | 70200–98800 |
+| blog-feedback | population_1024 | 66.09 | 1.296039 | 0.78 | 85500–230500 |
+| higgs | backprop_adam | 74.51 | 0.508853 | 74.28 | 62700–66800 |
+| higgs | population_64 | 61.61 | 0.649789 | 60.98 | 55600–56300 |
+| higgs | population_256 | 63.16 | 0.639337 | 62.56 | 58700–61800 |
+| higgs | population_1024 | 63.79 | 0.634953 | 63.14 | 60500–64000 |
+| topquark | backprop_adam | 71.69 | 0.534468 | 71.71 | 15500–17400 |
+| topquark | population_64 | 70.79 | 0.548660 | 70.86 | 23300–26600 |
+| topquark | population_256 | 71.14 | 0.541245 | 71.19 | 24400–27300 |
+| topquark | population_1024 | 71.14 | 0.540674 | 71.20 | 25900–34400 |
+| covertype | backprop_adam | 98.93 | 0.030621 | 93.73 | 113200–135400 |
+| covertype | population_64 | 73.75 | 0.614456 | 46.82 | 54900–62800 |
+| covertype | population_256 | 78.00 | 0.513379 | 60.41 | 101500–122500 |
+| covertype | population_1024 | 86.21 | 0.337127 | 75.90 | 131300–184100 |
+
+Active runs
+red-wine population_4096 seed 33: step 36600; training; train={'loss': 0.7488835453987122, 'accuracy': 0.6923879040667362, 'balanced_accuracy': 0.35933561305288, 'rows': 959}; best_train={'loss': 0.7488835453987122, 'accuracy': 0.6923879040667362, 'balanced_accuracy': 0.35933561305288, 'rows': 959}
+titanic population_4096 seed 22: step 33200; training; train={'loss': 0.33715757727622986, 'accuracy': 0.8573248407643312, 'balanced_accuracy': 0.8260481099656358, 'rows': 785}; best_train={'loss': 0.33715757727622986, 'accuracy': 0.8573248407643312, 'balanced_accuracy': 0.8260481099656358, 'rows': 785}
+titanic population_4096 seed 11: step 34800; training; train={'loss': 0.3393136262893677, 'accuracy': 0.845859872611465, 'balanced_accuracy': 0.8154982817869416, 'rows': 785}; best_train={'loss': 0.3393136262893677, 'accuracy': 0.845859872611465, 'balanced_accuracy': 0.8154982817869416, 'rows': 785}
+
+Numerical recovery and learning-rate events
+diabetes-readmission population_256 seed 22: {"step": 29200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 29200, "message": null}
+diabetes-readmission population_256 seed 22: {"step": 39700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 39600, "message": null}
+diabetes-readmission population_256 seed 22: {"step": 41700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 41500, "message": null}
+banking-marketing population_64 seed 22: {"step": 21700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 19700, "message": null}
+banking-marketing population_64 seed 22: {"step": 30800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 30800, "message": null}
+banking-marketing population_64 seed 22: {"step": 34500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 34200, "message": null}
+tabular-benchmark backprop_adam seed 11: {"step": 44300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.001, "lr": 0.0002, "restored_step": 42300, "message": null}
+tabular-benchmark backprop_adam seed 11: {"step": 66200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0002, "lr": 4e-05, "restored_step": 66100, "message": null}
+tabular-benchmark backprop_adam seed 11: {"step": 70000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 4e-05, "lr": 8.000000000000001e-06, "restored_step": 69900, "message": null}
+blog-feedback backprop_adam seed 22: {"step": 38800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.001, "lr": 0.0002, "restored_step": 36800, "message": null}
+blog-feedback backprop_adam seed 22: {"step": 80500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0002, "lr": 4e-05, "restored_step": 79700, "message": null}
+blog-feedback backprop_adam seed 22: {"step": 104500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 4e-05, "lr": 8.000000000000001e-06, "restored_step": 103700, "message": null}
+adult_income_dataset population_256 seed 33: {"step": 22200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 21500, "message": null}
+adult_income_dataset population_256 seed 33: {"step": 32000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 31400, "message": null}
+adult_income_dataset population_256 seed 33: {"step": 34000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 34000, "message": null}
+adult_income_dataset population_64 seed 11: {"step": 10400, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 8400, "message": null}
+adult_income_dataset population_64 seed 11: {"step": 27300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 25600, "message": null}
+adult_income_dataset population_64 seed 11: {"step": 33800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 33200, "message": null}
+banking-marketing population_256 seed 11: {"step": 52200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 50200, "message": null}
+banking-marketing population_256 seed 11: {"step": 65100, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 64800, "message": null}
+banking-marketing population_256 seed 11: {"step": 67100, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 66900, "message": null}
+diabetes-readmission backprop_adam seed 33: {"step": 40700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.005, "lr": 0.001, "restored_step": 38700, "message": null}
+diabetes-readmission backprop_adam seed 33: {"step": 78600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.001, "lr": 0.0002, "restored_step": 78400, "message": null}
+diabetes-readmission backprop_adam seed 33: {"step": 129600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0002, "lr": 4e-05, "restored_step": 129600, "message": null}
+adult_income_dataset backprop_adam seed 22: {"step": 47600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.001, "lr": 0.0002, "restored_step": 45600, "message": null}
+adult_income_dataset backprop_adam seed 22: {"step": 92800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0002, "lr": 4e-05, "restored_step": 92100, "message": null}
+adult_income_dataset backprop_adam seed 22: {"step": 139800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 4e-05, "lr": 8.000000000000001e-06, "restored_step": 138500, "message": null}
+higgs population_64 seed 22: {"step": 32994, "event": "numerical_recovery_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 27500, "message": "Non-finite reported training loss"}
+higgs population_64 seed 22: {"step": 51600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 50900, "message": null}
+higgs population_64 seed 22: {"step": 53600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 53400, "message": null}
+banking-marketing backprop_adam seed 11: {"step": 35500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.001, "lr": 0.0002, "restored_step": 33500, "message": null}
+banking-marketing backprop_adam seed 11: {"step": 55800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0002, "lr": 4e-05, "restored_step": 53800, "message": null}
+iris population_64 seed 22: {"step": 23200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 22600, "message": null}
+iris population_64 seed 22: {"step": 25200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 24500, "message": null}
+iris population_64 seed 22: {"step": 27200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 27200, "message": null}
+red-wine population_256 seed 22: {"step": 66300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 64300, "message": null}
+tabular-benchmark population_1024 seed 33: {"step": 32200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 31700, "message": null}
+tabular-benchmark population_1024 seed 33: {"step": 34200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 33900, "message": null}
+tabular-benchmark population_1024 seed 33: {"step": 36200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 36200, "message": null}
+banking-marketing backprop_adam seed 22: {"step": 42300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.001, "lr": 0.0002, "restored_step": 40300, "message": null}
+banking-marketing backprop_adam seed 22: {"step": 59800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0002, "lr": 4e-05, "restored_step": 58700, "message": null}
+banking-marketing backprop_adam seed 22: {"step": 82600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 4e-05, "lr": 8.000000000000001e-06, "restored_step": 82100, "message": null}
+iris population_256 seed 11: {"step": 29700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 29700, "message": null}
+iris population_256 seed 11: {"step": 31700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 31600, "message": null}
+iris population_256 seed 11: {"step": 33700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 33700, "message": null}
+blog-feedback population_256 seed 22: {"step": 50000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 48900, "message": null}
+blog-feedback population_256 seed 22: {"step": 94800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 94500, "message": null}
+blog-feedback population_256 seed 22: {"step": 96800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 96700, "message": null}
+higgs population_256 seed 33: {"step": 51600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 50700, "message": null}
+higgs population_256 seed 33: {"step": 57800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 57700, "message": null}
+higgs population_256 seed 33: {"step": 59800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 59700, "message": null}
+topquark population_1024 seed 11: {"step": 15700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 15600, "message": null}
+topquark population_1024 seed 11: {"step": 21900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 21800, "message": null}
+topquark population_1024 seed 11: {"step": 23900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 23300, "message": null}
+adult_income_dataset population_1024 seed 11: {"step": 36900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 36800, "message": null}
+adult_income_dataset population_1024 seed 11: {"step": 42700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 42300, "message": null}
+adult_income_dataset population_1024 seed 11: {"step": 44700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 44700, "message": null}
+red-wine population_256 seed 11: {"step": 69600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 68000, "message": null}
+iris population_64 seed 33: {"step": 29200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 29000, "message": null}
+iris population_64 seed 33: {"step": 31200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 31100, "message": null}
+iris population_64 seed 33: {"step": 33200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 32800, "message": null}
+covertype population_1024 seed 33: {"step": 36000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 34000, "message": null}
+covertype population_1024 seed 33: {"step": 129100, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 129100, "message": null}
+covertype population_1024 seed 33: {"step": 180200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 179400, "message": null}
+red-wine population_64 seed 11: {"step": 26100, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 24600, "message": null}
+red-wine population_64 seed 11: {"step": 103600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 101600, "message": null}
+red-wine population_64 seed 11: {"step": 134100, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 132900, "message": null}
+diabetes-readmission population_256 seed 11: {"step": 26200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 26000, "message": null}
+diabetes-readmission population_256 seed 11: {"step": 32100, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 31600, "message": null}
+diabetes-readmission population_256 seed 11: {"step": 34100, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 33900, "message": null}
+higgs backprop_adam seed 22: {"step": 56000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.001, "lr": 0.0002, "restored_step": 54000, "message": null}
+higgs backprop_adam seed 22: {"step": 62100, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0002, "lr": 4e-05, "restored_step": 61100, "message": null}
+higgs backprop_adam seed 22: {"step": 64800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 4e-05, "lr": 8.000000000000001e-06, "restored_step": 64700, "message": null}
+titanic population_64 seed 33: {"step": 34600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 32600, "message": null}
+titanic population_64 seed 33: {"step": 63700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 61800, "message": null}
+titanic population_64 seed 33: {"step": 75700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 75600, "message": null}
+adult_income_dataset population_64 seed 33: {"step": 10372, "event": "numerical_recovery_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 8700, "message": "Non-finite reported training loss"}
+adult_income_dataset population_64 seed 33: {"step": 24400, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 23100, "message": null}
+adult_income_dataset population_64 seed 33: {"step": 36000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 35700, "message": null}
+topquark population_256 seed 22: {"step": 13400, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 11400, "message": null}
+topquark population_256 seed 22: {"step": 21600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 21300, "message": null}
+topquark population_256 seed 22: {"step": 25300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 24700, "message": null}
+topquark backprop_adam seed 33: {"step": 9500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.001, "lr": 0.0002, "restored_step": 5900, "message": null}
+topquark backprop_adam seed 33: {"step": 11500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0002, "lr": 4e-05, "restored_step": 11300, "message": null}
+topquark backprop_adam seed 33: {"step": 13500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 4e-05, "lr": 8.000000000000001e-06, "restored_step": 13200, "message": null}
+tabular-benchmark population_1024 seed 22: {"step": 37600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 37300, "message": null}
+tabular-benchmark population_1024 seed 22: {"step": 39600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 39400, "message": null}
+tabular-benchmark population_1024 seed 22: {"step": 41600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 41500, "message": null}
+higgs population_256 seed 22: {"step": 51600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 51200, "message": null}
+higgs population_256 seed 22: {"step": 54700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 54600, "message": null}
+higgs population_256 seed 22: {"step": 56700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 56500, "message": null}
+banking-marketing population_1024 seed 11: {"step": 60900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 60900, "message": null}
+banking-marketing population_1024 seed 11: {"step": 73500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 73100, "message": null}
+banking-marketing population_1024 seed 11: {"step": 75500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 75500, "message": null}
+titanic population_64 seed 11: {"step": 31400, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 29400, "message": null}
+titanic population_64 seed 11: {"step": 44000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 43300, "message": null}
+titanic population_64 seed 11: {"step": 56200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 56200, "message": null}
+banking-marketing backprop_adam seed 33: {"step": 35600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.001, "lr": 0.0002, "restored_step": 33600, "message": null}
+banking-marketing backprop_adam seed 33: {"step": 57700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0002, "lr": 4e-05, "restored_step": 56000, "message": null}
+banking-marketing backprop_adam seed 33: {"step": 88900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 4e-05, "lr": 8.000000000000001e-06, "restored_step": 88900, "message": null}
+blog-feedback population_64 seed 11: {"step": 6800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 4800, "message": null}
+blog-feedback population_64 seed 11: {"step": 36600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 36600, "message": null}
+blog-feedback population_64 seed 11: {"step": 38600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 38500, "message": null}
+titanic population_256 seed 22: {"step": 50300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 49900, "message": null}
+titanic population_256 seed 22: {"step": 73700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 73300, "message": null}
+titanic population_256 seed 22: {"step": 78200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 78000, "message": null}
+iris population_1024 seed 11: {"step": 30700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 30000, "message": null}
+iris population_1024 seed 11: {"step": 32700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 31800, "message": null}
+iris population_1024 seed 11: {"step": 34700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 31800, "message": null}
+iris population_4096 seed 33: {"step": 32700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 31700, "message": null}
+iris population_4096 seed 33: {"step": 34700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 34400, "message": null}
+iris population_4096 seed 33: {"step": 36700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 36700, "message": null}
+topquark population_1024 seed 33: {"step": 26100, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 25700, "message": null}
+topquark population_1024 seed 33: {"step": 30400, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 30200, "message": null}
+topquark population_1024 seed 33: {"step": 32400, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 31200, "message": null}
+covertype population_256 seed 22: {"step": 7322, "event": "numerical_recovery_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 6800, "message": "Non-finite reported training loss"}
+covertype population_256 seed 22: {"step": 71000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 71000, "message": null}
+covertype population_256 seed 22: {"step": 99500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 99400, "message": null}
+higgs population_64 seed 11: {"step": 31239, "event": "numerical_recovery_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 25100, "message": "Non-finite reported training loss"}
+higgs population_64 seed 11: {"step": 52300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 50500, "message": null}
+higgs population_64 seed 11: {"step": 54300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 54200, "message": null}
+banking-marketing population_256 seed 22: {"step": 44800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 44400, "message": null}
+banking-marketing population_256 seed 22: {"step": 63400, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 62800, "message": null}
+banking-marketing population_256 seed 22: {"step": 65400, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 65300, "message": null}
+adult_income_dataset population_256 seed 11: {"step": 27500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 25500, "message": null}
+adult_income_dataset population_256 seed 11: {"step": 40300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 39900, "message": null}
+adult_income_dataset population_256 seed 11: {"step": 42300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 42200, "message": null}
+banking-marketing population_256 seed 33: {"step": 28800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 26900, "message": null}
+banking-marketing population_256 seed 33: {"step": 48200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 48100, "message": null}
+banking-marketing population_256 seed 33: {"step": 50200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 49800, "message": null}
+blog-feedback population_1024 seed 22: {"step": 71300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 71300, "message": null}
+blog-feedback population_1024 seed 22: {"step": 140500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 140500, "message": null}
+blog-feedback population_1024 seed 22: {"step": 142500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 142300, "message": null}
+diabetes-readmission population_1024 seed 22: {"step": 30000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 29800, "message": null}
+diabetes-readmission population_1024 seed 22: {"step": 32400, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 31900, "message": null}
+diabetes-readmission population_1024 seed 22: {"step": 34400, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 34000, "message": null}
+tabular-benchmark population_256 seed 33: {"step": 34600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 34600, "message": null}
+tabular-benchmark population_256 seed 33: {"step": 36600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 36500, "message": null}
+tabular-benchmark population_256 seed 33: {"step": 38600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 38600, "message": null}
+iris population_1024 seed 22: {"step": 24200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 23900, "message": null}
+iris population_1024 seed 22: {"step": 26200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 26200, "message": null}
+iris population_1024 seed 22: {"step": 28200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 28000, "message": null}
+titanic backprop_adam seed 33: {"step": 32200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.001, "lr": 0.0002, "restored_step": 30200, "message": null}
+titanic backprop_adam seed 33: {"step": 53100, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0002, "lr": 4e-05, "restored_step": 51200, "message": null}
+titanic backprop_adam seed 33: {"step": 56400, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 4e-05, "lr": 8.000000000000001e-06, "restored_step": 55900, "message": null}
+covertype population_256 seed 33: {"step": 7304, "event": "numerical_recovery_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 7000, "message": "Non-finite reported training loss"}
+covertype population_256 seed 33: {"step": 77500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 76800, "message": null}
+covertype population_256 seed 33: {"step": 120500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 119900, "message": null}
+higgs population_1024 seed 33: {"step": 53100, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 52800, "message": null}
+higgs population_1024 seed 33: {"step": 57000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 56600, "message": null}
+higgs population_1024 seed 33: {"step": 59000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 58100, "message": null}
+covertype population_64 seed 22: {"step": 4371, "event": "numerical_recovery_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 4300, "message": "Non-finite reported training loss"}
+covertype population_64 seed 22: {"step": 11700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 9700, "message": null}
+covertype population_64 seed 22: {"step": 51600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 51300, "message": null}
+titanic population_256 seed 33: {"step": 50600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 48900, "message": null}
+titanic population_256 seed 33: {"step": 83500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 82700, "message": null}
+titanic population_256 seed 33: {"step": 89800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 89800, "message": null}
+titanic population_1024 seed 22: {"step": 84500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 83500, "message": null}
+titanic population_1024 seed 22: {"step": 116300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 115300, "message": null}
+titanic population_1024 seed 22: {"step": 119600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 119300, "message": null}
+topquark population_256 seed 33: {"step": 14737, "event": "numerical_recovery_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 13200, "message": "Non-finite reported training loss"}
+topquark population_256 seed 33: {"step": 22900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 22700, "message": null}
+topquark population_256 seed 33: {"step": 24900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 24100, "message": null}
+titanic backprop_adam seed 11: {"step": 49100, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.001, "lr": 0.0002, "restored_step": 47100, "message": null}
+titanic backprop_adam seed 11: {"step": 57000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0002, "lr": 4e-05, "restored_step": 56500, "message": null}
+titanic backprop_adam seed 11: {"step": 85900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 4e-05, "lr": 8.000000000000001e-06, "restored_step": 85800, "message": null}
+tabular-benchmark population_1024 seed 11: {"step": 27100, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 26700, "message": null}
+tabular-benchmark population_1024 seed 11: {"step": 29100, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 29100, "message": null}
+tabular-benchmark population_1024 seed 11: {"step": 31100, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 31000, "message": null}
+covertype backprop_adam seed 22: {"step": 38800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.001, "lr": 0.0002, "restored_step": 36800, "message": null}
+covertype backprop_adam seed 22: {"step": 65200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0002, "lr": 4e-05, "restored_step": 63200, "message": null}
+covertype backprop_adam seed 22: {"step": 124700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 4e-05, "lr": 8.000000000000001e-06, "restored_step": 122700, "message": null}
+covertype population_1024 seed 11: {"step": 36700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 34700, "message": null}
+covertype population_1024 seed 11: {"step": 108000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 106100, "message": null}
+covertype population_1024 seed 11: {"step": 167100, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 166300, "message": null}
+tabular-benchmark backprop_adam seed 22: {"step": 53600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.001, "lr": 0.0002, "restored_step": 51600, "message": null}
+tabular-benchmark backprop_adam seed 22: {"step": 78200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0002, "lr": 4e-05, "restored_step": 77800, "message": null}
+tabular-benchmark backprop_adam seed 22: {"step": 80800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 4e-05, "lr": 8.000000000000001e-06, "restored_step": 80500, "message": null}
+red-wine population_256 seed 33: {"step": 56800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 54800, "message": null}
+red-wine population_256 seed 33: {"step": 175200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 174600, "message": null}
+red-wine population_256 seed 33: {"step": 211900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 211100, "message": null}
+tabular-benchmark population_64 seed 11: {"step": 25000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 23800, "message": null}
+tabular-benchmark population_64 seed 11: {"step": 27000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 26800, "message": null}
+tabular-benchmark population_64 seed 11: {"step": 29000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 29000, "message": null}
+blog-feedback population_256 seed 33: {"step": 24800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 24700, "message": null}
+blog-feedback population_256 seed 33: {"step": 65300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 65300, "message": null}
+blog-feedback population_256 seed 33: {"step": 68200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 68200, "message": null}
+tabular-benchmark population_64 seed 33: {"step": 20000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 19800, "message": null}
+tabular-benchmark population_64 seed 33: {"step": 22000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 22000, "message": null}
+tabular-benchmark population_64 seed 33: {"step": 24000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 24000, "message": null}
+tabular-benchmark population_256 seed 11: {"step": 32900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 32600, "message": null}
+tabular-benchmark population_256 seed 11: {"step": 34900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 34800, "message": null}
+tabular-benchmark population_256 seed 11: {"step": 36900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 36900, "message": null}
+red-wine population_64 seed 22: {"step": 27600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 25600, "message": null}
+red-wine population_64 seed 22: {"step": 126900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 124900, "message": null}
+red-wine population_64 seed 22: {"step": 175200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 175200, "message": null}
+diabetes-readmission population_1024 seed 33: {"step": 36900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 36900, "message": null}
+diabetes-readmission population_1024 seed 33: {"step": 40000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 39900, "message": null}
+diabetes-readmission population_1024 seed 33: {"step": 42000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 41700, "message": null}
+iris population_256 seed 22: {"step": 24000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 23900, "message": null}
+iris population_256 seed 22: {"step": 26000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 26000, "message": null}
+iris population_256 seed 22: {"step": 28000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 28000, "message": null}
+topquark backprop_adam seed 22: {"step": 9500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.001, "lr": 0.0002, "restored_step": 9000, "message": null}
+topquark backprop_adam seed 22: {"step": 12100, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0002, "lr": 4e-05, "restored_step": 12100, "message": null}
+topquark backprop_adam seed 22: {"step": 14100, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 4e-05, "lr": 8.000000000000001e-06, "restored_step": 14100, "message": null}
+topquark population_64 seed 22: {"step": 8229, "event": "numerical_recovery_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 8100, "message": "Non-finite reported training loss"}
+topquark population_64 seed 22: {"step": 16700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 15400, "message": null}
+topquark population_64 seed 22: {"step": 22500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 21400, "message": null}
+topquark population_256 seed 11: {"step": 14700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 12700, "message": null}
+topquark population_256 seed 11: {"step": 20400, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 19900, "message": null}
+topquark population_256 seed 11: {"step": 22400, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 22200, "message": null}
+diabetes-readmission population_64 seed 11: {"step": 16700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 15400, "message": null}
+diabetes-readmission population_64 seed 11: {"step": 22700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 22700, "message": null}
+diabetes-readmission population_64 seed 11: {"step": 26600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 26500, "message": null}
+topquark population_64 seed 11: {"step": 8048, "event": "numerical_recovery_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 7800, "message": "Non-finite reported training loss"}
+topquark population_64 seed 11: {"step": 22600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 20600, "message": null}
+topquark population_64 seed 11: {"step": 24600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 20600, "message": null}
+banking-marketing population_64 seed 11: {"step": 27600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 25600, "message": null}
+banking-marketing population_64 seed 11: {"step": 39900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 39200, "message": null}
+banking-marketing population_64 seed 11: {"step": 43500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 43400, "message": null}
+red-wine population_64 seed 33: {"step": 26800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 24800, "message": null}
+red-wine population_64 seed 33: {"step": 84500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 82500, "message": null}
+red-wine population_64 seed 33: {"step": 255600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 255400, "message": null}
+covertype backprop_adam seed 11: {"step": 42100, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.001, "lr": 0.0002, "restored_step": 40800, "message": null}
+covertype backprop_adam seed 11: {"step": 64900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0002, "lr": 4e-05, "restored_step": 62900, "message": null}
+covertype backprop_adam seed 11: {"step": 99800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 4e-05, "lr": 8.000000000000001e-06, "restored_step": 99300, "message": null}
+adult_income_dataset population_64 seed 22: {"step": 8325, "event": "numerical_recovery_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 7200, "message": "Non-finite reported training loss"}
+adult_income_dataset population_64 seed 22: {"step": 27700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 25700, "message": null}
+adult_income_dataset population_64 seed 22: {"step": 35000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 34900, "message": null}
+topquark population_64 seed 33: {"step": 10082, "event": "numerical_recovery_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 10000, "message": "Non-finite reported training loss"}
+topquark population_64 seed 33: {"step": 19300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 17300, "message": null}
+topquark population_64 seed 33: {"step": 21300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 20200, "message": null}
+higgs population_1024 seed 11: {"step": 51600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 51500, "message": null}
+higgs population_1024 seed 11: {"step": 56500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 56400, "message": null}
+higgs population_1024 seed 11: {"step": 58500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 58500, "message": null}
+covertype population_64 seed 11: {"step": 4048, "event": "numerical_recovery_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 4000, "message": "Non-finite reported training loss"}
+covertype population_64 seed 11: {"step": 9190, "event": "numerical_recovery_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 7200, "message": "Non-finite reported training loss"}
+covertype population_64 seed 11: {"step": 58300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 57600, "message": null}
+diabetes-readmission population_64 seed 22: {"step": 14000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 12200, "message": null}
+diabetes-readmission population_64 seed 22: {"step": 25700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 25600, "message": null}
+diabetes-readmission population_64 seed 22: {"step": 27700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 27600, "message": null}
+diabetes-readmission population_64 seed 33: {"step": 14800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 13200, "message": null}
+diabetes-readmission population_64 seed 33: {"step": 30800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 30700, "message": null}
+diabetes-readmission population_64 seed 33: {"step": 32800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 32500, "message": null}
+iris population_1024 seed 33: {"step": 30900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 30700, "message": null}
+iris population_1024 seed 33: {"step": 32900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 32900, "message": null}
+iris population_1024 seed 33: {"step": 34900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 34900, "message": null}
+tabular-benchmark backprop_adam seed 33: {"step": 48300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.001, "lr": 0.0002, "restored_step": 46300, "message": null}
+tabular-benchmark backprop_adam seed 33: {"step": 72600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0002, "lr": 4e-05, "restored_step": 72300, "message": null}
+tabular-benchmark backprop_adam seed 33: {"step": 77100, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 4e-05, "lr": 8.000000000000001e-06, "restored_step": 77100, "message": null}
+banking-marketing population_64 seed 33: {"step": 23600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 21600, "message": null}
+banking-marketing population_64 seed 33: {"step": 42100, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 41200, "message": null}
+banking-marketing population_64 seed 33: {"step": 44100, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 44000, "message": null}
+adult_income_dataset population_1024 seed 33: {"step": 35500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 35300, "message": null}
+adult_income_dataset population_1024 seed 33: {"step": 39500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 39400, "message": null}
+adult_income_dataset population_1024 seed 33: {"step": 41500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 41400, "message": null}
+tabular-benchmark population_64 seed 22: {"step": 26000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 25900, "message": null}
+tabular-benchmark population_64 seed 22: {"step": 29700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 29500, "message": null}
+tabular-benchmark population_64 seed 22: {"step": 31700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 31500, "message": null}
+iris population_4096 seed 22: {"step": 25800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 25600, "message": null}
+iris population_4096 seed 22: {"step": 27800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 27800, "message": null}
+iris population_4096 seed 22: {"step": 29800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 29600, "message": null}
+adult_income_dataset population_256 seed 22: {"step": 19300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 17300, "message": null}
+adult_income_dataset population_256 seed 22: {"step": 26400, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 25800, "message": null}
+adult_income_dataset population_256 seed 22: {"step": 28400, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 27800, "message": null}
+covertype population_256 seed 11: {"step": 6928, "event": "numerical_recovery_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 6500, "message": "Non-finite reported training loss"}
+covertype population_256 seed 11: {"step": 73300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 73300, "message": null}
+covertype population_256 seed 11: {"step": 108700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 108500, "message": null}
+diabetes-readmission backprop_adam seed 22: {"step": 35100, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.005, "lr": 0.001, "restored_step": 33100, "message": null}
+diabetes-readmission backprop_adam seed 22: {"step": 69300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.001, "lr": 0.0002, "restored_step": 68500, "message": null}
+diabetes-readmission backprop_adam seed 22: {"step": 152700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0002, "lr": 4e-05, "restored_step": 152600, "message": null}
+blog-feedback population_1024 seed 11: {"step": 108600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 106700, "message": null}
+blog-feedback population_1024 seed 11: {"step": 225400, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 225400, "message": null}
+blog-feedback population_1024 seed 11: {"step": 228500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 228500, "message": null}
+diabetes-readmission population_256 seed 33: {"step": 25800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 25300, "message": null}
+diabetes-readmission population_256 seed 33: {"step": 32900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 32700, "message": null}
+diabetes-readmission population_256 seed 33: {"step": 34900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 34900, "message": null}
+blog-feedback backprop_adam seed 33: {"step": 45300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.001, "lr": 0.0002, "restored_step": 43300, "message": null}
+blog-feedback backprop_adam seed 33: {"step": 86200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0002, "lr": 4e-05, "restored_step": 84200, "message": null}
+blog-feedback backprop_adam seed 33: {"step": 110700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 4e-05, "lr": 8.000000000000001e-06, "restored_step": 110100, "message": null}
+iris population_256 seed 33: {"step": 29900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 29800, "message": null}
+iris population_256 seed 33: {"step": 31900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 31900, "message": null}
+iris population_256 seed 33: {"step": 33900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 33800, "message": null}
+higgs population_64 seed 33: {"step": 29669, "event": "numerical_recovery_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 25700, "message": "Non-finite reported training loss"}
+higgs population_64 seed 33: {"step": 51600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 46600, "message": null}
+higgs population_64 seed 33: {"step": 53600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 53500, "message": null}
+adult_income_dataset population_1024 seed 22: {"step": 29900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 29700, "message": null}
+adult_income_dataset population_1024 seed 22: {"step": 35200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 34900, "message": null}
+adult_income_dataset population_1024 seed 22: {"step": 37200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 37200, "message": null}
+higgs backprop_adam seed 11: {"step": 51600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.001, "lr": 0.0002, "restored_step": 49200, "message": null}
+higgs backprop_adam seed 11: {"step": 59300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0002, "lr": 4e-05, "restored_step": 58900, "message": null}
+higgs backprop_adam seed 11: {"step": 63100, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 4e-05, "lr": 8.000000000000001e-06, "restored_step": 62800, "message": null}
+blog-feedback backprop_adam seed 11: {"step": 48100, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.001, "lr": 0.0002, "restored_step": 46100, "message": null}
+blog-feedback backprop_adam seed 11: {"step": 96000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0002, "lr": 4e-05, "restored_step": 95500, "message": null}
+blog-feedback backprop_adam seed 11: {"step": 124800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 4e-05, "lr": 8.000000000000001e-06, "restored_step": 123800, "message": null}
+tabular-benchmark population_256 seed 22: {"step": 33500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 33200, "message": null}
+tabular-benchmark population_256 seed 22: {"step": 35500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 35400, "message": null}
+tabular-benchmark population_256 seed 22: {"step": 37500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 37500, "message": null}
+banking-marketing population_1024 seed 22: {"step": 95900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 94300, "message": null}
+banking-marketing population_1024 seed 22: {"step": 113700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 113400, "message": null}
+banking-marketing population_1024 seed 22: {"step": 115700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 115700, "message": null}
+adult_income_dataset backprop_adam seed 33: {"step": 36400, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.001, "lr": 0.0002, "restored_step": 34400, "message": null}
+adult_income_dataset backprop_adam seed 33: {"step": 75200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0002, "lr": 4e-05, "restored_step": 74000, "message": null}
+adult_income_dataset backprop_adam seed 33: {"step": 152400, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 4e-05, "lr": 8.000000000000001e-06, "restored_step": 152200, "message": null}
+iris population_64 seed 11: {"step": 25800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 24100, "message": null}
+iris population_64 seed 11: {"step": 27800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 27400, "message": null}
+iris population_64 seed 11: {"step": 29800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 28700, "message": null}
+higgs population_1024 seed 22: {"step": 57000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 55500, "message": null}
+higgs population_1024 seed 22: {"step": 60000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 59400, "message": null}
+higgs population_1024 seed 22: {"step": 62000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 61400, "message": null}
+covertype backprop_adam seed 33: {"step": 22000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.001, "lr": 0.0002, "restored_step": 20000, "message": null}
+covertype backprop_adam seed 33: {"step": 44600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0002, "lr": 4e-05, "restored_step": 42600, "message": null}
+covertype backprop_adam seed 33: {"step": 99900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 4e-05, "lr": 8.000000000000001e-06, "restored_step": 99700, "message": null}
+blog-feedback population_256 seed 11: {"step": 32500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 32400, "message": null}
+blog-feedback population_256 seed 11: {"step": 85900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 85900, "message": null}
+blog-feedback population_256 seed 11: {"step": 89500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 89500, "message": null}
+iris population_4096 seed 11: {"step": 29800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 29800, "message": null}
+iris population_4096 seed 11: {"step": 31800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 31800, "message": null}
+iris population_4096 seed 11: {"step": 33800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 33800, "message": null}
+adult_income_dataset backprop_adam seed 11: {"step": 43800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.001, "lr": 0.0002, "restored_step": 41800, "message": null}
+adult_income_dataset backprop_adam seed 11: {"step": 101400, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0002, "lr": 4e-05, "restored_step": 101400, "message": null}
+adult_income_dataset backprop_adam seed 11: {"step": 123300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 4e-05, "lr": 8.000000000000001e-06, "restored_step": 123300, "message": null}
+banking-marketing population_1024 seed 33: {"step": 49400, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 49000, "message": null}
+banking-marketing population_1024 seed 33: {"step": 52200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 51700, "message": null}
+banking-marketing population_1024 seed 33: {"step": 54200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 54100, "message": null}
+diabetes-readmission population_1024 seed 11: {"step": 42900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 42700, "message": null}
+diabetes-readmission population_1024 seed 11: {"step": 46100, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 46100, "message": null}
+diabetes-readmission population_1024 seed 11: {"step": 48100, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 47900, "message": null}
+blog-feedback population_1024 seed 33: {"step": 43800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 42200, "message": null}
+blog-feedback population_1024 seed 33: {"step": 81500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 81500, "message": null}
+blog-feedback population_1024 seed 33: {"step": 83500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 83500, "message": null}
+diabetes-readmission backprop_adam seed 11: {"step": 50600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.005, "lr": 0.001, "restored_step": 48600, "message": null}
+diabetes-readmission backprop_adam seed 11: {"step": 77500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.001, "lr": 0.0002, "restored_step": 75500, "message": null}
+diabetes-readmission backprop_adam seed 11: {"step": 155100, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0002, "lr": 4e-05, "restored_step": 155100, "message": null}
+higgs backprop_adam seed 33: {"step": 51600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.001, "lr": 0.0002, "restored_step": 50200, "message": null}
+higgs backprop_adam seed 33: {"step": 57200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0002, "lr": 4e-05, "restored_step": 56100, "message": null}
+higgs backprop_adam seed 33: {"step": 60700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 4e-05, "lr": 8.000000000000001e-06, "restored_step": 60100, "message": null}
+titanic backprop_adam seed 22: {"step": 32600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.001, "lr": 0.0002, "restored_step": 30600, "message": null}
+titanic backprop_adam seed 22: {"step": 48400, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0002, "lr": 4e-05, "restored_step": 47900, "message": null}
+titanic backprop_adam seed 22: {"step": 61300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 4e-05, "lr": 8.000000000000001e-06, "restored_step": 61300, "message": null}
+titanic population_64 seed 22: {"step": 24300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 24300, "message": null}
+titanic population_64 seed 22: {"step": 37200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 35200, "message": null}
+titanic population_64 seed 22: {"step": 47800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 47800, "message": null}
+topquark population_1024 seed 22: {"step": 23200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 23100, "message": null}
+topquark population_1024 seed 22: {"step": 29700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 28800, "message": null}
+topquark population_1024 seed 22: {"step": 31700, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 30900, "message": null}
+titanic population_1024 seed 33: {"step": 67800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 66800, "message": null}
+titanic population_1024 seed 33: {"step": 90300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 90200, "message": null}
+titanic population_1024 seed 33: {"step": 92300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 92300, "message": null}
+red-wine population_1024 seed 22: {"step": 95900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 93900, "message": null}
+topquark backprop_adam seed 11: {"step": 10900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.001, "lr": 0.0002, "restored_step": 10200, "message": null}
+topquark backprop_adam seed 11: {"step": 13400, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0002, "lr": 4e-05, "restored_step": 12000, "message": null}
+topquark backprop_adam seed 11: {"step": 15400, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 4e-05, "lr": 8.000000000000001e-06, "restored_step": 15100, "message": null}
+titanic population_1024 seed 11: {"step": 59000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 57000, "message": null}
+titanic population_1024 seed 11: {"step": 93500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 93000, "message": null}
+titanic population_1024 seed 11: {"step": 96200, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 96000, "message": null}
+higgs population_256 seed 11: {"step": 51600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 51500, "message": null}
+higgs population_256 seed 11: {"step": 56300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 55600, "message": null}
+higgs population_256 seed 11: {"step": 58300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 58300, "message": null}
+blog-feedback population_64 seed 33: {"step": 7400, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 5400, "message": null}
+blog-feedback population_64 seed 33: {"step": 33900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 33900, "message": null}
+blog-feedback population_64 seed 33: {"step": 35900, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 35700, "message": null}
+blog-feedback population_64 seed 22: {"step": 7400, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 5400, "message": null}
+blog-feedback population_64 seed 22: {"step": 37600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 37400, "message": null}
+blog-feedback population_64 seed 22: {"step": 39600, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 39300, "message": null}
+titanic population_256 seed 11: {"step": 45800, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 45800, "message": null}
+titanic population_256 seed 11: {"step": 66300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 64900, "message": null}
+titanic population_256 seed 11: {"step": 69500, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 68700, "message": null}
+covertype population_64 seed 33: {"step": 4415, "event": "numerical_recovery_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 4300, "message": "Non-finite reported training loss"}
+covertype population_64 seed 33: {"step": 11622, "event": "numerical_recovery_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 9800, "message": "Non-finite reported training loss"}
+covertype population_64 seed 33: {"step": 45300, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 45200, "message": null}
+covertype population_1024 seed 22: {"step": 33000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.01, "lr": 0.002, "restored_step": 31000, "message": null}
+covertype population_1024 seed 22: {"step": 87400, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.002, "lr": 0.0004, "restored_step": 87400, "message": null}
+covertype population_1024 seed 22: {"step": 128000, "event": "training_plateau_reduce_lr_restore_best", "old_lr": 0.0004, "lr": 8e-05, "restored_step": 127500, "message": null}
+
+Unresolved failures
+
+Artifacts
+protocol.json: frozen experiment protocol and production source hashes.
+data/<dataset>/manifest.json and *_source_indices.npy: uncapped split/source/preprocessing provenance.
+runs/*.pt: resumable state; runs/*.best.pt: minimum training-CE checkpoint; runs/*.json: completed results.
+verification/: numerical, data coverage, and independent final metric checks.
+training_loss_grid.png/svg, validation_loss_grid.png/svg, test_accuracy_by_population.png/svg, figures/: scientific plots.
+CANCEL: create this file to stop this experiment and its worker process group. No cancelled experiment is automatically restarted.

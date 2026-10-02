@@ -1,6 +1,10 @@
 //SUANN Specification (prompts):
 
 ---
+create delete_population_pertubation_train_convergence_data.py script - resets the folder for a fresh benchmark (removes all files created by the scripts and only leaves the necessary script files to start benchmark from scratch).
+update clean_population_pertubation_train_convergence_data.py script - creates a compact results archive.
+
+---
 update the git repo codebase to use the bank-full dataset instead of bank in all places (LREANNpt/LREANNpt and LREANNpt/population_pertubation_train_convergence_full)
 
 ---
