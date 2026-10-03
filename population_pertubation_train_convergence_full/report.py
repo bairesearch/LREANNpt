@@ -18,7 +18,7 @@ def records():
         else:
             record=json.loads(path.read_text())
             if record['protocol']!=P:
-                raise RuntimeError(f'{path.name}: result belongs to an earlier protocol; start a fresh reproduction before reporting the bank-full experiment')
+                raise RuntimeError(f'{path.name}: result belongs to an earlier protocol; start a fresh reproduction before reporting this convergence experiment')
             completed.append(record)
     failures=[json.loads(p.read_text()) for p in (HERE/'logs').glob('failure_*.json')]
     return completed,active,failures
@@ -26,17 +26,26 @@ def records():
 def average(values):return statistics.mean(values)
 def sd(values):return statistics.stdev(values) if len(values)>1 else 0.
 
+def duration(seconds):
+    hours,remainder=divmod(round(seconds),3600)
+    minutes,seconds=divmod(remainder,60)
+    return f'{hours}:{minutes:02d}:{seconds:02d}'
+
 def main():
-    report_lock=(HERE/'logs/report.lock').open('a')
-    fcntl.flock(report_lock,fcntl.LOCK_EX)
+    with (HERE/'logs/report.lock').open('a') as report_lock:
+        fcntl.flock(report_lock,fcntl.LOCK_EX)
+        write_report()
+
+def write_report():
     parser=argparse.ArgumentParser();parser.add_argument('--plots',action='store_true');args=parser.parse_args()
+    split='training' if P['trainSetLossOptimisation'] else 'validation'
     rows,active,failures=records();groups={(d,m):[r for r in rows if r['dataset']==d and r['method']==m] for d in P['datasets'] for m in P['methods']}
     manifests={d:json.loads((HERE/'data'/d/'manifest.json').read_text()) for d in P['datasets'] if (HERE/'data'/d/'manifest.json').exists()}
     held=json.loads((HERE/'HOLDS.json').read_text()) if (HERE/'HOLDS.json').exists() else {}
     now=datetime.datetime.now().astimezone().isoformat()
     progress={'time':now,'completed':len(rows),'expected':195,'active':active,'failures':failures,'held_datasets':held}
     atomic_text(HERE/'PROGRESS.json',json.dumps(progress,indent=2)+'\n')
-    lines=['SUANN population perturbation: full-data training convergence',f'Updated: {now}',f'Completed runs: {len(rows)}/195; unresolved run failures: {len(failures)}','',
+    lines=[f'SUANN population perturbation: full-data {split}-loss convergence',f'Updated: {now}',f'Completed runs: {len(rows)}/195; unresolved run failures: {len(failures)}','',
         'Scope and protocol',P['scope'],'No training, validation, test, or source-prefix row caps. All runs start from fresh models.',
         '13 tabular datasets; Adam backprop and population sizes 64, 256, 1024, 4096; paired seeds 11, 22, 33.',
         'The cancelled capped experiment is not resumed and its results are not pooled with these results.',
@@ -44,15 +53,16 @@ def main():
         'HIGGS uses all 11 million rows with a random 60/20/20 partition, not the original paper final-500,000 test partition.',
         'All train/validation/test source indices and input-source/prepared-file hashes are saved under data/.',
         'Categories and min/max normalization are fitted on the full training split. The streamed float32 transformation is checked against patched production ANNpt_data.',
-        'Training convergence',
-        'Full training cross-entropy is evaluated every 100 updates. Significant decrease: greater than max(0.0001, 0.001 * last significant best loss).',
+        f'{split.capitalize()}-loss convergence',
+        f"trainSetLossOptimisation={P['trainSetLossOptimisation']}; checkpoint selection and plateau detection use full {split} cross-entropy.",
+        f"Full training and validation metrics are evaluated every {P['evaluate_every_updates']} updates. "+P['significant_improvement'],
         'Minimum training: '+P['minimum_updates_rule'],
-        'After 2,000 updates without significant improvement, restore the minimum-training-CE model and its optimizer and multiply learning rate by 0.2.',
+        f"After {P['patience_updates']:,} updates without significant {split}-loss improvement, restore the best-{split} model and its optimizer and multiply learning rate by {P['learning_rate_reduction_factor']}.",
         P['stop'],
-        'The selected model has the lowest observed full-training CE; it may differ from the stopping model in accuracy.',
-        'Validation is logged only. Test evaluation occurs only after the stopping decision and restoration of the selected checkpoint.',
+        P['selection'],
+        P['validation_policy'],
         'Numerical recovery restores the finite best model and reduces learning rate by 0.2, up to five recoveries. Recoveries count as learning-rate reductions; numerical failure itself is never convergence.',
-        'This is a practical training-loss convergence experiment; no mathematical global optimum is claimed.',
+        f'This is a practical {split}-loss convergence experiment; no mathematical global optimum is claimed.',
         'Model/settings: repository architecture and Adam learning rate per dataset; population learning rate 0.01, sigma 0.01, batch size 128.',
         'Every trainable parameter is perturbed jointly. Candidate reward is negative minibatch CE. Update is alpha/(N*sigma) * sum((reward_i - mean_reward) * epsilon_i).',
         'The benchmark batches the actual SUANN forward with iid Gaussian directions, verified with matched noise against sequential production. The random-number stream differs from sequential production.',
@@ -71,29 +81,48 @@ def main():
         lines+=['','Dataset holds']+[f'{d}: {reason}' for d,reason in held.items()]
     integrity=HERE/'verification/source_split_overlap.json'
     if integrity.exists():lines+=['','Source split integrity',integrity.read_text()]
-    lines+=['','Test-set accuracy (%) after training, mean ± sample SD over three seeds. A cell remains pending until all three seeds finish.',
-            '| Dataset | Backprop Adam | Population 64 | 256 | 1024 | 4096 |','|---|---:|---:|---:|---:|---:|']
     summary=[]
     for d in P['datasets']:
-        cells=[]
         for m in P['methods']:
             group=groups[d,m]
             if len(group)==3:
                 metrics={f'{split}_{metric}_{stat}':fn([r[split][metric] for r in group]) for split in ['train','validation','test'] for metric in ['accuracy','loss','balanced_accuracy'] for stat,fn in [('mean',average),('sd',sd)]}
-                summary.append({'dataset':d,'method':m,'seeds':3,**metrics,'minimum_steps':min(r['steps'] for r in group),'maximum_steps':max(r['steps'] for r in group)})
-                cells.append(f"{metrics['test_accuracy_mean']*100:.2f} ± {metrics['test_accuracy_sd']*100:.2f}")
-            else:cells.append(f'pending ({len(group)}/3)')
+                timings={f'{metric}_{stat}':fn([r[metric] for r in group]) for metric in ['training_seconds','elapsed_seconds'] for stat,fn in [('mean',average),('sd',sd),('total',sum)]}
+                summary.append({'dataset':d,'method':m,'seeds':3,**metrics,**timings,'minimum_steps':min(r['steps'] for r in group),'maximum_steps':max(r['steps'] for r in group)})
+    by_group={(s['dataset'],s['method']):s for s in summary}
+    lines+=['',f'All final metrics below are evaluated on the same restored checkpoint selected by minimum {split} loss for each seed, not the last training update.']
+    for split,label in [('train','Train'),('validation','Validation'),('test','Test')]:
+        lines+=['',f'Final {label.lower()}-set accuracy (%) — mean ± sample SD over three seeds. A cell remains pending until all three seeds finish.',
+                '| Dataset | Backprop Adam | Population 64 | 256 | 1024 | 4096 |','|---|---:|---:|---:|---:|---:|']
+        for d in P['datasets']:
+            cells=[]
+            for m in P['methods']:
+                s=by_group.get((d,m))
+                cells.append(f"{100*s[split+'_accuracy_mean']:.2f} ± {100*s[split+'_accuracy_sd']:.2f}" if s else f'pending ({len(groups[d,m])}/3)')
+            lines.append('| '+d+' | '+' | '.join(cells)+' |')
+    lines+=['','Completed groups: final split metrics and stopping iterations (means across seeds)',
+            '| Dataset | Method | Train accuracy (%) | Validation accuracy (%) | Test accuracy (%) | Train CE | Validation CE | Test balanced accuracy (%) | Stopping updates |',
+            '|---|---|---:|---:|---:|---:|---:|---:|---:|']
+    for s in summary:lines.append(f"| {s['dataset']} | {s['method']} | {100*s['train_accuracy_mean']:.2f} | {100*s['validation_accuracy_mean']:.2f} | {100*s['test_accuracy_mean']:.2f} | {s['train_loss_mean']:.6f} | {s['validation_loss_mean']:.6f} | {100*s['test_balanced_accuracy_mean']:.2f} | {s['minimum_steps']}–{s['maximum_steps']} |")
+    lines+=['','Elapsed run time (H:MM:SS), mean ± sample SD over three seeds. A cell remains pending until all three seeds finish.',
+            'Uses saved elapsed_seconds: includes training updates, evaluation and checkpointing. Durations rounded to the nearest second.',
+            'Times include work after the selected checkpoint through final metrics; they exclude dataset preparation, initial setup, queue waits and downtime between resumes.',
+            '| Dataset | Backprop Adam | Population 64 | 256 | 1024 | 4096 |',
+            '|---|---:|---:|---:|---:|---:|']
+    for d in P['datasets']:
+        cells=[]
+        for m in P['methods']:
+            s=by_group.get((d,m))
+            cells.append(f"{duration(s['elapsed_seconds_mean'])} ± {duration(s['elapsed_seconds_sd'])}" if s else 'pending')
         lines.append('| '+d+' | '+' | '.join(cells)+' |')
-    lines+=['','Completed groups: training fit and stopping iterations','| Dataset | Method | Train accuracy (%) | Train CE | Test balanced accuracy (%) | Stopping updates |','|---|---|---:|---:|---:|---:|']
-    for s in summary:lines.append(f"| {s['dataset']} | {s['method']} | {100*s['train_accuracy_mean']:.2f} | {s['train_loss_mean']:.6f} | {100*s['test_balanced_accuracy_mean']:.2f} | {s['minimum_steps']}–{s['maximum_steps']} |")
     lines+=['','Active runs']
-    for r in active:lines.append(f"{r['dataset']} {r['method']} seed {r['seed']}: step {r['step']}; {r['status']}; train={r.get('train')}; best_train={r.get('best_train')}")
+    for r in active:lines.append(f"{r['dataset']} {r['method']} seed {r['seed']}: step {r['step']}; {r['status']}; train={r.get('train')}; validation={r.get('validation')}; selected_train={r.get('best_train')}; selected_validation={r.get('best_validation')}")
     lines+=['','Numerical recovery and learning-rate events']
     for r in rows:
         for e in r['learning_rate_events']:lines.append(f"{r['dataset']} {r['method']} seed {r['seed']}: {json.dumps(e)}")
     lines+=['','Unresolved failures']+[json.dumps(f) for f in failures]
     lines+=['','Artifacts','protocol.json: frozen experiment protocol and production source hashes.','data/<dataset>/manifest.json and *_source_indices.npy: uncapped split/source/preprocessing provenance.',
-        'runs/*.pt: resumable state; runs/*.best.pt: minimum training-CE checkpoint; runs/*.json: completed results.',
+        f"runs/*.pt: resumable state; runs/*.best.pt: minimum {'training' if P['trainSetLossOptimisation'] else 'validation'} cross-entropy checkpoint; runs/*.json: completed results.",
         'verification/: numerical, data coverage, and independent final metric checks.',
         'training_loss_grid.png/svg, validation_loss_grid.png/svg, test_accuracy_by_population.png/svg, figures/: scientific plots.',
         'CANCEL: create this file to stop this experiment and its worker process group. No cancelled experiment is automatically restarted.','']
@@ -126,7 +155,7 @@ def plot(rows,groups,summary):
             curves=[{p['step']:p[split]['loss'] for p in r['curves'] if p['step']>0 and math.isfinite(p[split]['loss'])} for r in group]
             for r,c in zip(group,curves):
                 ax.plot(list(c),list(c.values()),color=color,alpha=.25,lw=.7)
-                if split=='train' and r['selected_step'] in c:ax.plot(r['selected_step'],c[r['selected_step']],'o',color=color,ms=3)
+                if r['selected_step'] in c:ax.plot(r['selected_step'],c[r['selected_step']],'o',color=color,ms=3)
             if curves:
                 common=sorted(set.intersection(*(set(c) for c in curves)))
                 if common:ax.plot(common,[np.mean([c[s] for c in curves]) for s in common],color=color,lw=1.7,ls='--' if method=='backprop_adam' else '-',label=method.replace('population_','N='))
@@ -154,7 +183,8 @@ def plot(rows,groups,summary):
         ax.set_title(d);ax.set_xlabel('Perturbation population size');ax.set_ylabel('Test accuracy (%)');ax.grid(alpha=.2)
         if data:ax.legend(fontsize=7)
     for ax in list(axes.flat)[13:]:ax.set_visible(False)
-    fig.suptitle(f'Full-data test accuracy after training convergence — {len(rows)}/195 complete\nThree paired seeds; checkpoint selected using training loss only',fontsize=15)
+    split='training' if P['trainSetLossOptimisation'] else 'validation'
+    fig.suptitle(f'Full-data test accuracy after {split}-loss convergence — {len(rows)}/195 complete\nThree paired seeds; checkpoint selected by minimum {split} loss',fontsize=15)
     save(fig,HERE/'test_accuracy_by_population')
 
 if __name__=='__main__':main()

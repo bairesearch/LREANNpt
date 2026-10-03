@@ -4,6 +4,23 @@ import argparse, hashlib, json, math, subprocess, sys
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
 
+def verify_selection(result, selected):
+    """Check minimum selected-split loss and earliest ties, without consulting test."""
+    train_loss=result['protocol']['trainSetLossOptimisation']
+    split='train' if train_loss else 'validation'
+    best=min(result['curves'],key=lambda c:c[split]['loss'])
+    assert selected['step']==result['selected_step']==best['step']
+    assert selected['validation']==best['validation']
+    assert selected['train']==best['train']
+    for name in ('train','validation'):
+        assert result[name]['accuracy']==best[name]['accuracy']
+        assert math.isclose(result[name]['loss'],best[name]['loss'],rel_tol=2e-6,abs_tol=2e-6)
+    if train_loss and result['stop_reason']=='perfect_train_fit':
+        assert result['stopping_train']['accuracy']==1.
+        assert result['stopping_train']['loss']<=result['convergence_policy']['loss_goal']
+    else:
+        assert result['stop_reason']==('training' if train_loss else 'validation')+'_loss_plateau_after_lr_reductions'
+
 def verify_one(path):
     import numpy as np
     import torch as pt
@@ -18,8 +35,7 @@ def verify_one(path):
     checkpoint=pt.load(path.with_suffix('.pt'),map_location='cpu',weights_only=False)
     assert checkpoint['step']==result['steps'] and checkpoint['controller']['stopReason']==result['stop_reason']
     assert result['steps']>=result['convergence_policy']['minimum_updates']
-    assert selected['step']==result['selected_step']
-    assert selected['train']['loss']==min(c['train']['loss'] for c in result['curves'])
+    verify_selection(result, selected)
     assert all(pt.equal(v,checkpoint['controller']['best']['model'][k]) for k,v in selected['model'].items())
     config=module.SUANNconfig(128,defs.numberOfLayers,0,defs.hiddenLayerSize,None,info['features'],info['class_count'],1,info['features'],info['class_count'],info['sizes']['train'],None)
     pt.manual_seed(result['seed']);model=module.SUANNmodel(config).cuda()

@@ -26,7 +26,8 @@ The command stays in the foreground; manager output goes to logs/manager.log.
 A compatible NVIDIA driver for the pinned PyTorch CUDA 12.8 build is required.
 
 The three-worker GPU schedule, populations 64/256/1024/4096, Adam baseline, seeds
-11/22/33, preprocessing, and convergence policy are unchanged. Banking Marketing
+11/22/33, and benchmark preprocessing are unchanged. Checkpoint selection and
+stopping use validation loss by default, or the original training-loss policy. Banking Marketing
 now uses bank-full.csv with disjoint splits, as described below; the other
 dataset partitions are unchanged.
 There are no source, training, validation, or test row caps, and no maximum
@@ -34,6 +35,75 @@ training-iteration or wall-time cutoff. Plan for tens of GB of disk space, plus
 model checkpoints, and substantial GPU time. The larger dataset preparation
 steps also need several GB of RAM. Training uses the frozen source/LREANNpt
 modules, not the working production directory.
+
+Training or validation loss selection and stopping
+--------------------------------------------------
+
+Set "trainSetLossOptimisation" in protocol.json before launching a fresh benchmark:
+
+    false (default): select minimum full-validation cross-entropy and stop when
+                    validation loss stabilises. Accuracy does not select models
+                    or reset patience; there is no perfect-training-fit stop.
+    true:           restore the original full-training-loss policy, including
+                    stopping at 100% training accuracy and training CE <= 0.01
+                    once the minimum training period has elapsed.
+
+The one option applies to Adam and all population sizes. Both modes retain the
+benchmark's existing train/validation/test partitions. In training-loss mode,
+validation metrics are diagnostic only. Equal selected-split losses retain the
+earlier checkpoint regardless of accuracy. Parameter updates and population
+rewards always use training minibatches only.
+
+Evaluate every 100 updates, with the existing minimum of max(2,000 updates, one
+complete configured training pass). A selected-split loss decrease greater than
+max(0.0001, 0.001 * last significant best loss) resets patience. Smaller decreases
+can improve the selected checkpoint without resetting patience. After 2,000 updates
+without significant improvement, restore the best checkpoint and matching optimizer
+state and multiply the learning rate by 0.2. After three reductions, the next
+plateau stops training. Numerical recovery restores a finite selected checkpoint
+and counts as a learning-rate reduction. There is no fixed maximum update/epoch/time
+limit. Validation accuracy remains a diagnostic metric in validation-loss mode.
+
+Final train, validation, and test metrics all describe the same restored selected
+checkpoint. REPORT.txt includes separate accuracy tables (mean and sample standard
+deviation over three seeds) for all three splits, every dataset, and every method,
+plus a side-by-side table with train/validation CE and stopping updates. Incomplete
+groups stay pending. All split metrics are also retained in the JSON and CSV files.
+The test set is evaluated only after stopping and restoration in either mode.
+
+REPORT.txt also includes an elapsed-time table with one row per dataset and
+columns for Adam and populations 64/256/1024/4096, matching the accuracy tables.
+Each cell shows elapsed run time as mean +/- sample standard deviation across
+three seeds in H:MM:SS, rounded to the nearest second; incomplete groups show
+"pending". These are per-seed averages, not sums across seeds. Elapsed run time
+includes updates, evaluation and checkpointing through final metrics, but excludes
+data preparation, initial setup, queue waits and downtime between resumes. It
+includes work after the selected checkpoint until stopping. Exact seconds for
+both update time and elapsed time (mean, SD and three-seed total) remain in
+summary.json/summary.csv, with individual times in per_seed.csv. Update time
+excludes full-split evaluation and checkpoint saves. Because workers run
+concurrently, summed run durations are not the wall-clock duration of the experiment.
+
+This is the selectable-loss-v1 protocol. It corrects the previous upgrade's
+validation-accuracy objective to validation loss. The boolean and selection metric
+are saved in each run's protocol and convergence policy. Start a fresh reproduction
+to adopt this code or change modes; earlier checkpoints/results and different modes
+cannot be resumed or pooled under this protocol. Existing separate output folders
+retain their own frozen code, protocol, and reports. Updating this repository does
+not modify a running copy. Historical reports and saved results are not regenerated.
+
+In main LREANNpt, set trainSetLossOptimisation in LREANNpt_SUANN_globalDefs.py;
+it is used only when populationPertubationOptimiseTrainingIterations=True. It
+also defaults to False. False retains an existing tabular validation split or
+holds out 20% of training rows before fitting category/normalisation statistics
+or repeating training rows. CIFAR-10 validation is held out from training with
+deterministic test transforms. The test split is never used as validation. The
+split settings are populationPertubationValidationSplitSize and
+populationPertubationValidationSplitSeed. True skips the added holdout and all
+validation evaluations in the production training loop, preserving the original
+training rows, preprocessing and random-number usage. Existing validation splits
+are not merged into training. Ordinary production Adam training is unchanged;
+benchmark Adam explicitly uses the shared convergence controller.
 
 Fresh runs and resuming
 ----------------------
@@ -163,7 +233,8 @@ Historical absolute paths in protocol.json and reference manifests are provenanc
 only; they are not used to locate runtime data. source_hashes in protocol.json
 verify the eight frozen production modules. The frozen ANNpt_data.py and
 ANNpt_globalDefs.py include the bank-full loader/configuration update; the other
-six modules and the batched GPU estimator are unchanged.
+modules include the selectable loss controller and its configuration; the batched
+GPU estimator is unchanged.
 
 Banking Marketing policy
 ------------------------

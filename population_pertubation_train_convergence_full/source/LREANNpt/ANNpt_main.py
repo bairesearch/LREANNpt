@@ -75,7 +75,7 @@ def main():
 	dataset = ANNpt_data.loadDataset()
 	if(stateTrainDataset):
 		model = ANNpt_algorithm.createModel(dataset[datasetSplitNameTrain])	#dataset[datasetSplitNameTest] not possible as test does not contain all classes
-		processDataset(True, dataset[datasetSplitNameTrain], model)
+		processDataset(True, dataset[datasetSplitNameTrain], model, dataset.get("validation"))
 	if(stateTestDataset):
 		if not stateTrainDataset:
 			model = loadModel()
@@ -131,7 +131,7 @@ def print_gpu_utilization():
 		printf(f"  Utilization: {gpu.load * 100}%")
 		printf(f"  Temperature: {gpu.temperature} C\n")
 
-def processDataset(trainOrTest, dataset, model):
+def processDataset(trainOrTest, dataset, model, validationDataset=None):
 	if(useAlgorithmSUANN):
 		if(useStochasticUpdates):
 			if(usePopulationPertubation):
@@ -139,7 +139,7 @@ def processDataset(trainOrTest, dataset, model):
 					import LREANNpt_SUANN_trainingConvergence as convergence
 					model.to(device)
 					if(trainOrTest):
-						result = convergence.trainPopulationPertubationUntilConverged(dataset, model, ANNpt_algorithm)
+						result = convergence.trainPopulationPertubationUntilConverged(dataset, validationDataset, model, ANNpt_algorithm)
 						if(saveModelTrain):
 							saveModel(model)
 					else:
@@ -336,4 +336,3 @@ def print_tqdm_output(epoch: int, start_time: float, batch_index: int, loss: flo
 					
 if(__name__ == '__main__'):
 	main()
-

@@ -1,10 +1,14 @@
 """Load frozen SUANN modules with per-process, explicitly recorded overrides."""
-import importlib, re, sys, types
+import importlib, json, re, sys, types
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
 SOURCE=HERE/'source/LREANNpt'
 
 def load_modules(method,dataset):
+    protocol=json.loads((HERE/'protocol.json').read_text())
+    train_loss=protocol['trainSetLossOptimisation']
+    if type(train_loss) is not bool:
+        raise ValueError('trainSetLossOptimisation must be a JSON boolean')
     sys.path.insert(0,str(SOURCE))
     config=types.ModuleType('LREANNpt_SUANN_globalDefs')
     source=(SOURCE/'LREANNpt_SUANN_globalDefs.py').read_text()
@@ -12,6 +16,8 @@ def load_modules(method,dataset):
     for key,value in [('useIndividualPertubation',False),('usePopulationPertubation',True),('useEvolutionarySearch',False)]:
         source=re.sub(r'(?m)^\t'+key+r' = .*$',f'\t{key} = {value}',source)
     source=re.sub(r'(?m)^\t\tpopulationPertubationOptimiseTrainingIterations = .*$', '\t\tpopulationPertubationOptimiseTrainingIterations = True',source)
+    source,count=re.subn(r'(?m)^\t\t\ttrainSetLossOptimisation = .*$', f'\t\t\ttrainSetLossOptimisation = {train_loss}',source)
+    assert count==1
     exec(compile(source,str(SOURCE/'LREANNpt_SUANN_globalDefs.py'),'exec'),vars(config))
     #Keep the same controller settings for Adam; its updates still use backprop.
     config.useStochasticUpdates=method.startswith('population_')

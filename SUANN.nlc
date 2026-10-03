@@ -1,6 +1,14 @@
 //SUANN Specification (prompts):
 
 ---
+add boolean option called trainSetLossOptimisation in both a) the independent benchmark code (population_pertubation_train_convergence_full) and b) LREANNpt populationPertubationOptimiseTrainingIterations code, that controls whether the optimisation of training iterations uses train set loss (trainSetLossOptimisation=True) or validation set loss (trainSetLossOptimisation=False):
+	option if(trainSetLossOptimisation==True) must replicate the original behaviour exactly before the validation set upgrade was introduced.
+	option if(trainSetLossOptimisation==False) must replicate the new behaviour after the validation set upgrade was introduced.
+ensure that the final REPORT prints the final train-set and final validation-set accuracy for all datasets and perturbation population sizes (including standard backprop adam), not just final test-set accuracy.
+ensure that the final REPORT prints the total train times for all datasets and perturbation population sizes (including standard backprop adam).
+update the population_pertubation_train_convergence_full report generated time table to average the run times across each set of 3 seeds.
+
+---
 create delete_population_pertubation_train_convergence_data.py script - resets the folder for a fresh benchmark (removes all files created by the scripts and only leaves the necessary script files to start benchmark from scratch).
 update clean_population_pertubation_train_convergence_data.py script - creates a compact results archive.
 

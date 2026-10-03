@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fresh uncapped SUANN training; shared production training-loss controller."""
+"""Fresh uncapped SUANN training; shared training- or validation-loss controller."""
 import argparse, concurrent.futures, hashlib, json, math, multiprocessing as mp, os, shutil, time, traceback
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
@@ -95,7 +95,7 @@ def run_one(job):
         return {'loss':total/n,'accuracy':correct/n,'balanced_accuracy':(hits[counts>0].double()/counts[counts>0]).mean().item(),'rows':n}
     checkpoint=RUNS/f'{tag}.pt';WORK.mkdir(parents=True,exist_ok=True);working=WORK/f'{tag}.pt'
     candidates=[p for p in [checkpoint,working] if p.exists()]
-    step=0;curves=[];training_seconds=0.;elapsed_saved=0.;stopping_train=None
+    step=0;curves=[];training_seconds=0.;elapsed_saved=0.;stopping_train=None;stopping_validation=None
     if candidates:
         state=pt.load(max(candidates,key=lambda p:p.stat().st_mtime_ns),map_location='cpu',weights_only=False)
         assert state['protocol']==PROTOCOL and state['data_sha256']==digest
@@ -107,7 +107,7 @@ def run_one(job):
             fast.generator.set_state(state['noise_rng']);algorithm.populationPertubationLearningRate=controller.learningRate
         order=state['order'];cursor=state['cursor'];passes=state['passes'];examples=state['examples'];schedule_chain=state['schedule_chain']
         batch_generator.set_state(state['batch_rng']);pt.set_rng_state(state['cpu_rng']);pt.cuda.set_rng_state_all(state['cuda_rng'])
-        step=state['step'];curves=state['curves'];training_seconds=state['training_seconds'];elapsed_saved=state['elapsed_seconds'];stopping_train=state['stopping_train']
+        step=state['step'];curves=state['curves'];training_seconds=state['training_seconds'];elapsed_saved=state['elapsed_seconds'];stopping_train=state['stopping_train'];stopping_validation=state['stopping_validation']
     start=time.perf_counter();last_backup=0.
     def save(force=False):
         nonlocal last_backup
@@ -116,21 +116,30 @@ def run_one(job):
             'controller':controller.state_dict(),'noise_rng':fast.generator.get_state() if fast else None,'chunk':chunk,
             'order':order,'cursor':cursor,'passes':passes,'examples':examples,'schedule_chain':schedule_chain,
             'batch_rng':batch_generator.get_state(),'cpu_rng':pt.get_rng_state(),'cuda_rng':pt.cuda.get_rng_state_all(),
-            'step':step,'curves':curves,'training_seconds':training_seconds,'elapsed_seconds':elapsed_saved+time.perf_counter()-start,'stopping_train':stopping_train}
+            'step':step,'curves':curves,'training_seconds':training_seconds,'elapsed_seconds':elapsed_saved+time.perf_counter()-start,'stopping_train':stopping_train,'stopping_validation':stopping_validation}
         tmp=working.with_suffix('.tmp');pt.save(state,tmp);tmp.replace(working)
         if force or time.perf_counter()-last_backup>=300:
             tmp=checkpoint.with_suffix('.tmp');shutil.copyfile(working,tmp);tmp.replace(checkpoint);last_backup=time.perf_counter()
     def progress(train=None,validation=None,status='training'):
         record={'dataset':dataset,'method':method,'seed':seed,'status':status,'step':step,'lr':controller.learningRate,
+            'trainSetLossOptimisation':controller.trainSetLossOptimisation,'selection':controller.selection,
             'stage':controller.reductions,'train':train,'validation':validation,'best_step':controller.best['step'] if controller.best else None,
             'best_train':controller.best['train'] if controller.best else None,'training_rows':train_count,
+            'best_validation':controller.best['validation'] if controller.best else None,
             'examples_processed':examples,'effective_training_passes':examples/train_count,'minimum_updates':controller.policy['minimum_updates'],
             'numerical_recoveries':controller.numericalRecoveries,'stop_reason':controller.stopReason,'time':time.time()}
         atomic_json(output.with_suffix('.progress.json'),record)
     progress(status='evaluating_initial_full_training_set' if step==0 else 'resumed')
     if controller.best is None:
-        metrics=evaluate('train');controller.observe(0,metrics,model,optimizer)
+        metrics=evaluate('train')
+        if controller.trainSetLossOptimisation:
+            #Preserve the original order: select initial train checkpoint before diagnostic validation.
+            controller.observe(0,metrics,None,model,optimizer)
         validation=evaluate('validation')
+        if controller.trainSetLossOptimisation:
+            controller.best['validation']=validation
+        else:
+            controller.observe(0,metrics,validation,model,optimizer)
         curves.append({'step':0,'lr':controller.learningRate,'train':metrics,'validation':validation,'schedule_chain':schedule_chain})
         save(force=True);progress(metrics,validation)
     while controller.stopReason is None:
@@ -156,21 +165,21 @@ def run_one(job):
             point={'step':step,'lr':controller.learningRate,'stage':controller.reductions,'train':metrics,
                 'validation':evaluate('validation'),'training_seconds':training_seconds,'elapsed_seconds':elapsed_saved+time.perf_counter()-start,
                 'schedule_chain':schedule_chain}
-            controller.observe(step,metrics,model,optimizer)
+            controller.observe(step,metrics,point['validation'],model,optimizer)
         except FloatingPointError as error:
             controller.recoverNonfinite(step,model,optimizer,str(error))
             if optimizer is None:algorithm.populationPertubationLearningRate=controller.learningRate
             save(force=True);progress(status='numerical_recovery');continue
-        curves.append(point);stopping_train=metrics
+        curves.append(point);stopping_train=metrics;stopping_validation=point['validation']
         if optimizer is None:algorithm.populationPertubationLearningRate=controller.learningRate
         progress(metrics,point['validation']);save(force=controller.stopReason is not None)
         if step%1000==0:print(tag,'step',step,'train',metrics,'lr',controller.learningRate,flush=True)
     controller.restoreBest(model,optimizer)
-    #The first test-set evaluation occurs only after the training-only stop decision.
+    #The first test-set evaluation occurs only after stopping and checkpoint selection.
     progress(status='evaluating_selected_checkpoint')
     result={'dataset':dataset,'method':method,'seed':seed,'status':'complete','protocol':PROTOCOL,'steps':step,
-        'selected_step':controller.best['step'],'selection':'minimum full-training cross-entropy','stop_reason':controller.stopReason,
-        'train':evaluate('train'),'validation':evaluate('validation'),'test':evaluate('test'),'stopping_train':stopping_train,
+        'selected_step':controller.best['step'],'selection':controller.selection,'stop_reason':controller.stopReason,
+        'train':evaluate('train'),'validation':evaluate('validation'),'test':evaluate('test'),'stopping_train':stopping_train,'stopping_validation':stopping_validation,
         'data_sha256':digest,'initial_parameters_sha256':initial_hash,'schedule_chain':schedule_chain,'training_rows':train_count,
         'parameters':parameters,'architecture':[info['features']]+[definitions.hiddenLayerSize]*(definitions.numberOfLayers-1)+[info['class_count']],
         'initial_learning_rate':initial_lr,'final_learning_rate':controller.learningRate,'sigma':None if optimizer is not None else PROTOCOL['sigma'],
@@ -180,7 +189,7 @@ def run_one(job):
         'global_optimum_proven':False,'full_source_used':True}
     selected=RUNS/f'{tag}.best.pt';tmp=selected.with_suffix('.tmp');pt.save(controller.best,tmp);tmp.replace(selected)
     atomic_json(output,result);progress(result['train'],result['validation'],'complete')
-    print('COMPLETE',tag,step,result['train'],result['test'],flush=True)
+    print('COMPLETE',tag,step,'train',result['train'],'validation',result['validation'],'test',result['test'],flush=True)
     return result
 
 def main():

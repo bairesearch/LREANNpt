@@ -1,4 +1,4 @@
-"""Training-only convergence for the optional SUANN population experiment."""
+"""Training- or validation-loss convergence for the SUANN experiment."""
 
 import ANNpt_globalDefs as settings
 
@@ -20,31 +20,42 @@ if(populationPertubationOptimiseTrainingIterations):
 		return copy.deepcopy(value)
 
 	class PopulationPertubationTrainingConvergence:
-		"""Select minimum full-training loss; never accept validation/test metrics.
+		"""Select minimum full-split cross-entropy; exact ties keep the earlier model.
 
 		The benchmark uses this same controller for its Adam comparison. A plateau
 		is a practical stopping criterion, not a claim of globally optimal weights.
 		Model and optimizer are restored together whenever learning rate is reduced.
+		Validation is diagnostic in training-loss mode; test metrics are never supplied.
 		"""
+
 		def __init__(self, learningRate, minimumCompletePassIterations=0):
+			self.trainSetLossOptimisation = settings.trainSetLossOptimisation
+			if(type(self.trainSetLossOptimisation) is not bool):
+				raise ValueError("trainSetLossOptimisation must be a boolean")
+			self.selectionSplit = "train" if self.trainSetLossOptimisation else "validation"
+			self.selection = "minimum full-" + ("training" if self.trainSetLossOptimisation else "validation") + " cross-entropy"
+			prefix = "populationPertubation" + ("Training" if self.trainSetLossOptimisation else "Validation")
 			self.policy = {
+				"trainSetLossOptimisation": self.trainSetLossOptimisation,
+				"selection_metric": self.selectionSplit + "_loss",
 				"evaluate_every": settings.populationPertubationEvaluateEveryIterations,
 				"minimum_updates": max(settings.populationPertubationMinimumTrainingIterations, minimumCompletePassIterations),
-				"patience": settings.populationPertubationTrainingPatience,
-				"min_delta": settings.populationPertubationTrainingMinDelta,
-				"relative_min_delta": settings.populationPertubationTrainingRelativeMinDelta,
+				"patience": getattr(settings, prefix + "Patience"),
+				"min_delta": getattr(settings, prefix + "MinDelta"),
+				"relative_min_delta": getattr(settings, prefix + "RelativeMinDelta"),
 				"lr_factor": settings.populationPertubationTrainingLearningRateFactor,
 				"lr_reductions": settings.populationPertubationTrainingLearningRateReductions,
-				"loss_goal": settings.populationPertubationTrainingLossGoal,
 				"max_numerical_recoveries": settings.populationPertubationTrainingMaxNumericalRecoveries,
 			}
+			if(self.trainSetLossOptimisation):
+				self.policy["loss_goal"] = settings.populationPertubationTrainingLossGoal
 			for name in ("evaluate_every", "minimum_updates", "patience"):
 				if(type(self.policy[name]) is not int or self.policy[name] < 1):
 					raise ValueError(name + " must be a positive integer")
 			for name in ("lr_reductions", "max_numerical_recoveries"):
 				if(type(self.policy[name]) is not int or self.policy[name] < 0):
 					raise ValueError(name + " must be a nonnegative integer")
-			for name in ("min_delta", "relative_min_delta", "loss_goal"):
+			for name in ("min_delta", "relative_min_delta") + (("loss_goal",) if self.trainSetLossOptimisation else ()):
 				if(not math.isfinite(self.policy[name]) or self.policy[name] < 0):
 					raise ValueError(name + " must be finite and nonnegative")
 			if(not 0 < self.policy["lr_factor"] < 1 or not math.isfinite(learningRate) or learningRate <= 0):
@@ -64,7 +75,7 @@ if(populationPertubationOptimiseTrainingIterations):
 
 		def restoreBest(self, model, optimizer=None):
 			if(self.best is None):
-				raise RuntimeError("No finite training checkpoint is available")
+				raise RuntimeError("No finite " + self.selectionSplit + "-selected checkpoint is available")
 			model.load_state_dict(self.best["model"])
 			if(optimizer is not None):
 				optimizer.load_state_dict(self.best["optimizer"])
@@ -76,23 +87,29 @@ if(populationPertubationOptimiseTrainingIterations):
 			self.learningRate *= self.policy["lr_factor"]
 			self.reductions += 1
 			self.restoreBest(model, optimizer)
-			self.significantLoss = self.best["train"]["loss"]
+			self.significantLoss = self.best[self.selectionSplit]["loss"]
 			self.lastSignificantIteration = iteration
 			self.events.append({"step": iteration, "event": reason, "old_lr": oldRate,
 				"lr": self.learningRate, "restored_step": self.best["step"], "message": message})
 
-		def observe(self, iteration, trainMetrics, model, optimizer=None):
+		def observe(self, iteration, trainMetrics, validationMetrics, model, optimizer=None):
 			if(self.stopReason is not None or iteration <= self.lastObservation):
 				raise ValueError("Training observations must advance and must precede stopping")
-			loss = float(trainMetrics["loss"])
-			accuracy = float(trainMetrics["accuracy"])
-			if(not math.isfinite(loss) or not math.isfinite(accuracy) or not 0 <= accuracy <= 1):
-				raise FloatingPointError("Non-finite or invalid full-training metrics")
+			if(not self.trainSetLossOptimisation and validationMetrics is None):
+				raise ValueError("Independent validation metrics are required for convergence")
+			checkedMetrics = [("training", trainMetrics)]
+			if(not self.trainSetLossOptimisation):
+				checkedMetrics.append(("validation", validationMetrics))
+			for split, metrics in checkedMetrics:
+				if(not math.isfinite(float(metrics["loss"])) or not math.isfinite(float(metrics["accuracy"])) or not 0 <= float(metrics["accuracy"]) <= 1):
+					raise FloatingPointError("Non-finite or invalid full-" + split + " metrics")
+			loss = float((trainMetrics if self.trainSetLossOptimisation else validationMetrics)["loss"])
 			if(any(not pt.isfinite(value).all().item() for value in model.state_dict().values() if value.is_floating_point())):
 				raise FloatingPointError("Non-finite model state at training evaluation")
 			self.lastObservation = iteration
-			if(self.best is None or loss < self.best["train"]["loss"]):
+			if(self.best is None or loss < self.best[self.selectionSplit]["loss"]):
 				self.best = {"step": iteration, "train": copy.deepcopy(trainMetrics),
+					"validation": copy.deepcopy(validationMetrics),
 					"model": _cpuCopy(model.state_dict()),
 					"optimizer": _cpuCopy(optimizer.state_dict()) if optimizer is not None else None}
 			threshold = max(self.policy["min_delta"], self.policy["relative_min_delta"] * self.significantLoss)
@@ -100,13 +117,14 @@ if(populationPertubationOptimiseTrainingIterations):
 				self.significantLoss = loss
 				self.lastSignificantIteration = iteration
 			if(iteration >= self.policy["minimum_updates"]):
-				if(accuracy == 1.0 and loss <= self.policy["loss_goal"]):
+				if(self.trainSetLossOptimisation and float(trainMetrics["accuracy"]) == 1.0 and loss <= self.policy["loss_goal"]):
 					self.stopReason = "perfect_train_fit"
 				elif(iteration - self.lastSignificantIteration >= self.policy["patience"]):
+					label = "training" if self.trainSetLossOptimisation else "validation"
 					if(self.reductions >= self.policy["lr_reductions"]):
-						self.stopReason = "training_loss_plateau_after_lr_reductions"
+						self.stopReason = label + "_loss_plateau_after_lr_reductions"
 					else:
-						self._reduceLearningRate(iteration, model, optimizer, "training_plateau_reduce_lr_restore_best")
+						self._reduceLearningRate(iteration, model, optimizer, label + "_plateau_reduce_lr_restore_best")
 			return self.stopReason
 
 		def recoverNonfinite(self, iteration, model, optimizer=None, message="Non-finite training update"):
@@ -154,7 +172,9 @@ if(populationPertubationOptimiseTrainingIterations):
 			model.train(training)
 		return {"loss": lossSum / rows, "accuracy": correct / rows, "rows": rows}
 
-	def trainPopulationPertubationUntilConverged(dataset, model, algorithm):
+	def trainPopulationPertubationUntilConverged(dataset, validationDataset, model, algorithm):
+		if(not settings.trainSetLossOptimisation and (validationDataset is None or validationDataset is dataset)):
+			raise ValueError("A separate validation dataset is required; never pass the training or test dataset")
 		trainingData = _populationDataset(dataset)
 		if(len(trainingData) == 0):
 			raise ValueError("Cannot train on an empty dataset")
@@ -162,7 +182,8 @@ if(populationPertubationOptimiseTrainingIterations):
 			shuffle=True, drop_last=False, generator=pt.Generator().manual_seed(pt.initial_seed()))
 		controller = PopulationPertubationTrainingConvergence(algorithm.populationPertubationLearningRate, len(loader))
 		iteration = 0
-		controller.observe(0, evaluatePopulationPertubationDataset(dataset, model), model)
+		controller.observe(0, evaluatePopulationPertubationDataset(dataset, model),
+			None if controller.trainSetLossOptimisation else evaluatePopulationPertubationDataset(validationDataset, model), model)
 		initialRate = algorithm.populationPertubationLearningRate
 		try:
 			while(controller.stopReason is None):
@@ -176,8 +197,10 @@ if(populationPertubationOptimiseTrainingIterations):
 							raise FloatingPointError("Non-finite updated-model loss")
 						if(controller.shouldEvaluate(iteration)):
 							metrics = evaluatePopulationPertubationDataset(dataset, model)
-							controller.observe(iteration, metrics, model)
-							print("population training", iteration, metrics, "learningRate", controller.learningRate, flush=True)
+							#Avoid extra evaluations/RNG consumption in the original training-only path.
+							validation = None if controller.trainSetLossOptimisation else evaluatePopulationPertubationDataset(validationDataset, model)
+							controller.observe(iteration, metrics, validation, model)
+							print("population training", iteration, "train", metrics, "validation", validation, "learningRate", controller.learningRate, flush=True)
 					except FloatingPointError as error:
 						controller.recoverNonfinite(iteration, model, message=str(error))
 						print("population numerical recovery", controller.events[-1], flush=True)
@@ -187,8 +210,9 @@ if(populationPertubationOptimiseTrainingIterations):
 			controller.restoreBest(model)
 			result = {"iterations": iteration, "selected_iteration": controller.best["step"],
 				"stop_reason": controller.stopReason, "train": controller.best["train"],
+				"validation": controller.best["validation"],
 				"learning_rate_events": controller.events, "policy": controller.policy,
-				"selection": "minimum full-training cross-entropy", "global_optimum_proven": False}
+				"selection": controller.selection, "global_optimum_proven": False}
 			model.populationPertubationTrainingResult = result
 			return result
 		finally:

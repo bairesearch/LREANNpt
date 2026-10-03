@@ -57,6 +57,25 @@ _cachedFeatureTypeMap = None
 _cachedClassFieldType = None
 
 
+def populationValidationIndices(labels):
+	"""Hold out validation before preprocessing or repetition, retaining train classes."""
+	from sklearn.model_selection import train_test_split
+	labels = np.asarray(labels)
+	indices = np.arange(len(labels))
+	options = dict(test_size=populationPertubationValidationSplitSize, random_state=populationPertubationValidationSplitSeed)
+	try:
+		train, validation = train_test_split(indices, stratify=labels, **options)
+	except ValueError:
+		#Rare classes may not permit stratification; keep their only examples in train.
+		train, validation = train_test_split(indices, **options)
+		missing = ~np.isin(labels[validation], labels[train])
+		train = np.concatenate((train, validation[missing]))
+		validation = validation[~missing]
+	if(len(train) == 0 or len(validation) == 0):
+		raise ValueError("Not enough examples for separate training and validation splits")
+	return train, validation
+
+
 def _extract_feature_dtype(feature):
 	"""Best-effort extraction of a Hugging Face feature dtype."""
 	dtype = getattr(feature, 'dtype', None)
@@ -312,6 +331,13 @@ if(useTabularDataset):
 			dataset[datasetSplitNameTrain] = shuffleDataset(dataset[datasetSplitNameTrain])
 			dataset = dataset[datasetSplitNameTrain].train_test_split(test_size=datasetTestSplitSize)
 
+		if(getattr(ANNpt_globalDefs, "populationPertubationOptimiseTrainingIterations", False)
+			and not ANNpt_globalDefs.trainSetLossOptimisation and "validation" not in dataset):
+			training = dataset[datasetSplitNameTrain]
+			trainIndices, validationIndices = populationValidationIndices(training[classFieldName])
+			dataset[datasetSplitNameTrain] = training.select(trainIndices)
+			dataset["validation"] = training.select(validationIndices)
+
 		if(datasetConvertFeatureValues):
 			featureValueMappings = createFeatureValueMappings(dataset[datasetSplitNameTrain])
 			for splitName in dataset.keys():
@@ -349,8 +375,8 @@ if(useTabularDataset):
 			dataset[datasetSplitNameTest] = orderDatasetByClass(dataset[datasetSplitNameTest])
 			#dataset = orderDatasetByClass(dataset)
 		
-		dataset[datasetSplitNameTrain] = repositionClassFieldToLastColumn(dataset[datasetSplitNameTrain])
-		dataset[datasetSplitNameTest] = repositionClassFieldToLastColumn(dataset[datasetSplitNameTest])
+		for splitName in dataset.keys():
+			dataset[splitName] = repositionClassFieldToLastColumn(dataset[splitName])
 
 		if(debugSaveNormalisedDatasetToCSV):
 			saveDatasetToCSV(dataset)
@@ -795,6 +821,14 @@ elif(useImageDataset):
 			dataset[datasetSplitNameTest] = torchvision.datasets.CIFAR10(root=dataPathName, train=False, download=True, transform=test_transform)
 		else:
 			printe("loadDatasetImage currently requires datasetName==CIFAR10")		
+		if(getattr(ANNpt_globalDefs, "populationPertubationOptimiseTrainingIterations", False) and not ANNpt_globalDefs.trainSetLossOptimisation):
+			import copy
+			training = dataset[datasetSplitNameTrain]
+			trainIndices, validationIndices = populationValidationIndices(training.targets)
+			validation = copy.copy(training)
+			validation.transform = test_transform
+			dataset[datasetSplitNameTrain] = pt.utils.data.Subset(training, trainIndices.tolist())
+			dataset["validation"] = pt.utils.data.Subset(validation, validationIndices.tolist())
 		return dataset
 
 	def createDataLoaderImage(dataset):
@@ -1126,4 +1160,3 @@ elif(useNLPDataset):
 			return table, rev
 
 		_CHAR2ID, _ID2CHAR = _build_char_tables()
-

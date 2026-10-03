@@ -1,3 +1,4 @@
+
 SUANN population perturbation: full-data training convergence
 Updated: 2026-10-03T07:39:56.770090+10:00
 Completed runs: 167/195; unresolved run failures: 0
@@ -150,6 +151,27 @@ Completed groups: training fit and stopping iterations
 | covertype | population_64 | 73.75 | 0.614456 | 46.82 | 54900–62800 |
 | covertype | population_256 | 78.00 | 0.513379 | 60.41 | 101500–122500 |
 | covertype | population_1024 | 86.21 | 0.337127 | 75.90 | 131300–184100 |
+
+
+Elapsed run time (H:MM:SS), mean ± sample SD over three seeds. A cell remains pending until all three seeds finish.
+Uses saved elapsed_seconds: includes training updates, evaluation and checkpointing. Durations rounded to the nearest second.
+Times include work after the selected checkpoint through final metrics; they exclude dataset preparation, initial setup, queue waits and downtime between resumes.
+| Dataset | Backprop Adam | Population 64 | 256 | 1024 | 4096 |
+|---|---:|---:|---:|---:|---:|
+| iris | 0:00:09 ± 0:00:03 | 0:01:20 ± 0:00:18 | 0:01:22 ± 0:00:59 | 0:04:45 ± 0:01:32 | 0:12:00 ± 0:01:10 |
+| new-thyroid | 0:00:03 ± 0:00:00 | 0:01:24 ± 0:00:09 | 0:01:28 ± 0:00:02 | 0:06:58 ± 0:01:30 | 0:15:09 ± 0:03:32 |
+| breast-cancer-wisconsin | 0:00:03 ± 0:00:00 | 0:00:36 ± 0:00:05 | 0:00:53 ± 0:00:16 | 0:01:39 ± 0:00:52 | 0:07:41 ± 0:00:49 |
+| red-wine | 0:00:21 ± 0:00:03 | 0:07:24 ± 0:01:54 | 0:12:39 ± 0:00:53 | 0:28:56 ± 0:06:30 | 2:03:42 ± 0:05:24 |
+| titanic | 0:02:00 ± 0:00:24 | 0:01:53 ± 0:00:24 | 0:04:15 ± 0:00:07 | 0:21:51 ± 0:03:55 | 1:38:15 ± 0:22:49 |
+| tabular-benchmark | 0:02:25 ± 0:00:10 | 0:00:58 ± 0:00:07 | 0:01:54 ± 0:00:07 | 0:05:21 ± 0:00:29 | 0:19:50 ± 0:01:30 |
+| banking-marketing | 0:02:53 ± 0:00:34 | 0:01:48 ± 0:00:20 | 0:04:43 ± 0:00:47 | 0:26:20 ± 0:13:18 | pending |
+| adult_income_dataset | 0:05:46 ± 0:00:50 | 0:02:14 ± 0:00:21 | 0:06:38 ± 0:01:25 | 0:27:57 ± 0:05:01 | pending |
+| diabetes-readmission | 0:08:20 ± 0:00:38 | 0:02:59 ± 0:00:51 | 0:12:47 ± 0:02:02 | 0:53:11 ± 0:09:01 | pending |
+| blog-feedback | 0:18:38 ± 0:00:09 | 0:04:06 ± 0:00:36 | 0:38:00 ± 0:04:30 | 3:51:18 ± 1:15:19 | pending |
+| higgs | 0:52:19 ± 0:01:12 | 0:47:54 ± 0:01:19 | 1:02:21 ± 0:01:31 | 2:25:32 ± 0:33:27 | pending |
+| topquark | 0:05:43 ± 0:00:06 | 0:11:28 ± 0:01:04 | 0:23:56 ± 0:07:13 | 1:08:59 ± 0:36:13 | pending |
+| covertype | 0:16:50 ± 0:01:14 | 0:21:16 ± 0:01:04 | 2:05:22 ± 0:02:46 | 12:01:04 ± 1:35:49 | pending |
+
 
 Active runs
 red-wine population_4096 seed 33: step 36600; training; train={'loss': 0.7488835453987122, 'accuracy': 0.6923879040667362, 'balanced_accuracy': 0.35933561305288, 'rows': 959}; best_train={'loss': 0.7488835453987122, 'accuracy': 0.6923879040667362, 'balanced_accuracy': 0.35933561305288, 'rows': 959}
@@ -541,3 +563,4 @@ runs/*.pt: resumable state; runs/*.best.pt: minimum training-CE checkpoint; runs
 verification/: numerical, data coverage, and independent final metric checks.
 training_loss_grid.png/svg, validation_loss_grid.png/svg, test_accuracy_by_population.png/svg, figures/: scientific plots.
 CANCEL: create this file to stop this experiment and its worker process group. No cancelled experiment is automatically restarted.
+

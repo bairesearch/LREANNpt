@@ -65,6 +65,10 @@ Candidates are evaluated sequentially under `torch.no_grad()`, replaying seeds t
 
 Larger populations can reduce estimator noise but increase computation. The supplied graph plots validation loss against steps, not runtime, and supplies no dataset, model or full training recipe. These defaults implement the described estimator; matching or beating backpropagation on a particular task requires benchmarking and tuning sigma and learning rate.
 
+With `populationPertubationOptimiseTrainingIterations=True`, `trainSetLossOptimisation` controls checkpoint selection and stopping. `False` (the default) selects minimum validation cross-entropy and uses validation-loss plateaus to trigger learning-rate reductions and eventually stop training; validation accuracy does not influence these decisions. `True` restores the original training-loss policy, including stopping at 100% training accuracy and training cross-entropy ≤ 0.01 after the minimum training period. Equal selected-split losses retain the earlier checkpoint. In validation-loss mode, the production loader holds out validation data from training before preprocessing when no validation split is provided; training-loss mode skips this added holdout. Test data is used only for final evaluation.
+
+The full-data benchmark reads `trainSetLossOptimisation` from `protocol.json` and applies the selected loss-based controller to population perturbation and Adam, retaining its existing train/validation/test partitions in both modes. Its final report includes train, validation, and test accuracy for every dataset and method, plus elapsed run time as mean ± sample standard deviation over three seeds. Start a fresh run to adopt this protocol or change modes; existing checkpoints cannot be resumed under a different policy. See [benchmark instructions](population_pertubation_train_convergence_full/README.txt).
+
 ### References
 
 * https://github.com/bairesearch/LREANNtf (SUANN)

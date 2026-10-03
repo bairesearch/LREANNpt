@@ -41,15 +41,21 @@ if(useStochasticUpdates):
 		#includes all layers, biases and trainable normalisation parameters.
 		populationPertubationOptimiseTrainingIterations = False	#default: True #orig: False
 		if(populationPertubationOptimiseTrainingIterations):
-			#Full training-set loss controls checkpoint selection and stopping; test data is never consulted.
+			#True restores original training-loss convergence; False selects/stops on validation loss.
+			trainSetLossOptimisation = False
+			populationPertubationValidationSplitSize = 0.2	#production only: fraction of training rows held out before preprocessing
+			populationPertubationValidationSplitSeed = 20260930
 			populationPertubationEvaluateEveryIterations = 100
 			populationPertubationMinimumTrainingIterations = 2000
 			populationPertubationTrainingPatience = 2000
 			populationPertubationTrainingMinDelta = 0.0001
 			populationPertubationTrainingRelativeMinDelta = 0.001
+			populationPertubationTrainingLossGoal = 0.01	#training-loss mode only: also requires 100% train accuracy
+			populationPertubationValidationPatience = 2000
+			populationPertubationValidationMinDelta = 0.0001
+			populationPertubationValidationRelativeMinDelta = 0.001
 			populationPertubationTrainingLearningRateFactor = 0.2
 			populationPertubationTrainingLearningRateReductions = 3
-			populationPertubationTrainingLossGoal = 0.01
 			populationPertubationTrainingMaxNumericalRecoveries = 5
 	elif(useEvolutionarySearch):	#ES:EGGROLL
 		evolutionaryPopulationSize = 64	#default: 8, 64	#number of perturbations per matrix update (N)
